@@ -5,6 +5,8 @@
 # Draws the board onto the window
 
 from pyglet.gl import *
+from pyglet.resource import image
+from pyglet.sprite import Sprite
 from util import scale
 
 class BoardHandlers(object):
@@ -12,13 +14,20 @@ class BoardHandlers(object):
     def __init__(self, window):
         self.window = window
         self.board = {}
+        self.sprites = {
+                'b': Sprite(img=image('black_checker.png'))
+                'B': Sprite(img=image('black_king.png'))
+                'r': Sprite(img=image('red_checker.png'))
+                'R': Sprite(img=image('red_king.png'))
+            }
 
     def on_draw(self):
         glClear(GL_COLOR_BUFFER_BIT)
         glLoadIdentity()
         glTranslatef(self.window.width // 2 - scale(400), self.window.height // 2 - scale(400), 0)
         draw_board()
-        draw_pieces(self.board)
+        draw_pieces(self.sprites, self.board)
+
 
 def draw_board():
     glColor3f(0, 0, 0)
@@ -32,8 +41,17 @@ def draw_board():
             h = w
             draw_square(i * w, j * h, w, h)
 
-def draw_pieces(board):
-    pass
+
+def draw_pieces(sprites, board):
+    if not board or not hasattr(board, 'board'):
+        return
+
+    for square in board.board:
+        sprite = sprites.get(square)
+        if not sprite:
+            continue
+
+
 
 
 def draw_square(x, y, w, h):
