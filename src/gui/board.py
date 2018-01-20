@@ -4,6 +4,9 @@
 
 # Draws the board onto the window
 
+from pyglet import gl
+from pyglet.graphics import draw
+
 
 class BoardHandlers(object):
 
@@ -11,4 +14,9 @@ class BoardHandlers(object):
         self.window = window
 
     def on_draw(self):
-        print('drawing')
+        pass
+        # draw(1, gl.GL_QUADS,
+        # ('v2i', (100, 100,
+        #          150, 100,
+        #          150, 150,
+        #          100, 150)))
