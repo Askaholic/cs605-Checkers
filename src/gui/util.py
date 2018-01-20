@@ -12,12 +12,11 @@ def init(w):
     window = w
 
 
-def scaleX(x):
-    "Scales based on the current window width"
-    return x * window.height / 1000
+def scale(x):
+    "Scales based on the current window height"
+    w = window.width
+    h = window.height
+    if (w < h):
+        return x * w / 1000
 
-
-
-def scaleY(y):
-    "Scales based on the current window width"
-    return y * window.height / 1000
+    return x * h / 1000

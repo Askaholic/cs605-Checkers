@@ -17,6 +17,7 @@ from util import init
 window = Window(
     resizable=True
 )
+window.set_minimum_size(300, 300)
 
 #
 # label = Label('Hello World',
