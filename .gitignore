@@ -1,3 +1,4 @@
 .DH_Store
 .venv
-src/__pycache__/
+__pycache__
+
