@@ -2,8 +2,8 @@
 
 import board
 
-# b = board.Board()
+b = board.Board()
 
 
 # b.setupBoard()
-# b.printBoard()
+b.printBoard()
