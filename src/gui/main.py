@@ -5,7 +5,7 @@
 # Main script to start the app gui. Run this to open the appliecation.
 
 from board import BoardHandlers
-from pyglet.gl import *
+from pyglet.gl import glClearColor
 from pyglet import app, gl, resource
 from pyglet.graphics import draw
 from pyglet.text import Label
@@ -60,6 +60,7 @@ def main():
     init(window)
 
     try:
+        glClearColor(112 / 255, 166 / 255, 1, 0)
         app.run()
     except KeyboardInterrupt as e:
         print("Exiting...")
