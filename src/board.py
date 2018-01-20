@@ -5,9 +5,8 @@
 class Board(object):
 
 	def __init__(self):
-
 		
-		self.board = [[' ' for x in range(8)] for y in range(8)]
+		self.board = [32]
 
 
 	def setupBoard(self):
@@ -42,5 +41,21 @@ class Board(object):
 
 
 	def printBoard(self):
-		for row in self.board:
-			print(row)
+		for x in range(8):
+			for y in range(8):
+
+				if (x & 2 == 0):
+
+					
+
+				else:
+
+
+
+
+
+
+
+
+
+
