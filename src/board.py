@@ -6,27 +6,41 @@ class Board(object):
 
 	def __init__(self):
 		
-		self.board = [' ']*32
+		self.board = ['1']*32
 
 
 	def setupBoard(self):
 
-		currentTile = 0
-		currentRow = 0
+		for checker in range(12):
+			self.board[checker] = 'r'
+			self.board[31 - checker] = 'b'
 
-
+	def printRawBoard(self):
+		print(self.board)
 
 
 	def printBoard(self):
-		for x in range(8):
-			for y in range(8):
 
-				if (y % 2 == 0):
-					print(' ',end = '')
-				else:
-					print(self.board[y], end= '')
+		board = ''
 
-			print()
+		board += '\n'
+
+		# odd switch - Switch to next row
+		odd = True
+		for tile in range(32):
+
+			if (tile % 4 == 0 and tile != 0):
+
+				odd = not odd
+				board += '\n'
 
 
+			if (not odd):
+				board += ' ' + self.board[tile]
 
+			else:
+				board += self.board[tile] + ' '
+
+		board += '\n'
+		
+		print(board)
