@@ -58,7 +58,7 @@ class Board(object):
 		board += '\n'
 
 		# odd switch - Switch to next row
-		odd = True
+		odd = False
 		for tile in range(32):
 
 			if (tile % 4 == 0 and tile != 0):
@@ -72,6 +72,8 @@ class Board(object):
 
 			else:
 				board += self.board[tile] + ' '
+
+
 
 		board += '\n'
 		
