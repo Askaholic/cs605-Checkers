@@ -19,14 +19,14 @@ class Board(object):
 	def printRawBoard(self):
 		print(self.board)
 
-
+	# Possible move vectors. I can see a pattens for some 
+	# rows, might be able to implement a better approach.
 	def buildMoveTable(self):
-		self.moveTable = 
-		{
+		self.moveTable = {
 			0: [4,5],
 			1: [5,6],
 			2: [6,7],
-			3: [7]
+			3: [7],
 
 			4: [0,8],
 			5: [0,1,8,9],
@@ -47,8 +47,6 @@ class Board(object):
 			17: [13,14,21,22],
 			18: [14,15,22,23],
 			19: [15,23]
-
-
 
 		}
 
