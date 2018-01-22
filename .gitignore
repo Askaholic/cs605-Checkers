@@ -1,1 +1,4 @@
 .DH_Store
+.venv
+__pycache__
+

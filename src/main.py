@@ -1,4 +1,10 @@
-# Jacob McKenna & Rohan Weeden
+#!/usr/bin/env python3.6
 
-print("CS605 AI Checkers!")
+import board
+
+b = board.Board()
+
+
+# b.setupBoard()
+b.printBoard()
 
