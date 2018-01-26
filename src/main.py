@@ -26,4 +26,4 @@ print('initial board')
 for i in range(100):
 	print('move', i)
 	b.moveGenerator()
-	time.sleep(.25)
+	time.sleep(.8)

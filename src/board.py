@@ -85,7 +85,7 @@ class Board(object):
 					for move in possMoves:
 
 						if (self.board[move] == '1'):
-							
+
 							# Moves, but can move backwards... for now...
 							self.board[move] = 'r'
 							self.board[i] = '1'
@@ -98,8 +98,28 @@ class Board(object):
 						break
 		else:
 
+			for i in range(32):
+				
+				if (self.board[i] == 'b'):
+
+					possMoves = moveTable[i]
+
+					for move in possMoves:
+
+						if (self.board[move] == '1'):
+
+							# Moves, but can move backwards... for now...
+							self.board[move] = 'b'
+							self.board[i] = '1'
+							
+							self.redPlayer = True
+							break
+					
+					# There should always be a move, 
+					if (self.redPlayer):
+						break
 			# No black player yet, we just overwrite them for now. 
-			self.redPlayer = True
+
 
 
 
