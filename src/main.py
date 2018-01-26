@@ -9,13 +9,14 @@ import board
 import sys
 import time
 
+from gui.main import main
 # Create board object
 b = board.Board()
 # print('board size in bytes:', sys.getsizeof(b))
 
 # Visual testing
 # Ten moves
-print()	
+print()
 
 print('initial board')
 print()

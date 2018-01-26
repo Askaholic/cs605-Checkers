@@ -7,7 +7,7 @@
 from pyglet.gl import *
 from pyglet.resource import image
 from pyglet.sprite import Sprite
-from util import scale
+from .util import scale
 
 class BoardHandlers(object):
 
@@ -15,9 +15,9 @@ class BoardHandlers(object):
         self.window = window
         self.board = {}
         self.sprites = {
-                'b': Sprite(img=image('black_checker.png'))
-                'B': Sprite(img=image('black_king.png'))
-                'r': Sprite(img=image('red_checker.png'))
+                'b': Sprite(img=image('black_checker.png')),
+                'B': Sprite(img=image('black_king.png')),
+                'r': Sprite(img=image('red_checker.png')),
                 'R': Sprite(img=image('red_king.png'))
             }
 

@@ -4,13 +4,13 @@
 
 # Main script to start the app gui. Run this to open the appliecation.
 
-from board import BoardHandlers
+from .board import BoardHandlers
 from pyglet.gl import glClearColor
 from pyglet import app, gl, resource
 from pyglet.graphics import draw
 from pyglet.text import Label
 from pyglet.window import Window, key
-from util import init
+from .util import init
 
 
 # Global window object
@@ -49,7 +49,7 @@ def on_key_press(symbol, modifiers):
 def main():
     global window
 
-    resource.path = ["./resources"]
+    resource.path = ["../assets"]
     resource.reindex()
 
     window.push_handlers(
