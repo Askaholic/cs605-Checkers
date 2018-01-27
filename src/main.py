@@ -7,14 +7,13 @@
 # Board class and object
 import board
 import sys
+import os
 import time
 
-# Create board object
 b = board.Board()
 # print('board size in bytes:', sys.getsizeof(b))
 
-# Visual testing
-# Ten moves
+
 print()	
 
 print('initial board')
@@ -22,8 +21,12 @@ print()
 b.printBoard()
 print()
 print('initial board')
+time.sleep(1.8)
+os.system('clear')
 
 for i in range(100):
 	print('move', i)
-	b.moveGenerator()
-	time.sleep(.8)
+	if (b.moveGenerator()):
+		break
+	time.sleep(5)
+	os.system('clear')
