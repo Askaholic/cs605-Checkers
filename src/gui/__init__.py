@@ -6,7 +6,7 @@
 
 
 from .board import BoardHandlers
-from pyglet.gl import glClearColor
+from pyglet.gl import glClearColor, glBlendFunc, glEnable, GL_BLEND, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
 from pyglet import app, gl, resource
 from pyglet.graphics import draw
 from pyglet.window import Window, key
@@ -26,6 +26,8 @@ class CheckersGame(Window):
         init(self)
 
         self.push_handlers(BoardHandlers(self))
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        glEnable(GL_BLEND)
         glClearColor(112 / 255, 166 / 255, 1, 0)
 
     def on_key_press(self, symbol, modifiers):
