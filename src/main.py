@@ -1,30 +1,50 @@
 #!/usr/bin/env python3.6
 
-# Jacob McKenna
+# Jacob McKenna, Rohan Weeden
 # UAF CS605 AI
-# Created 1/19/18
+# Created: Jan. 19, 2018
 
 # Board class and object
-import board
+from board import Board
 import sys
-import time
+from time import time
 
-from gui.main import main
-# Create board object
-b = board.Board()
-# print('board size in bytes:', sys.getsizeof(b))
+from pyglet import clock
+from gui import CheckersGame
 
-# Visual testing
-# Ten moves
-print()
 
-print('initial board')
-print()
-b.printBoard()
-print()
-print('initial board')
+class GameBoard(object):
+	"""docstring for GameBoard."""
+	def __init__(self):
+		self.board = Board()
+		self.turns = 0
 
-for i in range(100):
-	print('move', i)
-	b.moveGenerator()
-	time.sleep(.8)
+		# Visual testing
+		print()
+
+		print('initial board')
+		print()
+		self.board.printBoard()
+		print()
+		print('initial board')
+
+		self.timeout = None
+
+	def update(self, dt):
+		if self.timeout:
+			if self.timeout > time():
+				return
+			else:
+				self.timeout = None
+
+		if self.turns < 100:
+			print('move', self.turns)
+			self.board.moveGenerator()
+			self.turns += 1
+			self.timeout = time() + .8
+
+
+game = CheckersGame(GameBoard())
+clock.schedule_interval(game.update, 1/60.0)
+
+game.run()

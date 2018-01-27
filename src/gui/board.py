@@ -52,8 +52,6 @@ def draw_pieces(sprites, board):
             continue
 
 
-
-
 def draw_square(x, y, w, h):
     glBegin(GL_POLYGON)
     glVertex2f(x, y)
