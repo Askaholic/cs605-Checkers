@@ -2,9 +2,11 @@
 .venv
 __pycache__
 
+
 # C++
 **.o
 **.out
+**.so
 
 # Misc
 .DH_Store

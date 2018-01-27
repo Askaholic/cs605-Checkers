@@ -112,7 +112,6 @@ class Board(object):
                     for move in possMoves[2:]:
 
                         if (self.board[move] == '1'):
-
                             self.board[move] = 'r'
                             self.board[i] = '1'
 
@@ -137,9 +136,7 @@ class Board(object):
 
                     # Moves up the board only due to list slice.
                     for move in possMoves[:2]:
-
                         if (self.board[move] == '1'):
-
                             # Moves, but can move backwards... for now...
                             self.board[move] = 'b'
                             self.board[i] = '1'
