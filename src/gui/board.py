@@ -13,7 +13,6 @@ class BoardHandlers(object):
 
     def __init__(self, window):
         self.window = window
-        self.board = {}
         self.sprites = {
                 'b': Sprite(img=image('black_checker.png')),
                 'B': Sprite(img=image('black_king.png')),
@@ -26,7 +25,7 @@ class BoardHandlers(object):
         glLoadIdentity()
         glTranslatef(self.window.width // 2 - scale(400), self.window.height // 2 - scale(400), 0)
         draw_board()
-        draw_pieces(self.sprites, self.board)
+        draw_pieces(self.sprites, self.window.game_board)
 
 
 def draw_board():
@@ -46,10 +45,22 @@ def draw_pieces(sprites, board):
     if not board or not hasattr(board, 'board'):
         return
 
-    for square in board.board:
+    for i, square in enumerate(board.board.board):
         sprite = sprites.get(square)
         if not sprite:
             continue
+
+        x = (sprite.width // 2)
+        y = (sprite.height // 2)
+
+        x += ((i % 4) * 200)
+        y += (700 - ((i // 4) * 100))
+        if ( i // 4) % 2 == 1:
+            x += 100
+
+        sprite.x = scale(x)
+        sprite.y = scale(y)
+        sprite.draw()
 
 
 def draw_square(x, y, w, h):
