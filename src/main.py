@@ -24,9 +24,10 @@ print('initial board')
 time.sleep(1.8)
 os.system('clear')
 
+
 for i in range(100):
 	print('move', i)
 	if (b.moveGenerator()):
 		break
-	time.sleep(5)
+	time.sleep(3)
 	os.system('clear')
