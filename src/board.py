@@ -6,7 +6,7 @@ import sys
 # RANDOM Gaming!!!!
 import random
 
-# Possible move vectors. I can see a pattens for some 
+# Possible move vectors. I can see a pattens for some
 # rows, might be able to implement a better approach.
 moveTable = {
 	# -1 is a position they cannot move. Allows for [2:] list splitting.
@@ -56,14 +56,14 @@ moveTable = {
 class Board(object):
 
 	def __init__(self):
-		
+
 		self.board = ['1']*32
 		self.redPlayer = True
 		self.winCondition = -1
 
 		self.setupBoard()
 
-	# Sets up the pieces. 
+	# Sets up the pieces.
 	def setupBoard(self):
 
 		for checker in range(12):
@@ -90,28 +90,28 @@ class Board(object):
 			print('Red is the winner - Black has no more pieces!')
 
 		# Print the winning board!!!
-		self.printBoard()
+		# self.printBoard()
 
 
 
 	def moveGenerator(self):
 
-		if(self.redPlayer):
-			print("Red Player")
-		else:
-			print("Black Player")
+		# if(self.redPlayer):
+		# 	print("Red Player")
+		# else:
+		# 	print("Black Player")
 
 		if (self.redPlayer):
 
 			for i in range(32):
-				
+
 				if (self.board[i] == 'r'):
 
 					possMoves = moveTable[i]
-					
+
 					# TESTING
 					possMoves2 = moveTable[i][2:]
-					print('Piece at pos', i, 'possible moves',possMoves2)
+					# print('Piece at pos', i, 'possible moves',possMoves2)
 
 
 					# Moves down the board only due to list slice.
@@ -121,11 +121,11 @@ class Board(object):
 
 							self.board[move] = 'r'
 							self.board[i] = '1'
-							
+
 							self.redPlayer = False
 							break
-					
-					# RED player has taken their turn. 
+
+					# RED player has taken their turn.
 					if (not self.redPlayer):
 						break
 
@@ -139,7 +139,7 @@ class Board(object):
 		else:
 
 			for i in range(32):
-				
+
 				if (self.board[i] == 'b'):
 
 					possMoves = moveTable[i]
@@ -152,10 +152,10 @@ class Board(object):
 							# Moves, but can move backwards... for now...
 							self.board[move] = 'b'
 							self.board[i] = '1'
-							
+
 							self.redPlayer = True
 							break
-					
+
 					# BLACK player has taken their turn.
 					if (self.redPlayer):
 						break
@@ -166,12 +166,12 @@ class Board(object):
 					self.winCondition = 1
 					self.winner()
 					return 1
-			
-		self.printBoard()
+
+		# self.printBoard()
 
 	# Don't touch the print function...
 	# Actually, it just prints the board.
-	# It really does, by adding a space before 
+	# It really does, by adding a space before
 	# and after the checker in the appropriate places.
 	def printBoard(self):
 
@@ -197,13 +197,10 @@ class Board(object):
 				board += self.board[tile] + ' '
 
 			else:
-				board += ' ' + self.board[tile] 
+				board += ' ' + self.board[tile]
 
 
 		# Extra newline at end of board
 		board += '\n'
-		
+
 		print(board)
-
-
-

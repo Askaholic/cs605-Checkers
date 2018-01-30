@@ -22,11 +22,11 @@ class GameBoard(object):
 		# Visual testing
 		print()
 
-		print('initial board')
-		print()
-		self.board.printBoard()
-		print()
-		print('initial board')
+		# print('initial board')
+		# print()
+		# self.board.printBoard()
+		# print()
+		# print('initial board')
 
 		self.timeout = None
 
@@ -38,7 +38,7 @@ class GameBoard(object):
 				self.timeout = None
 
 		if self.turns < 100:
-			print('move', self.turns)
+			# print('move', self.turns)
 			self.board.moveGenerator()
 			self.turns += 1
 			self.timeout = time() + .8
