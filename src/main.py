@@ -44,7 +44,8 @@ class GameBoard(object):
 			self.timeout = time() + .8
 
 
-game = CheckersGame(GameBoard())
-clock.schedule_interval(game.update, 1/60.0)
+if __name__ == '__main__':
+	game = CheckersGame(GameBoard())
+	clock.schedule_interval(game.update, 1/60.0)
 
-game.run()
+	game.run()
