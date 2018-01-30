@@ -49,7 +49,7 @@ class BoardHandlers(object):
 
         # Tell a piece to move
         move_to = self.get_piece_under(x, y)
-        # self.window.game_board.board.take_move(self.dragged['piece'], move_to)
+        self.window.game_board.board.take_move(self.dragged['piece'], move_to)
         self.dragged = None
 
     def adjust_window_coords(self, x, y):
