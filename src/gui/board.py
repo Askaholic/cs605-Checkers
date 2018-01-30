@@ -7,6 +7,7 @@
 from pyglet.gl import *
 from pyglet.resource import image
 from pyglet.sprite import Sprite
+from pyglet.text import Label
 from pyglet.window import mouse
 from .util import scale, inv_scale
 
@@ -21,6 +22,13 @@ class BoardHandlers(object):
                 'R': make_sprite('red_king.png')
             }
         self.dragged = None
+        self.debug_label = Label(
+            'Debug: ',
+            font_name='Times New Roman',
+            font_size=20,
+            anchor_x='center',
+            anchor_y='center'
+        )
 
     def on_draw(self):
         glClear(GL_COLOR_BUFFER_BIT)
@@ -28,6 +36,11 @@ class BoardHandlers(object):
         glTranslatef(self.window.width // 2 - scale(400), self.window.height // 2 - scale(400), 0)
         draw_board()
         draw_pieces(self.sprites, self.window.game_board, self.dragged)
+        self.debug_label.draw()
+
+    def on_mouse_motion(self, x, y, dx, dy):
+        self.debug_label.x = x
+        self.debug_label.y = y
 
     def on_mouse_press(self, x, y, buttons, modifiers):
         if not (buttons & mouse.LEFT):
@@ -41,6 +54,7 @@ class BoardHandlers(object):
         self.dragged['x'], self.dragged['y'] = self.adjust_window_coords(x, y)
 
     def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
+        self.debug_label.text = "Asdf"
         self.dragged['x'],self.dragged['y'] = self.adjust_window_coords(x, y)
 
     def on_mouse_release(self, x, y, button, modifiers):
@@ -123,7 +137,7 @@ def draw_possible_moves(board):
     for tile in enumerate(board.board.board):
         return
 
-    
+
 
 
 
