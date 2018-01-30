@@ -47,15 +47,17 @@ class BoardHandlers(object):
         if self.dragged == None:
             return
 
-        # Tell a piece to move
         move_to = self.get_piece_under(x, y)
+        if(not move_to):
+            self.dragged = None
+            return
         self.window.game_board.board.take_move(self.dragged['piece'], move_to)
         self.dragged = None
 
     def adjust_window_coords(self, x, y):
         rx = x - (self.window.width // 2 - scale(400))
         ry = y - (self.window.height // 2 - scale(400))
-        return (rx, ry)
+        return (int(rx), int(ry))
 
     def get_piece_under(self, x, y):
         rx, ry = self.adjust_window_coords(x, y)
@@ -68,7 +70,7 @@ class BoardHandlers(object):
         if (piece_x % 2 != 0 and piece_y % 2 != 0) or (piece_x % 2 == 0 and piece_y % 2 == 0):
             return None
 
-        return (piece_x // 2 + (7 - piece_y) * 4)
+        return int(piece_x // 2 + (7 - piece_y) * 4)
 
 def make_sprite(imagestr):
     i = image(imagestr)
@@ -115,6 +117,15 @@ def draw_pieces(sprites, board, dragged):
             sprite.set_position(scale(x), scale(y))
         sprite.scale = (scale(1000) / 1000) * 2
         sprite.draw()
+
+def draw_possible_moves(board):
+
+    for tile in enumerate(board.board.board):
+        return
+
+    
+
+
 
 def draw_outline(x, y, w, h):
     glBegin(GL_LINE_LOOP)

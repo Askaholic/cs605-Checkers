@@ -53,11 +53,23 @@ moveTable = {
 
 }
 
+possible_spaces = {
+	0: '1',
+	1: 'r',
+	2: 'R',
+	3: 'b',
+	4: 'B'
+}
+
 class Board(object):
 
 	def __init__(self):
 
 		self.board = ['1']*32
+		self.players = {
+			0: 'red',
+			1: 'black'
+		}
 		self.redPlayer = True
 		self.winCondition = -1
 
@@ -92,82 +104,130 @@ class Board(object):
 		# Print the winning board!!!
 		# self.printBoard()
 
+	def playerMove(self):
+		return 1
 
+	def generateAllPossibleMoves(self, index, moves):
+
+		allPossMoves = []
+
+		# print(moves)
+		for move in moves:
+			if(self.board[move] == '1'):
+				allPossMoves.append(move)
+
+		if(len(allPossMoves) == 0):
+			return []
+
+
+		return [{index: allPossMoves}]
+
+	def isValidMove(self, FROM, TO):
+
+		if (TO < 0 or TO > 31):
+			return False
+
+		if (FROM < 0 or FROM > 31):
+			return False
+
+		return True
+
+
+	def take_move(self, FROM, TO):
+
+		if (not self.isValidMove(FROM, TO)):
+			return None
+
+		piece = self.board[FROM]
+		self.board[FROM] = '1'
+		self.board[TO] = piece
+
+
+	def blackPlayerTurn(self):
+
+		moves = []
+
+		for i in range(32):
+			
+			if (self.board[i] == 'b'):
+
+				moves.extend(self.generateAllPossibleMoves(i, moveTable[i][:2]))
+				print(moves)
+
+		for move in range(len(moves)):
+			print(moves[move])
+			# 	# Moves up the board only due to list slice.
+			# 	for move in moveTable[i][:2]:
+
+			# 		if (self.board[move] == '1'):
+
+			# 			# Moves, but can move backwards... for now...
+			# 			self.board[move] = 'b'
+			# 			self.board[i] = '1'
+						
+			# 			self.redPlayer = True
+			# 			break
+				
+			# 	# BLACK player has taken their turn.
+			# 	if (self.redPlayer):
+			# 		break
+
+			# # Gone through all the checkers and not a single BLACK checker can move.
+			# if (i == 31 and not self.redPlayer):
+			# 	# Red cannot make anymore moves!
+			# 	self.winCondition = 1
+			# 	self.winner()
+			# 	return 1
+
+
+	def redPlayerTurn(self):
+
+		for i in range(32):
+			
+			if (self.board[i] == 'r'):
+
+				possMoves = moveTable[i]
+
+				# Moves down the board only due to list slice.
+				for move in possMoves[2:]:
+
+					if (self.board[move] == '1'):
+
+						self.board[move] = 'r'
+						self.board[i] = '1'
+						
+						self.redPlayer = False
+						break
+				
+				# RED player has taken their turn. 
+				if (not self.redPlayer):
+					break
+
+			# Gone through all the checkers and not a single RED checker can move.
+			if (i == 31 and self.redPlayer):
+				# Red cannot make anymore moves!
+				self.winCondition = 0
+				self.winner()
+				return 1
 
 	def moveGenerator(self):
 
-		# if(self.redPlayer):
-		# 	print("Red Player")
-		# else:
-		# 	print("Black Player")
+		# Visual Testing
+		if(self.redPlayer):
+			print("Red Player")
+		else:
+			print("Black Player")
+
 
 		if (self.redPlayer):
-
-			for i in range(32):
-
-				if (self.board[i] == 'r'):
-
-					possMoves = moveTable[i]
-
-					# TESTING
-					possMoves2 = moveTable[i][2:]
-					# print('Piece at pos', i, 'possible moves',possMoves2)
-
-
-					# Moves down the board only due to list slice.
-					for move in possMoves[2:]:
-
-						if (self.board[move] == '1'):
-
-							self.board[move] = 'r'
-							self.board[i] = '1'
-
-							self.redPlayer = False
-							break
-
-					# RED player has taken their turn.
-					if (not self.redPlayer):
-						break
-
-				# Gone through all the checkers and not a single RED checker can move.
-				if (i == 31 and self.redPlayer):
-					# Red cannot make anymore moves!
-					self.winCondition = 0
-					self.winner()
-					return 1
+			# self.generateAllPossibleMoves()
+			self.redPlayerTurn()
 
 		else:
-
-			for i in range(32):
-
-				if (self.board[i] == 'b'):
-
-					possMoves = moveTable[i]
-
-					# Moves up the board only due to list slice.
-					for move in possMoves[:2]:
-
-						if (self.board[move] == '1'):
-
-							# Moves, but can move backwards... for now...
-							self.board[move] = 'b'
-							self.board[i] = '1'
-
-							self.redPlayer = True
-							break
-
-					# BLACK player has taken their turn.
-					if (self.redPlayer):
-						break
-
-				# Gone through all the checkers and not a single BLACK checker can move.
-				if (i == 31 and not self.redPlayer):
-					# Red cannot make anymore moves!
-					self.winCondition = 1
-					self.winner()
-					return 1
-
-		# self.printBoard()
+			# self.generateAllPossibleMoves()
+			self.blackPlayerTurn()
+			
+		self.printBoard()
 
 	# Don't touch the print function...
 	# Actually, it just prints the board.
