@@ -52,10 +52,6 @@ std::vector<std::vector<int>> moveTable = {
     {27, -1,		-1, -1}
 };
 
-struct board {
-    char tiles[32];
-};
-
 board the_board = {};
 
 
@@ -74,4 +70,8 @@ void setup_board() {
         the_board.tiles[i] = 'r';
         the_board.tiles[31 - i] = 'b';
     }
+}
+
+board get_board() {
+  return the_board;
 }

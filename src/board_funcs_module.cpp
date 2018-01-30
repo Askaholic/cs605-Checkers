@@ -17,16 +17,15 @@
 
 static PyObject * test_wrapper(PyObject * self, PyObject * args) {
     char * input;
-    char * result;
-    PyObject * ret;
-
     // Parse arguments
     if (!PyArg_ParseTuple(args, "s", &input)) {
         return NULL;
     }
 
-    result = test(input);
+    char * result;
+    PyObject * ret;
 
+    result = test(input);
     ret = PyUnicode_FromString(result);
     free(result);
 
@@ -42,6 +41,26 @@ static PyObject * setup_board_wrapper(PyObject * self, PyObject * args) {
     Py_RETURN_NONE;
 }
 
+static PyObject * get_board_wrapper(PyObject * self, PyObject * args) {
+    // There are no arguments
+    if (!PyArg_ParseTuple(args, "")) {
+        return NULL;
+    }
+
+    auto list = PyList_New(32);
+    auto b = get_board();
+    for (size_t i = 0; i < 32; i++) {
+      size_t len = 1;
+      if (b.tiles[i] == 0x0) {
+        len = 0;
+      }
+      if (PyList_SetItem(list, i, PyUnicode_FromStringAndSize(&b.tiles[i], len)) == -1) {
+        // Handle error here?
+      }
+    }
+    return list;
+}
+
 
 /****************************************************************/
 /*****                    Module Exports                    *****/
@@ -51,6 +70,7 @@ static PyObject * setup_board_wrapper(PyObject * self, PyObject * args) {
 static PyMethodDef BoardFuncMethods[] = {
     { "test", test_wrapper, METH_VARARGS, "Testing"},
     { "setup_board", setup_board_wrapper, METH_VARARGS, "Setup the initial board state"},
+    { "get_board", get_board_wrapper, METH_VARARGS, "Get the current board state"},
     { NULL, NULL, 0, NULL}
 };
 
