@@ -4,6 +4,7 @@
 
 // Shared library for code that needs to be fast and small...
 
+#include <stdexcept>
 #include <string>
 #include <string.h>
 #include <vector>
@@ -53,12 +54,22 @@ std::vector<std::vector<int>> moveTable = {
 };
 Board the_board = {};
 
-const char& Board::operator[](size_t i) {
-  return _tiles[i];
+char Board::operator[](size_t i) {
+  if (i < 0 || i > 31) { throw std::out_of_range("Board index out of range " + std::to_string(i)); }
+  if (i & 0x1) {
+    return _tiles[i / 2] & 0x0F;
+  }
+  return (_tiles[i / 2] >> 4) & 0x0F;
 }
 
 void Board::set(size_t i, char val) {
-  _tiles[i] = val;
+  if (i < 0 || i > 31) { throw std::out_of_range("Board index out of range " + std::to_string(i)); }
+  if (i & 0x1) {
+    _tiles[i / 2] = (_tiles[i / 2] & 0xF0) | (val & 0x0F);
+  }
+  else {
+    _tiles[i / 2] = (_tiles[i / 2] & 0x0F) | ((val & 0x0F) << 4);
+  }
 }
 
 char * test(char * str) {
@@ -73,11 +84,15 @@ char * test(char * str) {
 
 void setup_board() {
     for (size_t i = 0; i < 12; i++) {
-        the_board.set(i, 'r');
-        the_board.set(31 - i, 'b');
+        the_board.set(i, RED_CHECKER);
+        the_board.set(31 - i, BLACK_CHECKER);
     }
 }
 
 Board get_board() {
   return the_board;
+}
+
+std::vector<Board> get_possible_moves(Board board, int player) {
+
 }

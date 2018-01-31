@@ -49,18 +49,24 @@ static PyObject * get_board_wrapper(PyObject * self, PyObject * args) {
 
     auto list = PyList_New(32);
     auto b = get_board();
-    char * tmp = new char[1];
     for (size_t i = 0; i < 32; i++) {
       size_t len = 1;
       if (b[i] == BLANK) {
         len = 0;
       }
-      strncpy(tmp, &b[i], 1);
-      if (PyList_SetItem(list, i, PyUnicode_FromStringAndSize(tmp, len)) == -1) {
+      char tmp = b[i];
+      switch (tmp) {
+        case BLANK: tmp = ' '; break;
+        case BLACK_CHECKER: tmp = 'b'; break;
+        case RED_CHECKER: tmp = 'r'; break;
+        case BLACK_KING: tmp = 'B'; break;
+        case RED_KING: tmp = 'R'; break;
+        default: tmp = '?';
+      }
+      if (PyList_SetItem(list, i, PyUnicode_FromStringAndSize(&tmp, len)) == -1) {
         // Handle error here?
       }
     }
-    free(tmp);
     return list;
 }
 

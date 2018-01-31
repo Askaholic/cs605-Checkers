@@ -18,10 +18,10 @@
 
 class Board {
 public:
-    const char& operator[](size_t index);
+    char operator[](size_t index);
     void set(size_t index, char value);
 private:
-    char _tiles[32];
+    char _tiles[16];
 };
 
 // Test function. To verify that the module is installed and works
