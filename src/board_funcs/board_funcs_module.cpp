@@ -51,10 +51,11 @@ static PyObject * get_board_wrapper(PyObject * self, PyObject * args) {
     auto b = get_board();
     for (size_t i = 0; i < 32; i++) {
       size_t len = 1;
-      if (b.tiles[i] == 0x0) {
+      if (b[i] == BLANK) {
         len = 0;
       }
-      if (PyList_SetItem(list, i, PyUnicode_FromStringAndSize(&b.tiles[i], len)) == -1) {
+      char tmp = b[i];
+      if (PyList_SetItem(list, i, PyUnicode_FromStringAndSize(tmp, len)) == -1) {
         // Handle error here?
       }
     }
