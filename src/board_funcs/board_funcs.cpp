@@ -51,13 +51,15 @@ std::vector<std::vector<int>> moveTable = {
     {26, 27, 	-1, -1},
     {27, -1,		-1, -1}
 };
+Board the_board = {};
 
 const char& Board::operator[](size_t i) {
   return _tiles[i];
 }
 
-Board the_board = {};
-
+void Board::set(size_t i, char val) {
+  _tiles[i] = val;
+}
 
 char * test(char * str) {
     std::string in(str);
@@ -70,10 +72,10 @@ char * test(char * str) {
 }
 
 void setup_board() {
-    // for (size_t i = 0; i < 12; i++) {
-    //     the_board.tiles[i] = 'r';
-    //     the_board.tiles[31 - i] = 'b';
-    // }
+    for (size_t i = 0; i < 12; i++) {
+        the_board.set(i, 'r');
+        the_board.set(31 - i, 'b');
+    }
 }
 
 Board get_board() {

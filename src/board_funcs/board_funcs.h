@@ -7,15 +7,19 @@
 #ifndef PY_BOARD_FUNCS_H
 #define PY_BOARD_FUNCS_H
 
-#define BLANK 0x0
-#define BLACK_CHECKER 0x1
-#define RED_CHECKER 0x2
-#define BLACK_KING 0x3
-#define RED_KING 0x4
+#include <cstddef>
+#include <vector>
+
+#define BLANK 0x00
+#define BLACK_CHECKER 0x01
+#define RED_CHECKER 0x02
+#define BLACK_KING 0x03
+#define RED_KING 0x04
 
 class Board {
 public:
-    const char& operator[](size_t, index);
+    const char& operator[](size_t index);
+    void set(size_t index, char value);
 private:
     char _tiles[32];
 };
