@@ -15,7 +15,7 @@
 
 class Board {
 public:
-    const char& operator[](size_t);
+    const char& operator[](size_t, index);
 private:
     char _tiles[32];
 };
@@ -25,6 +25,8 @@ char * test(char * str);
 
 void setup_board();
 Board get_board();
+
+std::vector<Board> get_possible_moves(Board board, int player);
 
 
 #endif

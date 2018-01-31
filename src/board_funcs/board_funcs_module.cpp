@@ -49,16 +49,18 @@ static PyObject * get_board_wrapper(PyObject * self, PyObject * args) {
 
     auto list = PyList_New(32);
     auto b = get_board();
+    char * tmp = new char[1];
     for (size_t i = 0; i < 32; i++) {
       size_t len = 1;
       if (b[i] == BLANK) {
         len = 0;
       }
-      char tmp = b[i];
+      strncpy(tmp, &b[i], 1);
       if (PyList_SetItem(list, i, PyUnicode_FromStringAndSize(tmp, len)) == -1) {
         // Handle error here?
       }
     }
+    free(tmp);
     return list;
 }
 
