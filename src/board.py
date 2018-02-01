@@ -50,45 +50,45 @@ moveTable = {
 
 jumpTable = {
 
-	0: 	[-1,-1,		-1,9],
-	1: 	[-1,-1,		8,10],
-	2: 	[-1,-1,		9,11],
-	3: 	[-1,-1,		10,-1],
+	0: 	[-1,-1,        -1,(9,5)],
+	1: 	[-1,-1,		(8,5),(10,6)],
+	2: 	[-1,-1,		(9,6),(11,7)],
+	3: 	[-1,-1,		(10,7),-1],
 
-	4: 	[-1,-1,		-1,13],
-	5: 	[-1,-1,		12,14],
-	6: 	[-1,-1,		13,15],
-	7: 	[-1,-1,		14,-1],
+	4: 	[-1,-1,		-1,(13,8)],
+	5: 	[-1,-1,		(12,8),(14,9)],
+	6: 	[-1,-1,		(13,9),(15,10)],
+	7: 	[-1,-1,		(14,10),-1],
 
-	8: 	[-1,1,		-1,17],
-	9: 	[0,2,		16,18],
-	10: [1,3,		17,19],
-	11: [2,-1,		18,-1],
+	8: 	[-1,(1,5),		    -1,(17,13)],
+	9: 	[(0,5),(2,6),		(16,13),(18,14)],
+	10: [(1,6),(3,7),	     (17,14),(19,15)],
+	11: [(2,7),-1,		      (18,15),-1],
 
-	12: [-1,5,		-1,21],
-	13: [4,6,		20,22],
-	14: [5,7,		21,23],
-	15: [6,-1,		22,-1],
+	12: [-1,(5,8),		-1,(21,16)],
+	13: [(4,8),(6,9),		(20,16,),(22,17)],
+	14: [(5,9),(7,10),		(21,17),(23,18)],
+	15: [(6,10),-1,		(22,18),-1],
 
-	16: [-1,9,		-1,25],
-	17: [8,10,		24,26],
-	18: [9,11,		25,27],
-	19: [10,-1,		26,-1],
+	16: [-1,(9, 13),		-1,(25, 21)],
+	17: [(8, 13),(10, 14),		(24, 21),(26, 22)],
+	18: [(9, 14),(11, 15),		(25, 22),(27, 23)],
+	19: [(10, 15),-1,		(26, 23),-1],
 
-	20: [-1,13,		-1,29],
-	21: [12,14,		28,30],
-	22:	[13,15,		29,31],
-	23: [14,-1,		30,-1],
+	20: [-1,(13, 16),		-1,(29, 24)],
+	21: [(12, 16),(14, 17),		(28, 24),(30, 25)],
+	22:	[(13, 17),(15, 18),		(29, 25), (31, 26)],
+	23: [(14, 18),-1,		(30, 26),-1],
 
-	24:	[17,-1,		-1,-1],
-	25:	[16,18,		-1,-1],
-	26: [17,19,		-1,-1],
-	27: [18,-1,		-1,-1],
+	24:	[(17, 21),-1,		-1,-1],
+	25:	[(16, 21),(18, 22),		-1,-1],
+	26: [(17, 22),(19, 23),		-1,-1],
+	27: [(18, 23),-1,		-1,-1],
 
-	28:[-1,21,		-1,-1],
-	29:[20,22,		-1,-1],
-	30:[21,23,		-1,-1],
-	31:[22,-1		-1,-1],
+	28:[-1,(21, 24),		-1,-1],
+	29:[(20, 24),(22, 25),		-1,-1],
+	30:[(21, 25),(23, 26),		-1,-1],
+	31:[(22, 26),-1		-1,-1],
 
 }
 
@@ -154,15 +154,24 @@ class Board(object):
 
         return [{index: allPossMoves}]
 
+    def take_jump(self, from_, to_):
+        if (not self.is_valid_jump(from_, to_)):
+            return
+
+        piece = self.board[from_]
+        self.board[from_] = '1'
+
+
+        self.board[to_] = piece
 
     # Called from GUI 
-    def take_move(self, FROM, TO):
-        if (not self.is_valid_move(FROM, TO)):
-            return None
+    def take_move(self, from_, to_):
+        if (not self.is_valid_move(from_, to_)):
+            return
 
-        piece = self.board[FROM]
-        self.board[FROM] = '1'
-        self.board[TO] = piece
+        piece = self.board[from_]
+        self.board[from_] = '1'
+        self.board[to_] = piece
         
 
     def get_random_move(self):
@@ -172,18 +181,51 @@ class Board(object):
             if (self.board[i] == 'r'):
                 possMoves = moveTable[i]
 
-    def is_valid_move(self, FROM, TO):
-
-        if TO < 0 or TO > 31:
-            return False
-        if FROM < 0 or FROM > 31:
-            return False
-        if self.board[TO] != '1':
+    def is_valid_index(self, x):
+        if x < 0 or x > 31:
             return False
 
-        moves = moveTable[FROM]
+        return True
 
-        print(moves)
+    def is_valid_jump(self, from_, to_):
+        if not self.is_valid_index(from_) or not self.is_valid_index(to_):
+            return False
+
+        if self.board[to_] != '1':
+            return False
+
+        piece = self.board[from_]
+        possJumps = [jump[0] for jump in jumpTable[from_] if jump != -1]
+
+
+
+        if piece in ['r', 'R']:
+            possJumps = possJumps[2:]
+        else:
+            possJumps = possJumps[:2]
+
+        if (to_ not in possJumps):
+            return False
+
+        return True
+
+    def is_valid_move(self, from_, to_):
+        if not self.is_valid_index(from_) or not self.is_valid_index(to_):
+            return False
+
+        if self.board[to_] != '1':
+            return False
+
+        piece = self.board[from_]
+        possMoves = moveTable[from_]
+
+        if piece in ['r', 'R']:
+            possMoves = possMoves[2:]
+        else:
+            possMoves = possMoves[:2]
+
+        if (to_ not in possMoves):
+            return False
 
         return True
 
