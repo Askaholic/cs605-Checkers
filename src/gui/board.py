@@ -123,7 +123,7 @@ def draw_pieces(sprites, board, dragged):
             x = dragged['x']
             y = dragged['y']
 
-            sprite.set_position(x, y)
+            sprite.position = (x, y)
         else:
             x = 50
             y = 50
