@@ -47,9 +47,9 @@ static PyObject * get_board_wrapper(PyObject * self, PyObject * args) {
         return NULL;
     }
 
-    auto list = PyList_New(32);
+    auto list = PyList_New(BOARD_ELEMENTS);
     auto b = get_board();
-    for (size_t i = 0; i < 32; i++) {
+    for (size_t i = 0; i < BOARD_ELEMENTS; i++) {
       size_t len = 1;
       if (b[i] == BLANK) {
         len = 0;
@@ -64,6 +64,24 @@ static PyObject * get_board_wrapper(PyObject * self, PyObject * args) {
         default: tmp = '?';
       }
       if (PyList_SetItem(list, i, PyUnicode_FromStringAndSize(&tmp, len)) == -1) {
+        // Handle error here?
+      }
+    }
+    return list;
+}
+
+static PyObject * get_possible_moves_wrapper(PyObject * self, PyObject * args) {
+    // There are no arguments
+    int player;
+    BoardState board;
+    if (!PyArg_ParseTuple(args, "O&i", converter, &board, &player)) {
+        return NULL;
+    }
+
+    auto b = get_possible_moves(board, player);
+    auto list = PyList_New(b.size());
+    for (size_t i = 0; i < b.size(); i++) {
+      if (PyList_SetItem(list, i, /* Make a tuple here? */) == -1) {
         // Handle error here?
       }
     }

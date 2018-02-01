@@ -4,8 +4,6 @@
 
 // Shared library for code that needs to be fast and small...
 
-#include <stdexcept>
-#include <string>
 #include <vector>
 #include <cstddef>
 #include "board_funcs.h"
@@ -53,38 +51,10 @@ std::vector<std::vector<int>> moveTable = {
 };
 BoardState the_board = {};
 
-char BoardState::operator[](size_t i) {
-  if (i < 0 || i > 31) { throw std::out_of_range("Board index out of range " + std::to_string(i)); }
-  if (i & 0x1) {
-    return _tiles[i / 2] & 0x0F;
-  }
-  return (_tiles[i / 2] >> 4) & 0x0F;
-}
-
-void BoardState::set(size_t i, char val) {
-  if (i < 0 || i > 31) { throw std::out_of_range("Board index out of range " + std::to_string(i)); }
-  if (i & 0x1) {
-    _tiles[i / 2] = (_tiles[i / 2] & 0xF0) | (val & 0x0F);
-  }
-  else {
-    _tiles[i / 2] = (_tiles[i / 2] & 0x0F) | ((val & 0x0F) << 4);
-  }
-}
-
-char BoardStateFast::operator[](size_t i) {
-  if (i < 0 || i > 31) { throw std::out_of_range("Board index out of range " + std::to_string(i)); }
-  return _tiles[i];
-}
-
-void BoardStateFast::set(size_t i, char val) {
-  if (i < 0 || i > 31) { throw std::out_of_range("Board index out of range " + std::to_string(i)); }
-  _tiles[i] = val;
-}
-
 void setup_board() {
     for (size_t i = 0; i < 12; i++) {
         the_board.set(i, RED_CHECKER);
-        the_board.set(31 - i, BLACK_CHECKER);
+        the_board.set(BOARD_ELEMENTS - 1 - i, BLACK_CHECKER);
     }
 }
 
@@ -92,6 +62,33 @@ BoardState get_board() {
   return the_board;
 }
 
-std::vector<BoardState> get_possible_moves(BoardState board, int player) {
+std::vector<Move> get_possible_moves(const BoardState &board, int player) {
+    std::vector<Move> moves;
 
+    char targets[2];
+    if (player == RED_PLAYER) {
+        targets[0] = RED_CHECKER;
+        targets[1] = RED_KING;
+    }
+    else {
+        targets[0] = BLACK_CHECKER;
+        targets[1] = BLACK_KING;
+    }
+
+
+    for (size_t b_loc = 0; b_loc < BOARD_ELEMENTS; b_loc++) {
+        if (!in_<char>(targets, 2, board[b_loc])) {
+            continue;
+        }
+
+        auto possible_moves = moveTable[b_loc];
+        for (size_t c = 0; c < possible_moves.size(); c++) {
+            size_t move = possible_moves[c];
+            if (board[move] == BLANK) {
+                moves.push_back({b_loc, move});
+            }
+        }
+    }
+
+    return moves;
 }
