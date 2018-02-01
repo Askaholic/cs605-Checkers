@@ -66,7 +66,7 @@ class Board(object):
 			0: 'red',
 			1: 'black'
 		}
-		self.redPlayer = True
+		self.is_red_players_turn = True
 		self.winCondition = -1
 
 		self.setupBoard()
@@ -167,7 +167,7 @@ class Board(object):
 		self.board[TO] = piece
 
 
-	def blackPlayerTurn(self):
+	def make_black_move(self):
 
 		moves = []
 
@@ -189,22 +189,22 @@ class Board(object):
 			# 			self.board[move] = 'b'
 			# 			self.board[i] = '1'
 
-			# 			self.redPlayer = True
+			# 			self.is_red_players_turn = True
 			# 			break
 
 			# 	# BLACK player has taken their turn.
-			# 	if (self.redPlayer):
+			# 	if (self.is_red_players_turn):
 			# 		break
 
 			# # Gone through all the checkers and not a single BLACK checker can move.
-			# if (i == 31 and not self.redPlayer):
+			# if (i == 31 and not self.is_red_players_turn):
 			# 	# Red cannot make anymore moves!
 			# 	self.winCondition = 1
 			# 	self.winner()
 			# 	return 1
 
 
-	def redPlayerTurn(self):
+	def make_red_move(self):
 
 		for i in range(32):
 
@@ -220,15 +220,15 @@ class Board(object):
 						self.board[move] = 'r'
 						self.board[i] = '1'
 
-						self.redPlayer = False
+						self.is_red_players_turn = False
 						break
 
 				# RED player has taken their turn.
-				if (not self.redPlayer):
+				if (not self.is_red_players_turn):
 					break
 
 			# Gone through all the checkers and not a single RED checker can move.
-			if (i == 31 and self.redPlayer):
+			if (i == 31 and self.is_red_players_turn):
 				# Red cannot make anymore moves!
 				self.winCondition = 0
 				self.winner()
@@ -237,19 +237,19 @@ class Board(object):
 	def moveGenerator(self):
 
 		# Visual Testing
-		if(self.redPlayer):
+		if(self.is_red_players_turn):
 			print("Red Player")
 		else:
 			print("Black Player")
 
 
-		if (self.redPlayer):
+		if (self.is_red_players_turn):
 			# self.generateAllPossibleMoves()
-			self.redPlayerTurn()
+			self.make_red_move()
 
 		else:
 			# self.generateAllPossibleMoves()
-			self.blackPlayerTurn()
+			self.make_black_move()
 
 		self.printBoard()
 
