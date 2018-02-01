@@ -49,7 +49,8 @@ moveTable = {
 }
 
 jumpTable = {
-
+    #  from_: (to_, enemy)
+    #  -1 = non-movable space 
 	0: 	[-1,-1,        -1,(9,5)],
 	1: 	[-1,-1,		(8,5),(10,6)],
 	2: 	[-1,-1,		(9,6),(11,7)],
@@ -189,43 +190,61 @@ class Board(object):
             return False 
         return True
 
-    def jump(self, from_, to_):
+    def jump(self, from_, to_, enemy):
         piece = self.board[from_]
+        self.board[enemy] = '1'
         self.board[from_] = '1'
         self.board[to_] = piece
 
-    def is_jump(self, from_, to_):
+    def is_valid_jump(self, from_, to_):
         possJumps = [jump for jump in jumpTable[from_] if jump != -1]
+        # print('Just after assignment:', possJumps)
 
-        print('There are the possible jump:', possJumps, 'from:', from_, 'on players turn:' , self.current_turn_player)
+        # print('Here are the possible jump:', possJumps, 'from:', from_, 'on players turn:' , self.current_turn_player)
         # print(playerColors[self.current_turn_player])
         # print(playerColors[not self.current_turn_player])
         # print(playerColors[self.current_turn_player])
         for jump in possJumps:
+            print('what the hell is this', to_, jump[0])
+
+            if self.board[jump[0]] != '1' and self.board[jump[0]] != to_:
+                return False
+            if self.board[jump[1]] not in playerColors[not self.current_turn_player]:
+                return False
+
             print(jump,from_, jump[0], to_, jump[1])
-
-            print('Bool please work:',playerColors[not self.current_turn_player])
-            if jump[0] == to_ and jump[1] in playerColors[self.current_turn_player]:
+            print(self.board[jump[1]])
+            print('Player pieces:',playerColors[not self.current_turn_player])
+            if jump[0] == to_ and self.board[jump[1]] in playerColors[not self.current_turn_player]:
                 print('am i here yet')
+                self.jump(from_, to_, jump[1])
                 return True
-
 
         return False
 
     # Called from GUI 
     def take_move(self, from_, to_):
-        if (not self.is_valid_move(from_, to_)):
-            return
 
-        if self.is_jump(from_, to_): 
-            self.jump(from_, to_)
-            return
+        print('from_:', from_, 'to_', to_)
+        print('\n'*10)
 
-        if self.is_move(from_, to_):
+        if self.is_valid_jump(from_, to_): 
+            return True
+
+        if (self.is_valid_move(from_, to_)):
             self.move(from_, to_)
-            return
+            return True
+
+        return False
 
     def make_current_player_move(self):
+
+        # Visual Testing
+        if(self.current_turn_player == RED_PLAYER):
+            print("Red Player")
+        else:
+            print("Black Player")
+
         for i in range(32):
 
             if (self.board[i] not in playerColors[self.current_turn_player]):
@@ -245,15 +264,8 @@ class Board(object):
                 self.take_move(i, move)
                 return 
 
-
     # Rename 
     def moveGenerator(self):
-        # Visual Testing
-        # print('Am i alternating player',self.current_turn_player)
-        if(self.current_turn_player == RED_PLAYER):
-            print("Red Player")
-        else:
-            print("Black Player")
 
         self.make_current_player_move()
         self.printBoard()

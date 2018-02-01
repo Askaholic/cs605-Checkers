@@ -17,10 +17,12 @@ class Game(object):
     def player_take_move(self, from_, to):
         if not self.player == self.board.current_turn_player:
             return
-        if not self.board.is_valid_move(from_, to):
-            return
+        # if not self.board.is_valid_move(from_, to):
+        #     return
+        # Double unneeded check. 
 
-        self.board.take_move(from_, to)
+        if not self.board.take_move(from_, to):
+            return
         self.board.current_turn_player = RED_PLAYER if self.player == BLACK_PLAYER else BLACK_PLAYER
         self.turns += 1
         self.timeout = time() + .3
