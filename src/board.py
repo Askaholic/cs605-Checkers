@@ -4,47 +4,48 @@ import sys
 import random
 
 moveTable = {
-	# -1 is a position they cannot move. Allows for [2:] list splitting.
-	# Move Up 	Move Down
-	0: 	[-1,-1,		4,5],
-	1: 	[-1,-1,		5,6],
-	2: 	[-1,-1,		6,7],
-	3: 	[-1,-1,		-1,7],
+    # -1 is a position they cannot move. Allows for [2:] list splitting.
+    # Move Up  Move Down
+    0:  [-1,-1,  4,5],
+    1:  [-1,-1,  5,6],
+    2:  [-1,-1,  6,7],
+    3:  [-1,-1,  -1,7],
 
-	4: 	[-1,0,		-1,8],
-	5: 	[0,1,		8,9],
-	6: 	[1,2,		9,10],
-	7: 	[2,3,		10,11],
+    4:  [-1,0,   -1,8],
+    5:  [0,1,    8,9],
+    6:  [1,2,    9,10],
+    7:  [2,3,    10,11],
 
-	8: 	[4,5,		12,13],
-	9: 	[5,6,		13,14],
-	10: [6,7,		14,15],
-	11: [7,-1,		15,-1],
+    8:  [4,5,    12,13],
+    9:  [5,6,    13,14],
+    10: [6,7,    14,15],
+    11: [7,-1,  15,-1],
 
-	12: [-1,8,		-1,16],
-	13: [8,9,		16,17],
-	14: [9,10,		17,18],
-	15: [10,11,		18,19],
+    12: [-1,8,  -1,16],
+    13: [8,9,    16,17],
+    14: [9,10,  17,18],
+    15: [10,11,  18,19],
 
-	16: [12,13,		20,21],
-	17: [13,14,		21,22],
-	18: [14,15,		22,23],
-	19: [15,-1,		23,-1],
+    16: [12,13,  20,21],
+    17: [13,14,  21,22],
+    18: [14,15,  22,23],
+    19: [15,-1,  23,-1],
 
-	20: [-1,16,		-1,24],
-	21: [16,17,		24,25],
-	22: [17,18,		25,26],
-	23: [18,19,		26,27],
+    20: [-1,16,  -1,24],
+    21: [16,17,  24,25],
+    22: [17,18,  25,26],
+    23: [18,19,  26,27],
 
-	24: [20,21,		28,29],
-	25: [21,22,		29,30],
-	26: [22,23,		30,31],
-	27: [23,-1,		31,-1],
+    24: [20,21,  28,29],
+    25: [21,22,  29,30],
+    26: [22,23,  30,31],
+    27: [23,-1,  31,-1],
 
-	28: [-1,24		-1,-1],
-	29: [24,25,		-1,-1],
-	30: [25,26, 	-1,-1],
-	31: [26,27,		-1,-1]
+    28: [-1,24  -1,-1],
+    29: [24,25,  -1,-1],
+    30: [25,26,  -1,-1],
+    31: [26,27,  -1,-1]
+
 }
 
 jumpTable = {
@@ -94,230 +95,205 @@ jumpTable = {
 RED_PLAYER = 0
 BLACK_PLAYER = 1
 
+playorColors = {
+    
+    0: ['r', 'R'],
+    1: ['b', 'B']
+
+}
+
+
 class Board(object):
 
-	def __init__(self):
-		self.board = ['1']*32
-		self.players = {
-			0: 'red',
-			1: 'black'
-		}
-		self.current_turn_player = RED_PLAYER
-		self.winCondition = -1
+    def __init__(self):
+        self.board = ['1']*32
+        self.players = {
+            0: 'red',
+            1: 'black'
+        }
+        self.current_turn_player = RED_PLAYER
+        self.winCondition = -1
 
-		self.setupBoard()
+        self.setupBoard()
+        self.printBoard()
 
-	# Sets up the pieces.
-	def setupBoard(self):
-		for checker in range(12):
-			self.board[checker] = 'r'
-			self.board[31 - checker] = 'b'
+    # Sets up the pieces.
+    def setupBoard(self):
+        for checker in range(12):
+            self.board[checker] = 'r'
+            self.board[31 - checker] = 'b'
 
-	# Debugging function. May be dropped soon.
-	def printRawBoard(self):
-		print(self.board)
-		print(sys.getsizeof(self.moveTable))
 
-	def generateJumpTable(self):
-		for i in range(32):
+    def winner(self):
 
-			tl = i - 5
-			tr = i - 4
-			bl = i + 3
-			br = i + 4
+       if (self.winCondition == 0):
+         print('Winner is Black - Red cannot make anymore moves!')
 
-			odd = not False
+       elif (self.winCondition == 1):
+         print('Winner is red - Black canoot make anymore moves!')
 
-			if (i != 0 and (i % 4 == 0)):
-				odd = not odd
+       elif (self.winCondition == 2):
+         print('Black is the winner - Red has no more pieces!')
 
-			if (not odd):
-				pass
+       elif (self.winCondition == 3):
+         print('Red is the winner - Black has no more pieces!')
 
+       # Print the winning board!!!
+       # self.printBoard()
 
-			if (tl < 0):
-				tl = -1
-			if (tr < 0):
-				tr = -1
-			if (bl > 31):
-				bl = -1
-			if (br > 31):
-				br = -1
+    def generateAllPossibleMoves(self, index, moves):
 
-			print(i, ":", tl,tr,bl,br)
+        allPossMoves = []
 
+        # print(moves)
+        for move in moves:
+            if(self.board[move] == '1'):
+                allPossMoves.append(move)
 
-	def winner(self):
+        if(len(allPossMoves) == 0):
+            return []
 
-		if (self.winCondition == 0):
-			print('Winner is Black - Red cannot make anymore moves!')
+        return [{index: allPossMoves}]
 
-		elif (self.winCondition == 1):
-			print('Winner is red - Black canoot make anymore moves!')
+    def isValidMove(self, FROM, TO):
+        if TO < 0 or TO > 31:
+            return False
+        if FROM < 0 or FROM > 31:
+            return False
 
-		elif (self.winCondition == 2):
-			print('Black is the winner - Red has no more pieces!')
+        moves = moveTable[FROM]
 
-		elif (self.winCondition == 3):
-			print('Red is the winner - Black has no more pieces!')
+        print(moves)
+        
+        for i in moves:
+            if (i == TO):
+                print('what')
+                return True
+            else:
+                print('wow')
+                return False
 
-		# Print the winning board!!!
-		# self.printBoard()
+        return True
 
-	def playerMove(self):
-		return 1
+    # Called from GUI 
+    def take_move(self, FROM, TO):
+        if (not self.is_valid_move(FROM, TO)):
+            return None
 
-	def generateAllPossibleMoves(self, index, moves):
+        piece = self.board[FROM]
+        self.board[FROM] = '1'
+        self.board[TO] = piece
+        
 
-		allPossMoves = []
+    def random_move_generator(self):
+        possMoves = []
 
-		# print(moves)
-		for move in moves:
-			if(self.board[move] == '1'):
-				allPossMoves.append(move)
+        for i in range(32):
+            if (self.board[i] == 'r'):
+                possMoves = moveTable[i]
 
-		if(len(allPossMoves) == 0):
-			return []
+    def is_valid_move(self, FROM, TO):
 
-		return [{index: allPossMoves}]
+        if TO < 0 or TO > 31:
+            return False
+        if FROM < 0 or FROM > 31:
+            return False
+        if self.board[TO] != '1':
+            return False
 
-	def is_valid_move(self, FROM, TO):
-		if TO < 0 or TO > 31:
-			return False
-		if FROM < 0 or FROM > 31:
-			return False
-		if self.board[TO] != '1':
-			return False
 
-		return True
+    def make_black_move(self):
 
+        moves = []
 
-	def take_move(self, FROM, TO):
-		if (not self.is_valid_move(FROM, TO)):
-			return None
+        for i in range(32):
 
-		piece = self.board[FROM]
-		self.board[FROM] = '1'
-		self.board[TO] = piece
+            if (self.board[i] == 'b'):
 
-	def make_black_move(self):
+                moves.extend(self.generateAllPossibleMoves(i, moveTable[i][:2]))
+                print(moves)
 
-		moves = []
+        for move in range(len(moves)):
+            print(moves[move])
 
-		for i in range(32):
+    def make_red_move(self):
 
-			if (self.board[i] == 'b'):
+        for i in range(32):
 
-				moves.extend(self.generateAllPossibleMoves(i, moveTable[i][:2]))
-				print(moves)
+            if (self.board[i] == 'r'):
 
-		for move in range(len(moves)):
-			print(moves[move])
-			# 	# Moves up the board only due to list slice.
-			# 	for move in moveTable[i][:2]:
+                possMoves = moveTable[i]
 
-			# 		if (self.board[move] == '1'):
+          # Moves down the board only due to list slice.
+            for move in possMoves[2:]:
 
-			# 			# Moves, but can move backwards... for now...
-			# 			self.board[move] = 'b'
-			# 			self.board[i] = '1'
+                if (self.board[move] == '1'):
 
-			# 			self.current_turn_player = RED_PLAYER
-			# 			break
+                    self.board[move] = 'r'
+                    self.board[i] = '1'
 
-			# 	# BLACK player has taken their turn.
-			# 	if (self.current_turn_player == RED_PLAYER):
-			# 		break
 
-			# # Gone through all the checkers and not a single BLACK checker can move.
-			# if (i == 31 and self.current_turn_player != RED_PLAYER):
-			# 	# Red cannot make anymore moves!
-			# 	self.winCondition = 1
-			# 	self.winner()
-			# 	return 1
+                    self.current_turn_player = BLACK_PLAYER
+                    break
 
+                # RED player has taken their turn.
+                if (self.current_turn_player == BLACK_PLAYER):
+                    break
 
-	def make_red_move(self):
+            # Gone through all the checkers and not a single RED checker can move.
+            if (i == 31 and self.current_turn_player == RED_PLAYER):
+                # Red cannot make anymore moves!
+                self.winCondition = 0
+                self.winner()
+                return 1
 
-		for i in range(32):
+    def moveGenerator(self):
 
-			if (self.board[i] == 'r'):
+        # Visual Testing
+        if(self.current_turn_player == RED_PLAYER):
+            print("Red Player")
+        else:
+            print("Black Player")
 
-				possMoves = moveTable[i]
 
-				# Moves down the board only due to list slice.
-				for move in possMoves[2:]:
+        if (self.current_turn_player == RED_PLAYER):
+            # self.generateAllPossibleMoves()
+            self.make_red_move()
 
-					if (self.board[move] == '1'):
+        else:
+            # self.generateAllPossibleMoves()
+            self.make_black_move()
 
-						self.board[move] = 'r'
-						self.board[i] = '1'
+        self.printBoard()
 
-						self.current_turn_player = BLACK_PLAYER
-						break
+    def printBoard(self):
 
-				# RED player has taken their turn.
-				if (self.current_turn_player == BLACK_PLAYER):
-					break
+        board = ''
 
-			# Gone through all the checkers and not a single RED checker can move.
-			if (i == 31 and self.current_turn_player == RED_PLAYER):
-				# Red cannot make anymore moves!
-				self.winCondition = 0
-				self.winner()
-				return 1
+        board += '\n'
 
-	def moveGenerator(self):
+        # odd switch - Switch to next row
+        odd = False
 
-		# Visual Testing
-		if(self.current_turn_player == RED_PLAYER):
-			print("Red Player")
-		else:
-			print("Black Player")
 
+        for tile in range(32):
 
-		if (self.current_turn_player == RED_PLAYER):
-			# self.generateAllPossibleMoves()
-			self.make_red_move()
+            # since 0 % 4 = 0, skip the first tile, otherwise we
+            # add an extra row with 5 or 1, depending on indexing.
+            if (tile % 4 == 0 and tile != 0):
 
-		else:
-			# self.generateAllPossibleMoves()
-			self.make_black_move()
+                odd = not odd
+                board += '\n'
 
-		self.printBoard()
 
-	# Don't touch the print function...
-	# Actually, it just prints the board.
-	# It really does, by adding a space before
-	# and after the checker in the appropriate places.
-	def printBoard(self):
+            if (not odd):
+                board += ' ' + self.board[tile]
 
-		board = ''
+            else:
+                board += self.board[tile] + ' '
 
-		board += '\n'
 
-		# odd switch - Switch to next row
-		odd = False
+        # Extra newline at end of board
+        board += '\n'
 
-
-		for tile in range(32):
-
-			# since 0 % 4 = 0, skip the first tile, otherwise we
-			# add an extra row with 5 or 1, depending on indexing.
-			if (tile % 4 == 0 and tile != 0):
-
-				odd = not odd
-				board += '\n'
-
-
-			if (not odd):
-				board += ' ' + self.board[tile]
-
-			else:
-				board += self.board[tile] + ' '
-
-
-		# Extra newline at end of board
-		board += '\n'
-
-		print(board)
+        print(board)

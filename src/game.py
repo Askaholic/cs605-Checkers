@@ -12,7 +12,6 @@ class Game(object):
         self.board = Board()
         self.turns = 0
         self.player = BLACK_PLAYER
-
         self.timeout = None
 
     def player_take_move(self, from_, to):

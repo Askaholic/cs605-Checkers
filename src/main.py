@@ -12,9 +12,9 @@ from game import Game
 
 
 if __name__ == '__main__':
-	game = CheckersGame(Game())
-	clock.schedule_interval(game.update, 1/60.0)
-	# b = Board()
-	# b.generateJumpTable()
+    game = CheckersGame(Game())
+    clock.schedule_interval(game.update, 1/60.0)
+    # b = Board()
+    # b.generateJumpTable()
 
-	game.run()
+    game.run()
