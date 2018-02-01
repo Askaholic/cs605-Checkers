@@ -54,7 +54,7 @@ moveTable = {
 }
 
 jumpTable = {
-	
+
 	0: [-1,-1,		-1,9],
 	1: [-1,-1,		8,10],
 	2: [-1,-1,		9,11],
@@ -158,11 +158,11 @@ class Board(object):
 		return [{index: allPossMoves}]
 
 	def isValidMove(self, FROM, TO):
-
-		if (TO < 0 or TO > 31):
+		if TO < 0 or TO > 31:
 			return False
-
-		if (FROM < 0 or FROM > 31):
+		if FROM < 0 or FROM > 31:
+			return False
+		if self.board[TO] != '1':
 			return False
 
 		return True
@@ -183,7 +183,7 @@ class Board(object):
 		moves = []
 
 		for i in range(32):
-			
+
 			if (self.board[i] == 'b'):
 
 				moves.extend(self.generateAllPossibleMoves(i, moveTable[i][:2]))
@@ -199,10 +199,10 @@ class Board(object):
 			# 			# Moves, but can move backwards... for now...
 			# 			self.board[move] = 'b'
 			# 			self.board[i] = '1'
-						
+
 			# 			self.redPlayer = True
 			# 			break
-				
+
 			# 	# BLACK player has taken their turn.
 			# 	if (self.redPlayer):
 			# 		break
@@ -218,7 +218,7 @@ class Board(object):
 	def redPlayerTurn(self):
 
 		for i in range(32):
-			
+
 			if (self.board[i] == 'r'):
 
 				possMoves = moveTable[i]
@@ -230,11 +230,11 @@ class Board(object):
 
 						self.board[move] = 'r'
 						self.board[i] = '1'
-						
+
 						self.redPlayer = False
 						break
-				
-				# RED player has taken their turn. 
+
+				# RED player has taken their turn.
 				if (not self.redPlayer):
 					break
 
@@ -261,7 +261,7 @@ class Board(object):
 		else:
 			# self.generateAllPossibleMoves()
 			self.blackPlayerTurn()
-			
+
 		self.printBoard()
 
 	# Don't touch the print function...
@@ -289,7 +289,7 @@ class Board(object):
 
 
 			if (not odd):
-				board += ' ' + self.board[tile] 
+				board += ' ' + self.board[tile]
 
 			else:
 				board += self.board[tile] + ' '

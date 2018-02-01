@@ -58,7 +58,7 @@ class BoardHandlers(object):
         self.dragged['x'],self.dragged['y'] = self.adjust_window_coords(x, y)
 
     def on_mouse_release(self, x, y, button, modifiers):
-        if self.dragged == None:
+        if not self.dragged or not self.dragged['piece']:
             return
 
         move_to = self.get_piece_under(x, y)
@@ -81,7 +81,12 @@ class BoardHandlers(object):
         piece_x = (rx // 100 % 8)
         piece_y = (ry // 100)
 
-        if (piece_x % 2 != 0 and piece_y % 2 != 0) or (piece_x % 2 == 0 and piece_y % 2 == 0):
+        # Ignore out of bounds
+        if rx < 0 or rx > 800 or ry < 0 or ry > 800:
+            return None
+
+        # Ignore black spaces
+        if (piece_x % 2 != 0 and piece_y % 2 == 0) or (piece_x % 2 == 0 and piece_y % 2 != 0):
             return None
 
         return int(piece_x // 2 + (7 - piece_y) * 4)
@@ -93,12 +98,11 @@ def make_sprite(imagestr):
     return Sprite(img=i)
 
 def draw_board():
-    # glColor3f(1, 1, 1)
     glColor4f(0, 0, 0, 0.8)
     draw_outline(0, 0, scale(800), scale(800))
     for i in range(8):
         for j in range(8):
-            if (i % 2 == 0 and j % 2 != 0) or (i % 2 != 0 and j % 2 == 0):
+            if (i % 2 == 0 and j % 2 == 0) or (i % 2 != 0 and j % 2 != 0):
                 continue
             w = scale(100)
             h = w
@@ -125,7 +129,7 @@ def draw_pieces(sprites, board, dragged):
 
             x += ((i % 4) * 200)
             y += (700 - ((i // 4) * 100))
-            if ( i // 4) % 2 == 1:
+            if ( i // 4) % 2 == 0:
                 x += 100
 
             sprite.set_position(scale(x), scale(y))
