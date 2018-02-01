@@ -34,8 +34,6 @@ class Game(object):
 
         if self.turns < 200:
             if self.player != self.board.current_turn_player:
-                self.board.moveGenerator()
-                print(self.board.current_turn_player, "player turn before")
+                self.board.moveGenerator()        
                 self.board.current_turn_player = BLACK_PLAYER if self.player == BLACK_PLAYER else RED_PLAYER
-                print(self.board.current_turn_player, "player turn after")
                 self.turns += 1
