@@ -15,12 +15,13 @@ class Game(object):
         self.timeout = None
 
     def player_take_move(self, from_, to):
-        if not self.board.is_valid_move(from_, to):
+        if not self.board.is_valid_move(from_, to) or not self.player == self.board.current_turn_player:
             return
 
         self.board.take_move(from_, to)
         self.board.current_turn_player = RED_PLAYER if self.player == BLACK_PLAYER else BLACK_PLAYER
         self.turns += 1
+        self.timeout = time() + .3
 
     def update(self, dt):
         if self.timeout:
