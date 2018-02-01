@@ -4,6 +4,8 @@
 
 // Shared library for code that needs to be fast and small...
 
+#include <chrono>
+#include <iostream>
 #include <stdexcept>
 #include <string>
 #include <string.h>
@@ -72,6 +74,16 @@ void Board::set(size_t i, char val) {
   }
 }
 
+char BoardFast::operator[](size_t i) {
+  if (i < 0 || i > 31) { throw std::out_of_range("Board index out of range " + std::to_string(i)); }
+  return _tiles[i];
+}
+
+void BoardFast::set(size_t i, char val) {
+  if (i < 0 || i > 31) { throw std::out_of_range("Board index out of range " + std::to_string(i)); }
+  _tiles[i] = val;
+}
+
 char * test(char * str) {
     std::string in(str);
     auto result_str = std::string(str) + " " + std::to_string(sizeof(Board));
@@ -94,5 +106,31 @@ Board get_board() {
 }
 
 std::vector<Board> get_possible_moves(Board board, int player) {
+
+}
+
+void time_boards() {
+  Board b_slow = {};
+  BoardFast b_fast = {};
+
+  const size_t COUNT = 1000000000;
+  auto start_slow = std::chrono::high_resolution_clock::now();
+  for (size_t i = 0; i < COUNT; i++) {
+    char tmp = b_slow[i % 32];
+    b_slow.set((i + 1) % 32, 0x03);
+  }
+  auto end_slow = std::chrono::high_resolution_clock::now();
+
+  auto start_fast = std::chrono::high_resolution_clock::now();
+  for (size_t i = 0; i < COUNT; i++) {
+    char tmp = b_fast[i % 32];
+    b_fast.set((i + 1) % 32, 0x03);
+  }
+  auto end_fast = std::chrono::high_resolution_clock::now();
+
+  auto slow_time = ((std::chrono::nanoseconds)(end_slow - start_slow)).count();
+  auto fast_time = ((std::chrono::nanoseconds)(end_fast - start_fast)).count();
+  std::cout << "Slow: " << ((double)slow_time / COUNT) << " / call\n";
+  std::cout << "Fast: " << ((double)fast_time / COUNT) << " / call\n";
 
 }

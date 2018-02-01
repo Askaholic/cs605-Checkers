@@ -24,6 +24,14 @@ private:
     char _tiles[16];
 };
 
+class BoardFast {
+public:
+    char operator[](size_t index);
+    void set(size_t index, char value);
+private:
+    char _tiles[32];
+};
+
 // Test function. To verify that the module is installed and works
 char * test(char * str);
 
@@ -32,5 +40,6 @@ Board get_board();
 
 std::vector<Board> get_possible_moves(Board board, int player);
 
+void time_boards();
 
 #endif
