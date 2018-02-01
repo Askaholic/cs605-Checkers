@@ -11,8 +11,8 @@ from pyglet.text import Label
 from pyglet.window import mouse
 from .util import scale, inv_scale
 
-class BoardHandlers(object):
 
+class BoardHandlers(object):
     def __init__(self, window):
         self.window = window
         self.sprites = {
@@ -46,9 +46,6 @@ class BoardHandlers(object):
         if not (buttons & mouse.LEFT):
             return
 
-        scaled_x = scale(x)
-        scaled_y = scale(y)
-
         piece = self.get_piece_under(x, y)
 
         if piece is None:
@@ -68,7 +65,7 @@ class BoardHandlers(object):
         if not self.dragged:
             return
 
-        self.dragged['x'],self.dragged['y'] = self.adjust_window_coords(x, y)
+        self.dragged['x'], self.dragged['y'] = self.adjust_window_coords(x, y)
 
     def on_mouse_release(self, x, y, button, modifiers):
         if not self.dragged or self.dragged['piece'] is None:
@@ -105,11 +102,13 @@ class BoardHandlers(object):
 
         return int(piece_x // 2 + (7 - piece_y) * 4)
 
+
 def make_sprite(imagestr):
     i = image(imagestr)
     i.anchor_x = i.width // 2
     i.anchor_y = i.height // 2
     return Sprite(img=i)
+
 
 def draw_board():
     glColor4f(0, 0, 0, 0.8)
@@ -143,12 +142,13 @@ def draw_pieces(sprites, board, dragged):
 
             x += ((i % 4) * 200)
             y += (700 - ((i // 4) * 100))
-            if ( i // 4) % 2 == 0:
+            if (i // 4) % 2 == 0:
                 x += 100
 
             sprite.set_position(scale(x), scale(y))
         sprite.scale = (scale(1000) / 1000) * 2
         sprite.draw()
+
 
 def draw_possible_moves(board):
 
@@ -156,18 +156,17 @@ def draw_possible_moves(board):
         return
 
 
-
-
-
 def draw_outline(x, y, w, h):
     glBegin(GL_LINE_LOOP)
     gl_square(x, y, w, h)
     glEnd()
 
+
 def draw_square(x, y, w, h):
     glBegin(GL_POLYGON)
     gl_square(x, y, w, h)
     glEnd()
+
 
 def gl_square(x, y, w, h):
     glVertex2f(x, y)
