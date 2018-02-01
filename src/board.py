@@ -41,7 +41,7 @@ moveTable = {
     26: [22,23,  30,31],
     27: [23,-1,  31,-1],
 
-    28: [-1,24  -1,-1],
+    28: [-1,24,  -1,-1],
     29: [24,25,  -1,-1],
     30: [25,26,  -1,-1],
     31: [26,27,  -1,-1]
@@ -161,22 +161,31 @@ class Board(object):
         return True
 
     def is_valid_move(self, from_, to_):
+        print('in is_valid_move')
         if not self.is_valid_index(from_) or not self.is_valid_index(to_):
             return False
 
         if self.board[to_] != '1':
             return False
 
+        print('in is_valid_move 1 ')
         piece = self.board[from_]
         possMoves = moveTable[from_]
 
+        print('All possible moves:', possMoves)
+
         if piece in ['r', 'R']:
+            print('in is_valid_move 2 for red')
             possMoves = possMoves[2:]
         else:
+            print('in is_valid_move 2 for black')
             possMoves = possMoves[:2]
 
+        print('to_:', to_, 'possMoves:', possMoves)
         if (to_ not in possMoves):
             return False
+
+        print('in is_valid_move 3')
 
         return True
 
@@ -212,8 +221,6 @@ class Board(object):
             if self.board[jump[1]] not in playerColors[not self.current_turn_player]:
                 return False
 
-            print(jump,from_, jump[0], to_, jump[1])
-            print(self.board[jump[1]])
             print('Player pieces:',playerColors[not self.current_turn_player])
             if jump[0] == to_ and self.board[jump[1]] in playerColors[not self.current_turn_player]:
                 print('am i here yet')
@@ -226,8 +233,7 @@ class Board(object):
     def take_move(self, from_, to_):
 
         print('from_:', from_, 'to_', to_)
-        print('\n'*10)
-
+    
         if self.is_valid_jump(from_, to_): 
             return True
 
@@ -240,6 +246,7 @@ class Board(object):
     def make_current_player_move(self):
 
         # Visual Testing
+        print('=='*20)    
         if(self.current_turn_player == RED_PLAYER):
             print("Red Player")
         else:
