@@ -47,5 +47,7 @@ class GameBoard(object):
 if __name__ == '__main__':
 	game = CheckersGame(GameBoard())
 	clock.schedule_interval(game.update, 1/60.0)
+	# b = Board()
+	# b.generateJumpTable()
 
 	game.run()
