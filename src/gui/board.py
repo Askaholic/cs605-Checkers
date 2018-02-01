@@ -58,10 +58,11 @@ class BoardHandlers(object):
         self.dragged['x'],self.dragged['y'] = self.adjust_window_coords(x, y)
 
     def on_mouse_release(self, x, y, button, modifiers):
-        if not self.dragged or not self.dragged['piece']:
+        if not self.dragged or self.dragged['piece'] is None:
             return
 
         move_to = self.get_piece_under(x, y)
+        self.debug_label.text = "Space: " + str(move_to)
         if(not move_to):
             self.dragged = None
             return

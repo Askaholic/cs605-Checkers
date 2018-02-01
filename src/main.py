@@ -13,7 +13,7 @@ from pyglet import clock
 from gui import CheckersGame
 
 
-class GameBoard(object):
+class Game(object):
 	"""docstring for GameBoard."""
 	def __init__(self):
 		self.board = Board()
@@ -45,7 +45,7 @@ class GameBoard(object):
 
 
 if __name__ == '__main__':
-	game = CheckersGame(GameBoard())
+	game = CheckersGame(Game())
 	clock.schedule_interval(game.update, 1/60.0)
 	# b = Board()
 	# b.generateJumpTable()
