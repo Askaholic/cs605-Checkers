@@ -1,13 +1,8 @@
 #!/usr/bin/env python3.6
 
-# Board width and height
 import sys
-
-# RANDOM Gaming!!!!
 import random
 
-# Possible move vectors. I can see a pattens for some
-# rows, might be able to implement a better approach.
 moveTable = {
 	# -1 is a position they cannot move. Allows for [2:] list splitting.
 	# Move Up 	Move Down
@@ -50,11 +45,9 @@ moveTable = {
 	29: [24,25,		-1,-1],
 	30: [25,26, 	-1,-1],
 	31: [26,27,		-1,-1]
-
 }
 
 jumpTable = {
-
 	0: [-1,-1,		-1,9],
 	1: [-1,-1,		8,10],
 	2: [-1,-1,		9,11],
@@ -63,13 +56,11 @@ jumpTable = {
 	4: [-1,-1,		-1,13],
 	5: [-1,-1,		12,14],
 	6: [-1,-1,		1], # Not finished!!!
-
 }
 
 class Board(object):
 
 	def __init__(self):
-
 		self.board = ['1']*32
 		self.players = {
 			0: 'red',
@@ -82,7 +73,6 @@ class Board(object):
 
 	# Sets up the pieces.
 	def setupBoard(self):
-
 		for checker in range(12):
 			self.board[checker] = 'r'
 			self.board[31 - checker] = 'b'
@@ -103,7 +93,6 @@ class Board(object):
 			odd = not False
 
 			if (i != 0 and (i % 4 == 0)):
-
 				odd = not odd
 
 			if (not odd):
