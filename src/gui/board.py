@@ -49,12 +49,23 @@ class BoardHandlers(object):
         scaled_x = scale(x)
         scaled_y = scale(y)
 
+        piece = self.get_piece_under(x, y)
+        
+        if not piece:
+            return
+        if self.window.game_board.player == 1 and not (self.window.game_board.board.board[piece] == 'b' or self.window.game_board.board.board[piece] == 'B'):
+            return
+
         self.dragged = {}
-        self.dragged['piece'] = self.get_piece_under(x, y)
+        self.dragged['piece'] = piece
         self.dragged['x'], self.dragged['y'] = self.adjust_window_coords(x, y)
 
     def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
         self.debug_label.text = "Asdf"
+
+        if not self.dragged:
+            return
+
         self.dragged['x'],self.dragged['y'] = self.adjust_window_coords(x, y)
 
     def on_mouse_release(self, x, y, button, modifiers):
