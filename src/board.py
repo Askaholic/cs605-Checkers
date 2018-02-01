@@ -214,6 +214,18 @@ class Board(object):
     def is_valid_jump(self, from_, to_):
         possJumps = [jump for jump in jumpTable[from_] if jump != -1]
 
+        piece = self.board[from_]
+
+        if piece == 'r':
+            possJumps = [jump for jump in jumpTable[from_][2:] if jump != -1]
+
+        elif piece == 'b':
+            possJumps = [jump for jump in jumpTable[from_][:2] if jump != -1]
+
+        else:
+            possJumps = [jump for jump in jumpTable[from_] if jump != -1]
+
+
         for jump in possJumps:
             if jump[0] == to_ and self.board[jump[0]] == '1' and self.board[jump[1]] in playerColors[not self.current_turn_player]:
                 print('Here are my opponents:', playerColors[not self.current_turn_player])
@@ -274,10 +286,6 @@ class Board(object):
             return True
 
         return False
-
-
-
-
 
     def make_current_player_move(self):
         if self.get_all_jumps():
