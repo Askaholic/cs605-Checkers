@@ -86,11 +86,15 @@ static PyObject * time_boards_wrapper(PyObject * self, PyObject * args) {
 
 
 static PyMethodDef BoardFuncMethods[] = {
-    { "test", test_wrapper, METH_VARARGS, "Testing"},
-    { "setup_board", setup_board_wrapper, METH_VARARGS, "Setup the initial board state"},
-    { "get_board", get_board_wrapper, METH_VARARGS, "Get the current board state"},
-    { "time_boards", time_boards_wrapper, METH_VARARGS, "Print out the amount of time it takes for operations on each type of board"},
-    { NULL, NULL, 0, NULL}
+    { "test", test_wrapper, METH_VARARGS,
+        "Testing"},
+    { "setup_board", setup_board_wrapper, METH_VARARGS,
+        "Setup the initial board state"},
+    { "get_board", get_board_wrapper, METH_VARARGS,
+        "Get the current board state"},
+    { "time_boards", time_boards_wrapper, METH_VARARGS,
+        "Print out the amount of time it takes for operations on each type of board" },
+    { NULL, NULL, 0, NULL }
 };
 
 static struct PyModuleDef board_funcs_module = {

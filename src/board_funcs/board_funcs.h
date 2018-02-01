@@ -16,7 +16,7 @@
 #define BLACK_KING 0x03
 #define RED_KING 0x04
 
-class Board {
+class BoardState {
 public:
     char operator[](size_t index);
     void set(size_t index, char value);
@@ -24,7 +24,7 @@ private:
     char _tiles[16];
 };
 
-class BoardFast {
+class BoardStateFast {
 public:
     char operator[](size_t index);
     void set(size_t index, char value);
@@ -36,9 +36,9 @@ private:
 char * test(char * str);
 
 void setup_board();
-Board get_board();
+BoardState get_board();
 
-std::vector<Board> get_possible_moves(Board board, int player);
+std::vector<BoardState> get_possible_moves(BoardState board, int player);
 
 void time_boards();
 
