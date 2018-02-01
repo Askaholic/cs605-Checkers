@@ -200,6 +200,8 @@ class Board(object):
         return True
 
     def jump(self, from_, to_, enemy):
+        print('from', from_, 'to', to_, 'enemy', enemy)
+
         piece = self.board[from_]
         self.board[enemy] = '1'
         self.board[from_] = '1'
@@ -207,19 +209,19 @@ class Board(object):
 
     def is_valid_jump(self, from_, to_):
         possJumps = [jump for jump in jumpTable[from_] if jump != -1]
-        # print('Just after assignment:', possJumps)
+        print('All possible tuple jumps:', possJumps)
 
         # print('Here are the possible jump:', possJumps, 'from:', from_, 'on players turn:' , self.current_turn_player)
         # print(playerColors[self.current_turn_player])
         # print(playerColors[not self.current_turn_player])
         # print(playerColors[self.current_turn_player])
         for jump in possJumps:
-            print('what the hell is this', to_, jump[0])
+            print('to_ and jump[0]', to_, jump[0])
 
-            if self.board[jump[0]] != '1' and self.board[jump[0]] != to_:
-                return False
-            if self.board[jump[1]] not in playerColors[not self.current_turn_player]:
-                return False
+            # if self.board[jump[0]] != '1' and self.board[jump[0]] != to_:
+            #     continue
+            # if self.board[jump[1]] not in playerColors[not self.current_turn_player]:
+            #     continue
 
             print('Player pieces:',playerColors[not self.current_turn_player])
             if jump[0] == to_ and self.board[jump[1]] in playerColors[not self.current_turn_player]:
@@ -231,6 +233,10 @@ class Board(object):
 
     # Called from GUI 
     def take_move(self, from_, to_):
+        if(self.current_turn_player == RED_PLAYER):
+            print("Red Player")
+        else:
+            print("Black Player")
 
         print('from_:', from_, 'to_', to_)
     
@@ -247,11 +253,6 @@ class Board(object):
 
         # Visual Testing
         print('=='*20)    
-        if(self.current_turn_player == RED_PLAYER):
-            print("Red Player")
-        else:
-            print("Black Player")
-
         for i in range(32):
 
             if (self.board[i] not in playerColors[self.current_turn_player]):
