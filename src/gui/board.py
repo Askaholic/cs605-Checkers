@@ -51,7 +51,7 @@ class BoardHandlers(object):
 
         piece = self.get_piece_under(x, y)
 
-        if not piece:
+        if piece is None:
             return
         if self.window.game_board.player == 1 and not (self.window.game_board.board.board[piece] == 'b' or self.window.game_board.board.board[piece] == 'B'):
             return
@@ -76,10 +76,10 @@ class BoardHandlers(object):
 
         move_to = self.get_piece_under(x, y)
         self.debug_label.text = "Space: " + str(move_to)
-        if(not move_to):
+        if(move_to is None):
             self.dragged = None
             return
-        self.window.game_board.board.take_move(self.dragged['piece'], move_to)
+        self.window.game_board.player_take_move(self.dragged['piece'], move_to)
         self.dragged = None
 
     def adjust_window_coords(self, x, y):

@@ -84,12 +84,15 @@ jumpTable = {
 	26: [17,19,		-1,-1],
 	27: [18,-1,		-1,-1],
 
-	28:[-1,21,		-1,-1],		
+	28:[-1,21,		-1,-1],
 	29:[20,22,		-1,-1],
 	30:[21,23,		-1,-1],
 	31:[22,-1		-1,-1],
 
 }
+
+RED_PLAYER = 0
+BLACK_PLAYER = 1
 
 class Board(object):
 
@@ -99,7 +102,7 @@ class Board(object):
 			0: 'red',
 			1: 'black'
 		}
-		self.is_red_players_turn = True
+		self.current_turn_player = RED_PLAYER
 		self.winCondition = -1
 
 		self.setupBoard()
@@ -178,7 +181,7 @@ class Board(object):
 
 		return [{index: allPossMoves}]
 
-	def isValidMove(self, FROM, TO):
+	def is_valid_move(self, FROM, TO):
 		if TO < 0 or TO > 31:
 			return False
 		if FROM < 0 or FROM > 31:
@@ -190,14 +193,12 @@ class Board(object):
 
 
 	def take_move(self, FROM, TO):
-
-		if (not self.isValidMove(FROM, TO)):
+		if (not self.is_valid_move(FROM, TO)):
 			return None
 
 		piece = self.board[FROM]
 		self.board[FROM] = '1'
 		self.board[TO] = piece
-		self.is_red_players_turn = not self.is_red_players_turn
 
 	def make_black_move(self):
 
@@ -221,15 +222,15 @@ class Board(object):
 			# 			self.board[move] = 'b'
 			# 			self.board[i] = '1'
 
-			# 			self.is_red_players_turn = True
+			# 			self.current_turn_player = RED_PLAYER
 			# 			break
 
 			# 	# BLACK player has taken their turn.
-			# 	if (self.is_red_players_turn):
+			# 	if (self.current_turn_player == RED_PLAYER):
 			# 		break
 
 			# # Gone through all the checkers and not a single BLACK checker can move.
-			# if (i == 31 and not self.is_red_players_turn):
+			# if (i == 31 and self.current_turn_player != RED_PLAYER):
 			# 	# Red cannot make anymore moves!
 			# 	self.winCondition = 1
 			# 	self.winner()
@@ -252,15 +253,15 @@ class Board(object):
 						self.board[move] = 'r'
 						self.board[i] = '1'
 
-						self.is_red_players_turn = False
+						self.current_turn_player = BLACK_PLAYER
 						break
 
 				# RED player has taken their turn.
-				if (not self.is_red_players_turn):
+				if (self.current_turn_player == BLACK_PLAYER):
 					break
 
 			# Gone through all the checkers and not a single RED checker can move.
-			if (i == 31 and self.is_red_players_turn):
+			if (i == 31 and self.current_turn_player == RED_PLAYER):
 				# Red cannot make anymore moves!
 				self.winCondition = 0
 				self.winner()
@@ -269,13 +270,13 @@ class Board(object):
 	def moveGenerator(self):
 
 		# Visual Testing
-		if(self.is_red_players_turn):
+		if(self.current_turn_player == RED_PLAYER):
 			print("Red Player")
 		else:
 			print("Black Player")
 
 
-		if (self.is_red_players_turn):
+		if (self.current_turn_player == RED_PLAYER):
 			# self.generateAllPossibleMoves()
 			self.make_red_move()
 
