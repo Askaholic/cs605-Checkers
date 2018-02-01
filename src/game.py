@@ -17,7 +17,7 @@ class Game(object):
     def player_take_move(self, from_, to):
         if not self.player == self.board.current_turn_player:
             return
-        if not self.board.is_valid_move(from_, to) and not self.board.is_valid_jump(from_,to):
+        if not self.board.is_valid_move(from_, to):
             return
 
         self.board.take_move(from_, to)
@@ -35,5 +35,7 @@ class Game(object):
         if self.turns < 200:
             if self.player != self.board.current_turn_player:
                 self.board.moveGenerator()
+                print(self.board.current_turn_player, "player turn before")
                 self.board.current_turn_player = BLACK_PLAYER if self.player == BLACK_PLAYER else RED_PLAYER
+                print(self.board.current_turn_player, "player turn after")
                 self.turns += 1
