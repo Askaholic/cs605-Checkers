@@ -50,10 +50,12 @@ class BoardHandlers(object):
         scaled_y = scale(y)
 
         piece = self.get_piece_under(x, y)
-        
+
         if not piece:
             return
         if self.window.game_board.player == 1 and not (self.window.game_board.board.board[piece] == 'b' or self.window.game_board.board.board[piece] == 'B'):
+            return
+        if self.window.game_board.player == 0 and not (self.window.game_board.board.board[piece] == 'r' or self.window.game_board.board.board[piece] == 'R'):
             return
 
         self.dragged = {}

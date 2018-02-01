@@ -11,7 +11,7 @@ class Game(object):
     def __init__(self):
         self.board = Board()
         self.turns = 0
-        self.player = 1
+        self.player = 0
 
         self.timeout = None
 
