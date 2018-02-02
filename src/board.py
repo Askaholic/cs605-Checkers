@@ -156,6 +156,19 @@ class Board(object):
 
         return [{index: allPossMoves}]
 
+    def make_king(self, to_):
+        if not self.is_valid_index(to_):
+            return False
+
+
+        # Make red panws kings
+        if to_ in [28,29,30,31]:
+            self.board[to_] = 'R'
+        if to_ in [0,1,2,3]:
+            self.board[to_] = 'B'
+
+        return True
+
     def is_valid_index(self, x):
         if x < 0 or x > 31:
             return False
@@ -248,10 +261,12 @@ class Board(object):
         if self.is_valid_jump(from_, to_):
             print('I think I should jump now')
             self.jump(from_, to_)
+            self.make_king(to_)
             return True
 
         if (self.is_valid_move(from_, to_)):
             self.move(from_, to_)
+            self.make_king(to_)
             return True
 
         return False
