@@ -1,5 +1,8 @@
-#!/usr/bin/env python3.6
+# game.py
+# Jacob McKenna
+# Created: Jan. 18, 2018
 
+# Game class for keeping track of high level game info
 import sys
 import random
 
