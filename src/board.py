@@ -142,6 +142,13 @@ class Board(object):
         if to_ in [0,1,2,3]:
             self.board[to_] = 'B'
 
+
+    def get_enemy_position(self, from_, to_):
+        possJumps = [jump for jump in jumpTable[from_] if jump != -1]
+        enemy = [jump[1] for jump in possJumps if jump[0] == to_]
+        return enemyPos
+
+
     # Called from GUI 
     def take_move(self, from_, to_):
         piece = self.board[from_]
@@ -149,15 +156,16 @@ class Board(object):
         self.board[to_] = piece
 
     def take_jump(self, from_, to_):
+        enemyPos = self.get_enemy_position(from_, to_)
         piece = self.board[from_]
-        self.board[self.enemy] = '1'
+        self.board[enemyPos] = '1'
         self.board[from_] = '1'
         self.board[to_] = piece
-        self.enemy = 0
+
 
     def get_possible_moves_of_piece(self, from_):
         piece = self.board[from_]
-        possMoves = moveTable[from_]
+        possMoves = moveTable[from_] 
 
         if piece == 'r':
             possMoves = possMoves[2:]
@@ -200,17 +208,6 @@ class Board(object):
         # print('I think this is ...', [jump[0] for jump in self.get_possible_jumps_of_piece(from_)])
         if (to_ not in [jump[0] for jump in self.get_possible_jumps_of_piece(from_)]):
             return False
-
-
-        # for jump in possJumps:
-        #     if jump[0] == to_ and 
-        #     self.board[jump[0]] == '1' and 
-        #     self.board[jump[1]] in playerPieces[not self.current_turn_player]:
-        #         print('Here are my opponents:', playerPieces[not self.current_turn_player])
-        #         # Jumped checker
-        #         self.enemy = jump[1]
-        #         print('My enemy is:', self.board[jump[1]], 'at', jump[1])
-        #         return True
 
         return True
 
