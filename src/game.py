@@ -19,6 +19,7 @@ class Game(object):
             return
 
         if len(self.board.get_all_jumps()) > 0:
+            print('length is it being lame:', len(self.board.get_all_jumps()))
             if not self.board.is_valid_jump(from_, to_):
                 return
 

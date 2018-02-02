@@ -117,8 +117,6 @@ class Board(object):
         }
         self.current_turn_player = RED_PLAYER
         self.winCondition = -1
-        self.allPossibleJumps = []
-        self.enemy = 0
 
         self.setup_board()       
         self.printBoard()
@@ -145,9 +143,8 @@ class Board(object):
 
     def get_enemy_position(self, from_, to_):
         possJumps = [jump for jump in jumpTable[from_] if jump != -1]
-        enemy = [jump[1] for jump in possJumps if jump[0] == to_]
-        return enemyPos
-
+        enemyPos = [jump[1] for jump in possJumps if jump[0] == to_]
+        return enemyPos[0]
 
     # Called from GUI 
     def take_move(self, from_, to_):
@@ -161,7 +158,6 @@ class Board(object):
         self.board[enemyPos] = '1'
         self.board[from_] = '1'
         self.board[to_] = piece
-
 
     def get_possible_moves_of_piece(self, from_):
         piece = self.board[from_]
@@ -202,6 +198,8 @@ class Board(object):
             return False
         if self.board[to_] != '1':
             return False
+        if self.board[self.get_enemy_position(from_, to_)] not in playerPieces[not self.current_turn_player]:
+            return False
 
         # print('from_:', from_, ' to_:', to_)
         # print('Possible jumps:',self.get_possible_jumps_of_piece(from_))
@@ -213,6 +211,8 @@ class Board(object):
 
     def get_all_jumps(self):
 
+        allPossibleJumps = []
+
         for i in range(32):
             if (self.board[i] not in playerPieces[self.current_turn_player]):
                 continue
@@ -223,17 +223,9 @@ class Board(object):
             for jump in possJumps:
                 if self.is_valid_jump(i, jump[0]):
                     # print(jump)
-                    self.allPossibleJumps.append((jump))
+                    allPossibleJumps.append((jump))
 
-            # print('All possible jumps:',self.allPossibleJumps)
-
-            for jump in self.allPossibleJumps:
-                # print('am I even trying to take a jump?')
-                
-                self.take_move(i, jump[0])
-                turnTaken = True            
-
-        self.allPossibleJumps = []
+        return allPossibleJumps
 
 
     def generate_all_current_player_moves(self):
