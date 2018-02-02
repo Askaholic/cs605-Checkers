@@ -140,10 +140,26 @@ class Board(object):
         if to_ in [0,1,2,3]:
             self.board[to_] = 'B'
 
+    def is_enemy_in_position(self, from_, to_):
+        possJumps = [jump for jump in jumpTable[from_] if jump != -1]
+        enemyPos = [jump[1] for jump in possJumps if jump[0] == to_]
+
+        # Implicitly check for empty list
+        print('The enemy position is:', enemyPos)
+        if not enemyPos:
+            return False
+
+        print('board piece:', self.board[enemyPos[0]])
+        if self.board[enemyPos[0]] not in playerPieces[not self.current_turn_player]:
+            return False
+
+        return True
 
     def get_enemy_position(self, from_, to_):
         possJumps = [jump for jump in jumpTable[from_] if jump != -1]
         enemyPos = [jump[1] for jump in possJumps if jump[0] == to_]
+        # enemyPos is a list, should only ever get 1 item
+        # print('enemyPos should not be larger than 1', enemyPos)
         return enemyPos[0]
 
     # Called from GUI 
@@ -182,6 +198,8 @@ class Board(object):
         return possJumps
 
     def is_valid_move(self, from_, to_):
+        if len(self.get_all_jumps()) > 0:
+            return False
         if not self.is_valid_index(from_) or not self.is_valid_index(to_):
             return False
         if self.board[to_] != '1':
@@ -197,6 +215,8 @@ class Board(object):
         if not self.is_valid_index(from_) or not self.is_valid_index(to_):
             return False
         if self.board[to_] != '1':
+            return False
+        if not self.is_enemy_in_position(from_, to_):
             return False
         if self.board[self.get_enemy_position(from_, to_)] not in playerPieces[not self.current_turn_player]:
             return False
@@ -225,6 +245,8 @@ class Board(object):
                     # print(jump)
                     allPossibleJumps.append((jump))
 
+
+        print
         return allPossibleJumps
 
 
