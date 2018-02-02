@@ -44,6 +44,6 @@ class Game(object):
 
         if self.turns < 200:
             if self.player != self.board.current_turn_player:
-                self.board.ai_move()
+                self.board.play_ai()
                 self.board.current_turn_player = BLACK_PLAYER if self.player == BLACK_PLAYER else RED_PLAYER
                 self.turns += 1

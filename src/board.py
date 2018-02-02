@@ -227,6 +227,7 @@ class Board(object):
         if (to_ not in [jump[0] for jump in self.get_possible_jumps_of_piece(from_)]):
             return False
 
+
         return True
 
     def get_all_jumps(self):
@@ -260,7 +261,12 @@ class Board(object):
     def generate_all_current_player_jumps(self):
         pass
 
-    def make_current_player_move(self):
+    def make_ai_move(self):
+        # if len(self.get_all_jumps()) > 0:
+            # for jump in self.get_all_jumps:
+                # if self.is_valid_jump(i, jump[0]):
+
+
 
         # Visual Testing
         print('=='*20)    
@@ -295,11 +301,11 @@ class Board(object):
 
 
     # Rename 
-    def ai_move(self):
+    def play_ai(self):
 
         # self.generate_all_current_player_jumps()
         # self.generate_all_current_player_moves()
-        self.make_current_player_move()
+        self.make_ai_move()
         self.printBoard()
 
     def printBoard(self):
