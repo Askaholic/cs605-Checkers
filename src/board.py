@@ -271,6 +271,16 @@ class Board(object):
 
         return False
 
+    # def make_all_jump(self):
+    #    turnTaken = False
+
+    #     for jump in self.allPossibleJumps:
+    #         print('am I even trying to take a jump?')
+            
+    #         self.take_move(i, jump[0])
+    #         turnTaken = True 
+    #     if turnTaken:
+
     def get_all_jumps(self):
 
         turnTaken = False
@@ -317,10 +327,19 @@ class Board(object):
                 possMoves = moveTable[i]
 
                 if (self.current_turn_player == RED_PLAYER):
-                    possMoves = possMoves[2:] 
-                else:
-                    possMoves = possMoves[:2]
 
+                    piece = self.board[i]
+
+                    if piece == 'r':
+                        possMoves = possMoves[2:]
+
+                else:
+                    piece = self.board[i]
+
+                    if piece == 'b':
+                        possMoves = possMoves[2:]
+
+                print('All possible moves', possMoves, 'for piece', i)
                 for move in possMoves:
                     if (not self.is_valid_move(i, move)):
                         continue
