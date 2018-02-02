@@ -315,6 +315,16 @@ class Board(object):
 
         return False
 
+    def generate_all_current_player_moves(self):
+        for i in range(32):
+            if (self.board[i] not in playerColors[self.current_turn_player]):
+                continue
+
+        pass
+
+    def generate_all_current_player_jumps(self):
+        pass
+
     def make_current_player_move(self):
         if self.get_all_jumps():
             return
@@ -353,8 +363,10 @@ class Board(object):
             self.winCondition = 0
 
     # Rename 
-    def moveGenerator(self):
+    def play_turn(self):
 
+        self.generate_all_current_player_jumps()
+        self.generate_all_current_player_jumps()
         self.make_current_player_move()
         self.printBoard()
 

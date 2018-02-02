@@ -28,8 +28,8 @@ class Game(object):
 
         if not self.board.is_valid_move(from_, to_):
             return
+            
         self.board.take_move(from_, to_)
-
         self.board.current_turn_player = RED_PLAYER if self.player == BLACK_PLAYER else BLACK_PLAYER
         self.turns += 1
         self.timeout = time() + .3
@@ -43,6 +43,6 @@ class Game(object):
 
         if self.turns < 200:
             if self.player != self.board.current_turn_player:
-                self.board.moveGenerator()
+                self.board.play_turn()
                 self.board.current_turn_player = BLACK_PLAYER if self.player == BLACK_PLAYER else RED_PLAYER
                 self.turns += 1
