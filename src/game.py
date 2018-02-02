@@ -14,15 +14,22 @@ class Game(object):
         self.player = BLACK_PLAYER
         self.timeout = None
 
-    def player_take_move(self, from_, to):
+    def player_take_move(self, from_, to_):
         if not self.player == self.board.current_turn_player:
             return
-        # if not self.board.is_valid_move(from_, to):
-        #     return
-        # Double unneeded check. 
 
-        if not self.board.take_move(from_, to):
+        if len(self.board.get_all_jumps()) > 0:
+            if not self.board.is_valid_jump(from_, to_):
+                return
+
+            self.board.take_jump(from_, to_)
             return
+
+
+        if not self.board.is_valid_move(from_, to_):
+            return
+        self.board.take_move(from_, to_)
+
         self.board.current_turn_player = RED_PLAYER if self.player == BLACK_PLAYER else BLACK_PLAYER
         self.turns += 1
         self.timeout = time() + .3
@@ -36,6 +43,6 @@ class Game(object):
 
         if self.turns < 200:
             if self.player != self.board.current_turn_player:
-                self.board.moveGenerator()        
+                self.board.moveGenerator()
                 self.board.current_turn_player = BLACK_PLAYER if self.player == BLACK_PLAYER else RED_PLAYER
                 self.turns += 1
