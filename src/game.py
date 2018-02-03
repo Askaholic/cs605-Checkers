@@ -26,7 +26,6 @@ class Game(object):
             self.board.take_jump(from_, to_)
             return
 
-
         if not self.board.is_valid_move(from_, to_):
             return
             
