@@ -9,6 +9,7 @@
 
 #include <cstddef>
 #include <vector>
+#include <iostream>
 
 #define RED_PLAYER 0
 #define BLACK_PLAYER 1
@@ -57,9 +58,7 @@ char * test(char * str);
 
 void setup_board();
 BoardState get_board();
-
-std::vector<Move> get_possible_moves(BoardState board, int player);
-
+std::vector<Move> get_possible_moves(const BoardState &board, int player);
 void time_boards();
 
 template <typename T>

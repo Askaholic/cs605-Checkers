@@ -6,6 +6,7 @@
 
 #include <vector>
 #include <cstddef>
+#include <iostream>
 #include "board_funcs.h"
 
 std::vector<std::vector<int>> moveTable = {
@@ -77,13 +78,30 @@ std::vector<Move> get_possible_moves(const BoardState &board, int player) {
 
 
     for (size_t b_loc = 0; b_loc < BOARD_ELEMENTS; b_loc++) {
-        if (!in_<char>(targets, 2, board[b_loc])) {
+        auto current_piece = board[b_loc];
+        // Skip squares that don't have the correct color checker
+        if (!in_<char>(targets, 2, current_piece)) {
             continue;
         }
 
         auto possible_moves = moveTable[b_loc];
-        for (size_t c = 0; c < possible_moves.size(); c++) {
-            size_t move = possible_moves[c];
+        size_t start = 0;
+        size_t end = possible_moves.size();
+
+        // Grab only the north direction
+        if (current_piece == BLACK_CHECKER) {
+            end -= 2;
+        }
+        // grab only the south direction
+        else if (current_piece == RED_CHECKER) {
+            start += 2;
+        }
+
+        for (size_t c = start; c < end; c++) {
+            auto move = possible_moves[c];
+
+            if (move == -1) { continue; }
+
             if (board[move] == BLANK) {
                 moves.push_back({b_loc, move});
             }
