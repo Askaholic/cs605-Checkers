@@ -71,7 +71,6 @@ static PyObject * get_board_wrapper(PyObject * self, PyObject * args) {
 }
 
 static PyObject * get_possible_moves_wrapper(PyObject * self, PyObject * args) {
-    // There are no arguments
     int player;
     BoardState board;
     if (!PyArg_ParseTuple(args, "O&i", converter, &board, &player)) {
@@ -81,9 +80,12 @@ static PyObject * get_possible_moves_wrapper(PyObject * self, PyObject * args) {
     auto b = get_possible_moves(board, player);
     auto list = PyList_New(b.size());
     for (size_t i = 0; i < b.size(); i++) {
-      if (PyList_SetItem(list, i, /* Make a tuple here? */) == -1) {
-        // Handle error here?
-      }
+        auto tuple = PyTuple_New(2);
+        PyTuple_SET_ITEM(tuple, 0, b[i]._from);
+        PyTuple_SET_ITEM(tuple, 1, b[i]._to);
+        if (PyList_SetItem(list, i, tuple) == -1) {
+            // Handle error here?
+        }
     }
     return list;
 }
