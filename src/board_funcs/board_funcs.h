@@ -27,6 +27,7 @@ private:
 
 public:
     char operator[](size_t index);
+    const char operator[](size_t index) const;
     void set(size_t index, char value);
 };
 
