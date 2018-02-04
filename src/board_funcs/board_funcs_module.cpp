@@ -56,7 +56,7 @@ static PyObject * get_board_wrapper(PyObject * self, PyObject * args) {
       }
       char tmp = b[i];
       switch (tmp) {
-        case BLANK: tmp = ' '; break;
+        case BLANK: tmp = '1'; break;
         case BLACK_CHECKER: tmp = 'b'; break;
         case RED_CHECKER: tmp = 'r'; break;
         case BLACK_KING: tmp = 'B'; break;
@@ -70,16 +70,26 @@ static PyObject * get_board_wrapper(PyObject * self, PyObject * args) {
     return list;
 }
 
-static int Board_Converter(PyObject * object, BoardState &board) {
-
-    return 0;
-}
 
 static PyObject * get_possible_moves_wrapper(PyObject * self, PyObject * args) {
     int player;
-    BoardState board;
-    if (!PyArg_ParseTuple(args, "O&i", Board_Converter, &board, &player)) {
+    char * board_string;
+    if (!PyArg_ParseTuple(args, "si", &board_string, &player)) {
         return NULL;
+    }
+
+    BoardState board;
+    for (size_t i = 0; i < BOARD_ELEMENTS; i++) {
+        char tmp = board_string[i];
+        switch (tmp) {
+          case 'b': tmp = BLACK_CHECKER; break;
+          case 'r': tmp = RED_CHECKER; break;
+          case 'B': tmp = BLACK_KING; break;
+          case 'R': tmp = RED_KING; break;
+          default: tmp = BLANK;
+        }
+        board.set(i, tmp);
+
     }
 
     auto b = get_possible_moves(board, player);
@@ -119,6 +129,8 @@ static PyMethodDef BoardFuncMethods[] = {
         "Get the current board state"},
     { "time_boards", time_boards_wrapper, METH_VARARGS,
         "Print out the amount of time it takes for operations on each type of board" },
+    { "get_possible_moves", get_possible_moves_wrapper, METH_VARARGS,
+        "Finds all of the available moves given a board state, and which player's turn it is" },
     { NULL, NULL, 0, NULL }
 };
 
