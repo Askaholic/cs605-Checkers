@@ -1,4 +1,4 @@
-from distutils.core import setup, Extension
+from setuptools import setup, Extension
 
 extension_mod = Extension('board_funcs',
                           sources=[
@@ -10,4 +10,8 @@ extension_mod = Extension('board_funcs',
                           language='c++',
                           extra_compile_args=['-std=c++14'])
 
-setup(name='board_funcs', ext_modules=[extension_mod])
+setup(
+    name='board_funcs',
+    ext_modules=[extension_mod],
+    packages=[]
+)
