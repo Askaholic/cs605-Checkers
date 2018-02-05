@@ -53,7 +53,7 @@ moveTable = {
 
 jumpTable = {
     #  from_: (to_, enemy)
-    #  -1 = non-movable space 
+    #  -1 = non-movable space
 	0: 	[-1,-1,        -1,(9,5)],
 	1: 	[-1,-1,		(8,5),(10,6)],
 	2: 	[-1,-1,		(9,6),(11,7)],
@@ -100,7 +100,7 @@ RED_PLAYER = 0
 BLACK_PLAYER = 1
 
 playerColors = {
-    
+
     0: ['r', 'R'],
     1: ['b', 'B']
 
@@ -120,7 +120,7 @@ class Board(object):
         self.allPossibleJumps = []
         self.enemy = ''
 
-        self.setupBoard()       
+        self.setupBoard()
         self.printBoard()
 
     # Sets up the pieces.
@@ -214,7 +214,7 @@ class Board(object):
 
     def is_move(self, from_, to_):
         if to_ not in moveTable[from_]:
-            return False 
+            return False
         return True
 
     def jump(self, from_, to_):
@@ -252,7 +252,7 @@ class Board(object):
 
         return False
 
-    # Called from GUI 
+    # Called from GUI
     def take_move(self, from_, to_):
         if(self.current_turn_player == RED_PLAYER):
             print("Red Player")
@@ -260,7 +260,7 @@ class Board(object):
             print("Black Player")
 
         # print('from_:', from_, 'to_', to_)
-    
+
         if self.is_valid_jump(from_, to_):
             print('I think I should jump now')
             self.jump(from_, to_)
@@ -279,9 +279,9 @@ class Board(object):
 
     #     for jump in self.allPossibleJumps:
     #         print('am I even trying to take a jump?')
-            
+
     #         self.take_move(i, jump[0])
-    #         turnTaken = True 
+    #         turnTaken = True
     #     if turnTaken:
 
     def get_all_jumps(self):
@@ -304,9 +304,9 @@ class Board(object):
 
             for jump in self.allPossibleJumps:
                 print('am I even trying to take a jump?')
-                
+
                 self.take_move(i, jump[0])
-                turnTaken = True            
+                turnTaken = True
 
         self.allPossibleJumps = []
 
@@ -321,7 +321,7 @@ class Board(object):
 
         else:
             # Visual Testing
-            print('=='*20)    
+            print('=='*20)
             for i in range(32):
 
                 if (self.board[i] not in playerColors[self.current_turn_player]):
@@ -346,13 +346,13 @@ class Board(object):
                 for move in possMoves:
                     if (not self.is_valid_move(i, move)):
                         continue
-                
+
                     self.take_move(i, move)
-                    return 
+                    return
 
             self.winCondition = 0
 
-    # Rename 
+    # Rename
     def moveGenerator(self):
 
         self.make_current_player_move()
@@ -384,6 +384,7 @@ class Board(object):
             else:
                 board += self.board[tile] + ' '
 
+        self.setupBoard()
 
         # Extra newline at end of board
         board += '\n'
