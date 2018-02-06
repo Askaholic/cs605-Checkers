@@ -11,6 +11,22 @@
 #include <stdexcept>
 #include <memory>
 
+Network::Network(const std::vector<size_t> &topology){
+    auto num_layers = topology.size();
+    _layers = std::vector<Layer>();
+
+    size_t prev_num_nodes = 1;
+    for (size_t i = 0; i < num_layers; i++) {
+        auto num_nodes = topology[i];
+        std::vector<float> weights(prev_num_nodes, 0.0f);
+        std::vector<Node> nodes(num_nodes, weights);
+
+
+        _layers.push_back(Layer(nodes));
+        prev_num_nodes = num_nodes;
+    }
+}
+
 float Network::evaluate(const std::vector<float> &inputs) {
     if (_layers.size() == 0) { return 0.0; }
     // Special case for first layer

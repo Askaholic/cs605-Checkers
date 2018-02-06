@@ -41,6 +41,7 @@ private:
 
 public:
     Network (std::vector<Layer> layers):_layers(layers) {};
+    Network (const std::vector<size_t> &topology);
     float evaluate(const std::vector<float> &inputs);
 };
 
