@@ -198,7 +198,10 @@ class Board(object):
             possJumps = [jump for jump in possJumps[2:] if jump != -1]
         elif piece == 'b':
             possJumps = [jump for jump in possJumps[:2] if jump != -1]
-
+        else:
+            possJumps = [jump for jump in jumpTable[from_] if jump != -1]
+        
+        print('Piece:', piece, 'from_:', from_, ' possibleJump:', possJumps)
         return possJumps
 
     def is_valid_move(self, from_, to_):
@@ -230,6 +233,9 @@ class Board(object):
         # print('from_:', from_, ' to_:', to_)
         # print('Possible jumps:',self.get_possible_jumps_of_piece(from_))
         # print('I think this is ...', [jump[0] for jump in self.get_possible_jumps_of_piece(from_)])
+
+        if not self.get_possible_jumps_of_piece(from_):
+            return False
         if (to_ not in [jump[0] for jump in self.get_possible_jumps_of_piece(from_)]):
             return False
 
