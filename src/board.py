@@ -203,7 +203,6 @@ class Board(object):
         else:
             possJumps = [jump for jump in jumpTable[from_] if jump != -1]
 
-        print('Piece:', piece, 'from_:', from_, ' possibleJump:', possJumps)
         return possJumps
 
     def is_valid_move(self, from_, to_):
@@ -337,7 +336,6 @@ class Board(object):
         self.printBoard()
 
     def printBoard(self):
-
         board = ''
         board += '\n'
         # odd switch - Switch to next row
