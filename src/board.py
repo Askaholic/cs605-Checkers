@@ -338,21 +338,20 @@ class Board(object):
     def printBoard(self):
         board = ''
         board += '\n'
-        # odd switch - Switch to next row
         odd = False
 
         for tile in range(32):
-            # since 0 % 4 = 0, skip the first tile, otherwise we
-            # add an extra row with 5 or 1, depending on indexing.
+            board_element = self.board[tile]
+            if board_element == '1':
+                board_element = '.'
             if (tile % 4 == 0 and tile != 0):
-
                 odd = not odd
                 board += '\n'
 
             if (not odd):
-                board += ' ' + self.board[tile]
+                board += ' ' + board_element
             else:
-                board += self.board[tile] + ' '
+                board += board_element + ' '
 
         board += '\n'
         print(board)
