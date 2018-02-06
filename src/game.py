@@ -30,6 +30,8 @@ class Game(object):
                 return
     
             self.board.take_jump(from_, to_)
+            if len(self.board.get_all_jumps()) == 0:
+                self.end_turn()
 
         if not self.all_jumps_taken:
             if not self.board.is_valid_move(from_, to_):
