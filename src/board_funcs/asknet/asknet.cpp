@@ -5,6 +5,7 @@
 // Implementation for AskNet neural network
 
 #include "asknet.h"
+#include <cmath>
 #include <cstddef>
 #include <random>
 #include <iostream>
@@ -51,7 +52,7 @@ float Network::evaluate(const std::vector<float> &inputs) {
 void Network::randomizeWeights() {
     std::random_device rd;
     std::mt19937 engine(rd());
-    std::uniform_real_distribution<float> dist(0, 1);
+    std::uniform_real_distribution<float> dist(-1, 1);
     for (size_t i = 0; i < _layers.size(); i++) {
         for (size_t j = 0; j < _layers[i].size(); j++) {
             auto node = &_layers[i].getNodes()[j];
@@ -104,5 +105,5 @@ float Node::_sumWeights(const std::vector<float> &inputs) {
 }
 
 float Node::_applySigmoid(float num) {
-    return (num / _weights.size());
+    return std::tanh(num);
 }
