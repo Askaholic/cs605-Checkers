@@ -8,8 +8,32 @@
 #ifndef ASK_NET_H
 #define ASK_NET_H
 
-#import <vector>
-#import <cstddef>
+#include <vector>
+#include <cstddef>
+
+
+class Node {
+private:
+    std::vector<float> _weights;
+    float _sumWeights(const std::vector<float> &inputs);
+    float _applySigmoid(float num);
+
+public:
+    Node(std::vector<float> weights):_weights(weights) {};
+    float evaluate(const std::vector<float> &inputs);
+};
+
+
+class Layer {
+private:
+    std::vector<Node> _nodes;
+
+public:
+    Layer (std::vector<Node> nodes):_nodes(nodes) {};
+    std::vector<float> evaluate(const std::vector<float> &inputs);
+    std::vector<float> evaluateFirst(const std::vector<float> &inputs);
+};
+
 
 class Network {
 private:
@@ -17,15 +41,12 @@ private:
 
 public:
     Network (std::vector<Layer> layers):_layers(layers) {};
+    float evaluate(const std::vector<float> &inputs);
 };
 
-class Layer {
-private:
-    std::vector<float> _weights;
 
-public:
-    Layer (size_t num_nodes);
-};
+
+
 
 
 #endif
