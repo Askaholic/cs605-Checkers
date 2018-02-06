@@ -6,6 +6,12 @@
 import sys
 import random
 
+try:
+    import board_funcs as bf
+except ImportError:
+    print("Could not import board_funcs C++ library. Please install it!")
+    bf = None
+
 moveTable = {
     # -1 is a position they cannot move. Allows for [2:] list splitting.
     # Move Up  Move Down
@@ -100,10 +106,8 @@ RED_PLAYER = 0
 BLACK_PLAYER = 1
 
 playerColors = {
-
     0: ['r', 'R'],
     1: ['b', 'B']
-
 }
 
 
