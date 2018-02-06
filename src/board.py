@@ -3,8 +3,6 @@
 # Created: Jan. 18, 2018
 
 # Game class for keeping track of high level game info
-import sys
-import random
 
 try:
     import board_funcs as bf
@@ -136,10 +134,10 @@ class Board(object):
 
     def make_king_if_king_space(self, to_):
         # Make red pawns kings
-        if to_ in [28,29,30,31]:
+        if to_ in [28, 29, 30, 31]:
             self.board[to_] = 'R'
         # Make black pawns kings
-        if to_ in [0,1,2,3]:
+        if to_ in [0, 1, 2, 3]:
             self.board[to_] = 'B'
 
     def is_enemy_in_position(self, from_, to_):
@@ -251,19 +249,16 @@ class Board(object):
                 continue
 
             possJumps = [jump for jump in jumpTable[i] if jump != -1]
-            # print(possJumps)
 
             for jump in possJumps:
                 if self.is_valid_jump(i, jump[0]):
-                    # print(jump)
-                    allPossibleJumps.append((jump))
+                    allPossibleJumps.append((i, jump))
                     print('Piece:', i, ' - Jumps:', possJumps)
 
         print('These are the possibles jumps:', allPossibleJumps)
         return allPossibleJumps
 
     def get_all_moves(self):
-
         allPossibleMoves = []
 
         for i in range(32):
@@ -271,14 +266,30 @@ class Board(object):
                 continue
 
             possMoves = moveTable[i]
+            piece = self.board[i]
+
+            if (self.current_turn_player == RED_PLAYER):
+                if piece == 'r':
+                    possMoves = possMoves[2:]
+            else:
+                if piece == 'b':
+                    possMoves = possMoves[2:]
 
             for move in possMoves:
-                if self.is_valid_move(i, move):
-                    # print(move)
-                    allPossibleMoves.append((move))
-                    print('Piece:', i, ' - Move:', possMoves)
+                if (not self.is_valid_move(i, move)):
+                    continue
+                allPossibleMoves.append((i, move))
 
         return allPossibleMoves
+
+    def choose_jump(self, jumps):
+        # Always just pick the first available jump
+        first_jump = jumps[0]
+        self.take_jump(first_jump[0], first_jump[1][0])
+
+    def choose_move(self, moves):
+        first_move = moves[0]
+        self.take_move(first_move[0], first_move[1])
 
     def make_ai_move(self):
         # Visual Testing
@@ -286,43 +297,13 @@ class Board(object):
 
         print('Current Player:', self.current_turn_player, 'Number of Jumps', len(self.get_all_jumps()))
 
-        if len(self.get_all_jumps()) > 0:
-            for i in range(32):
-                for jump in self.get_all_jumps():
-                    if self.is_valid_jump(i, jump[0]):
-                        print('Possible Jump:', jump, ' for piece i:', i )
-                        self.take_jump(i,jump[0])
-
+        available_jumps = self.get_all_jumps()
+        if available_jumps != []:
+            self.choose_jump(available_jumps)
             return
-
-
         else:
-            for i in range(32):
-
-                if (self.board[i] not in playerPieces[self.current_turn_player]):
-                    continue
-
-                possMoves = moveTable[i]
-
-                if (self.current_turn_player == RED_PLAYER):
-
-                    piece = self.board[i]
-
-                    if piece == 'r':
-                        possMoves = possMoves[2:]
-
-                else:
-                    piece = self.board[i]
-
-                    if piece == 'b':
-                        possMoves = possMoves[2:]
-
-                for move in possMoves:
-                    if (not self.is_valid_move(i, move)):
-                        continue
-                    self.take_move(i, move)
-                    return
-
+            available_moves = self.get_all_moves()
+            self.choose_move(available_moves)
 
     def ai_turn(self):
         self.make_ai_move()
@@ -347,7 +328,6 @@ class Board(object):
                 board += ' ' + self.board[tile]
             else:
                 board += self.board[tile] + ' '
-
 
         board += '\n'
         print(board)
