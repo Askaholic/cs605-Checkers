@@ -132,7 +132,7 @@ class Board(object):
             return False
         return True
 
-    def make_king(self, to_):
+    def make_king_if_king_space(self, to_):
         # Make red pawns kings
         if to_ in [28,29,30,31]:
             self.board[to_] = 'R'
@@ -145,11 +145,11 @@ class Board(object):
         enemyPos = [jump[1] for jump in possJumps if jump[0] == to_]
 
         # Implicitly check for empty list
-        print('The enemy position is:', enemyPos)
+        # print('The enemy position is:', enemyPos)
         if not enemyPos:
             return False
 
-        print('board piece:', self.board[enemyPos[0]])
+        # print('board piece:', self.board[enemyPos[0]])
         if self.board[enemyPos[0]] not in playerPieces[not self.current_turn_player]:
             return False
 
@@ -168,12 +168,16 @@ class Board(object):
         self.board[from_] = '1'
         self.board[to_] = piece
 
+        self.make_king_if_king_space(to_)
+
     def take_jump(self, from_, to_):
         enemyPos = self.get_enemy_position(from_, to_)
         piece = self.board[from_]
         self.board[enemyPos] = '1'
         self.board[from_] = '1'
         self.board[to_] = piece
+
+        self.make_king_if_king_space(to_)
 
     def get_possible_moves_of_piece(self, from_):
         piece = self.board[from_]
@@ -204,12 +208,14 @@ class Board(object):
             return False
         if self.board[to_] != '1':
             return False
+        if from_ == to_:
+            return False
+        if to_ not in moveTable[from_]:
+            return False
         if (to_ not in self.get_possible_moves_of_piece(from_)):
             return False
 
         return True
-
-    # def is_enemy(self, from_, to_):
 
     def is_valid_jump(self, from_, to_):
         if not self.is_valid_index(from_) or not self.is_valid_index(to_):
@@ -226,7 +232,6 @@ class Board(object):
         # print('I think this is ...', [jump[0] for jump in self.get_possible_jumps_of_piece(from_)])
         if (to_ not in [jump[0] for jump in self.get_possible_jumps_of_piece(from_)]):
             return False
-
 
         return True
 
@@ -245,66 +250,78 @@ class Board(object):
                 if self.is_valid_jump(i, jump[0]):
                     # print(jump)
                     allPossibleJumps.append((jump))
+                    print('Piece:', i, ' - Jumps:', possJumps)
 
-
-        print
         return allPossibleJumps
 
+    def get_all_moves(self):
 
-    def generate_all_current_player_moves(self):
+        allPossibleMoves = []
+
         for i in range(32):
-            if (self.board[i] not in playerPieces[self.current_turn_player]):
-                continue
-
-        pass
-
-    def generate_all_current_player_jumps(self):
-        pass
-
-    def make_ai_move(self):
-        # if len(self.get_all_jumps()) > 0:
-            # for jump in self.get_all_jumps:
-                # if self.is_valid_jump(i, jump[0]):
-
-
-
-        # Visual Testing
-        print('=='*20)    
-        for i in range(32):
-
             if (self.board[i] not in playerPieces[self.current_turn_player]):
                 continue
 
             possMoves = moveTable[i]
 
-            if (self.current_turn_player == RED_PLAYER):
-
-                piece = self.board[i]
-
-                if piece == 'r':
-                    possMoves = possMoves[2:]
-
-            else:
-                piece = self.board[i]
-
-                if piece == 'b':
-                    possMoves = possMoves[2:]
-
-            print('All possible moves', possMoves, 'for piece', i)
             for move in possMoves:
-                if (not self.is_valid_move(i, move)):
+                if self.is_valid_move(i, move):
+                    # print(move)
+                    allPossibleMoves.append((move))
+                    print('Piece:', i, ' - Move:', possMoves)
+
+        return allPossibleMoves
+
+
+
+    def make_ai_move(self):
+        # Visual Testing
+        print('=='*20)  
+
+        print('Current Player:', self.current_turn_player, 'Number of Jumps', len(self.get_all_jumps()))
+        
+        if len(self.get_all_jumps()) > 0:
+            for i in range(32):
+                for jump in self.get_all_jumps():
+                    print('Possible Jump:', jump)
+                    if self.is_valid_jump(i, jump[0]):
+                        self.take_jump(i,jump[0])
+
+            return
+
+
+        else:  
+            for i in range(32):
+
+                if (self.board[i] not in playerPieces[self.current_turn_player]):
                     continue
-            
-                self.take_move(i, move)
-                return 
+
+                possMoves = moveTable[i]
+
+                if (self.current_turn_player == RED_PLAYER):
+
+                    piece = self.board[i]
+
+                    if piece == 'r':
+                        possMoves = possMoves[2:]
+
+                else:
+                    piece = self.board[i]
+
+                    if piece == 'b':
+                        possMoves = possMoves[2:]
+
+                for move in possMoves:
+                    if (not self.is_valid_move(i, move)):
+                        continue
+                    print('All possible moves', move, 'for piece', i)
+                
+                    self.take_move(i, move)
+                    return 
 
 
-
-    # Rename 
     def play_ai(self):
 
-        # self.generate_all_current_player_jumps()
-        # self.generate_all_current_player_moves()
         self.make_ai_move()
         self.printBoard()
 
