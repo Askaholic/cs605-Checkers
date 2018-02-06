@@ -19,7 +19,7 @@ class Game(object):
         self.board.current_turn_player = RED_PLAYER if self.player == BLACK_PLAYER else BLACK_PLAYER
         self.turns += 1
         self.timeout = time() + .3
-        self.all_jump_taken = False
+        self.all_jumps_taken = False
 
     def player_turn(self, from_, to_):
         if not self.player == self.board.current_turn_player:
@@ -28,7 +28,7 @@ class Game(object):
         if len(self.board.get_all_jumps()) > 0:
             if not self.board.is_valid_jump(from_, to_):
                 return
-    
+
             self.board.take_jump(from_, to_)
             if len(self.board.get_all_jumps()) == 0:
                 self.end_turn()
@@ -37,7 +37,7 @@ class Game(object):
             if not self.board.is_valid_move(from_, to_):
                 return
 
-            self.board.take_move(from_, to_)
+            self.board.take_move(self.board.board, from_, to_)
 
         self.end_turn()
 
@@ -49,11 +49,8 @@ class Game(object):
             else:
                 self.timeout = None
 
-        if self.turns < 200:
+        if self.turns < 200 and self.board.winner is None:
             if self.player != self.board.current_turn_player:
                 self.board.ai_turn()
                 self.board.current_turn_player = BLACK_PLAYER if self.player == BLACK_PLAYER else RED_PLAYER
                 self.turns += 1
-
-
-

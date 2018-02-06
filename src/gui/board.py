@@ -4,6 +4,7 @@
 
 # Draws the board onto the window
 
+from board import RED_PLAYER
 from pyglet.gl import *
 from pyglet.resource import image
 from pyglet.sprite import Sprite
@@ -33,10 +34,16 @@ class BoardHandlers(object):
     def on_draw(self):
         glClear(GL_COLOR_BUFFER_BIT)
         glLoadIdentity()
+        glPushMatrix()
         glTranslatef(self.window.width // 2 - scale(400), self.window.height // 2 - scale(400), 0)
         draw_board()
         draw_pieces(self.sprites, self.window.game_board, self.dragged)
-        self.debug_label.draw()
+        glPopMatrix()
+
+        if self.window.game_board.board.winner is not None:
+            draw_winner(self.window.game_board.board.winner, self.window)
+
+        # self.debug_label.draw()
 
     def on_mouse_motion(self, x, y, dx, dy):
         self.debug_label.x = x
@@ -74,7 +81,7 @@ class BoardHandlers(object):
         move_to = self.get_piece_under(x, y)
         self.debug_label.text = "Space: " + str(move_to)
         if(move_to is None) or (self.dragged['piece'] == move_to):
-            self.dragged = None    
+            self.dragged = None
             return
         self.window.game_board.player_turn(self.dragged['piece'], move_to)
         self.dragged = None
@@ -150,8 +157,21 @@ def draw_pieces(sprites, board, dragged):
         sprite.draw()
 
 
-def draw_possible_moves(board):
+def draw_winner(winner, window):
+    # Make label somewhere else?
+    winner_text = Label(
+        '{} wins!'.format("Red" if winner == RED_PLAYER else "Black"),
+        font_name='Times New Roman',
+        font_size=scale(75),
+        anchor_x='center',
+        anchor_y='center'
+    )
+    winner_text.x = window.width // 2
+    winner_text.y = window.height // 2
+    winner_text.draw()
 
+
+def draw_possible_moves(board):
     for tile in enumerate(board.board.board):
         return
 
