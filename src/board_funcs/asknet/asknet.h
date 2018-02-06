@@ -49,7 +49,8 @@ public:
     Network (const std::vector<size_t> &topology);
     float evaluate(const std::vector<float> &inputs);
     void randomizeWeights();
-    void evolveWeights();
+    std::vector<Network> & evolveWeights(size_t num_children, float stdev);
+    size_t getNumNodes();
 };
 
 

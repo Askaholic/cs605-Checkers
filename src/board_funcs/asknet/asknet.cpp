@@ -64,6 +64,14 @@ void Network::randomizeWeights() {
     }
 }
 
+size_t Network::getNumNodes() {
+    size_t numNodes = 0;
+    for (size_t i = 0; i < _layers.size(); i++) {
+        numNodes += _layers[i].size();
+    }
+    return numNodes;
+}
+
 std::vector<float> Layer::evaluate(const std::vector<float> &inputs) {
     std::vector<float> outputs;
     for (size_t i = 0; i < _nodes.size(); i++) {
