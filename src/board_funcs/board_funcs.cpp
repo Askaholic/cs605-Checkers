@@ -4,10 +4,11 @@
 
 // Shared library for code that needs to be fast and small...
 
+#include "asknet.h"
+#include "board_funcs.h"
 #include <vector>
 #include <cstddef>
 #include <iostream>
-#include "board_funcs.h"
 
 /*
 jumpTable = {
@@ -96,6 +97,7 @@ std::vector<std::vector<int>> moveTable = {
     {26,27,  -1,-1}
 };
 BoardState the_board = {};
+Network the_network({0, 0});
 
 void setup_board() {
     for (size_t i = 0; i < 12; i++) {
@@ -104,8 +106,31 @@ void setup_board() {
     }
 }
 
+void setup_network() {
+    the_network = Network({32, 1024, 512, 256, 8, 1});
+    the_network.randomizeWeights();
+    std::cout << "Initialized network with " << the_network.getNumNodes() << " nodes" << '\n';
+}
+
 BoardState get_board() {
   return the_board;
+}
+
+float evaluate_board(const BoardState &board) {
+    std::vector<float> inputs(BOARD_ELEMENTS);
+
+    for (size_t i = 0; i < BOARD_ELEMENTS; i++) {
+        auto piece = board[i];
+        float node_value = 0.0f;
+        switch (piece) {
+            case RED_CHECKER: node_value = 0.5f; break;
+            case RED_KING: node_value = 1.0f; break;
+            case BLACK_CHECKER: node_value = -0.5f; break;
+            case BLACK_KING: node_value = -1.0f; break;
+        }
+        inputs[i] = node_value;
+    }
+    return the_network.evaluate(inputs);
 }
 
 std::vector<Move> get_possible_moves(const BoardState &board, int player) {

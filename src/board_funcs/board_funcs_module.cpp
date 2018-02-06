@@ -41,6 +41,15 @@ static PyObject * setup_board_wrapper(PyObject * self, PyObject * args) {
     Py_RETURN_NONE;
 }
 
+static PyObject * setup_network_wrapper(PyObject * self, PyObject * args) {
+    // There are no arguments
+    if (!PyArg_ParseTuple(args, "")) {
+        return NULL;
+    }
+    setup_network();
+    Py_RETURN_NONE;
+}
+
 static PyObject * get_board_wrapper(PyObject * self, PyObject * args) {
     // There are no arguments
     if (!PyArg_ParseTuple(args, "")) {
@@ -105,6 +114,29 @@ static PyObject * get_possible_moves_wrapper(PyObject * self, PyObject * args) {
     return list;
 }
 
+static PyObject * evaluate_board_wrapper(PyObject * self, PyObject * args) {
+    char * board_string;
+    if (!PyArg_ParseTuple(args, "s", &board_string)) {
+        return NULL;
+    }
+
+    BoardState board;
+    for (size_t i = 0; i < BOARD_ELEMENTS; i++) {
+        char tmp = board_string[i];
+        switch (tmp) {
+          case 'b': tmp = BLACK_CHECKER; break;
+          case 'r': tmp = RED_CHECKER; break;
+          case 'B': tmp = BLACK_KING; break;
+          case 'R': tmp = RED_KING; break;
+          default: tmp = BLANK;
+        }
+        board.set(i, tmp);
+    }
+
+    auto f = evaluate_board(board);
+    return PyFloat_FromDouble(f);
+}
+
 static PyObject * time_boards_wrapper(PyObject * self, PyObject * args) {
     // There are no arguments
     if (!PyArg_ParseTuple(args, "")) {
@@ -125,12 +157,16 @@ static PyMethodDef BoardFuncMethods[] = {
         "Testing"},
     { "setup_board", setup_board_wrapper, METH_VARARGS,
         "Setup the initial board state"},
+    { "setup_network", setup_network_wrapper, METH_VARARGS,
+        "Setup the neural network used by the board evaluation function"},
     { "get_board", get_board_wrapper, METH_VARARGS,
         "Get the current board state"},
     { "time_boards", time_boards_wrapper, METH_VARARGS,
         "Print out the amount of time it takes for operations on each type of board" },
     { "get_possible_moves", get_possible_moves_wrapper, METH_VARARGS,
         "Finds all of the available moves given a board state, and which player's turn it is" },
+    { "evaluate_board", evaluate_board_wrapper, METH_VARARGS,
+        "Evaluates how good a board state is" },
     { NULL, NULL, 0, NULL }
 };
 

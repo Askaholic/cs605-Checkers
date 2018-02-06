@@ -57,8 +57,10 @@ struct Move {
 char * test(char * str);
 
 void setup_board();
+void setup_network();
 BoardState get_board();
 std::vector<Move> get_possible_moves(const BoardState &board, int player);
+float evaluate_board(const BoardState &board);
 void time_boards();
 
 template <typename T>

@@ -7,3 +7,5 @@ import board_funcs as bf
 
 print("Possible moves")
 print(bf.get_possible_moves("rrrrrrrrrrrr11111111bbbbbbbbbbbb", 0))
+bf.setup_network()
+print("Board value: {}".format(bf.evaluate_board("rrrrrrrrrrrr11111111bbbbbbbbbbbb")))
