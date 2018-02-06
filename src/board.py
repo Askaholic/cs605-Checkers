@@ -6,6 +6,7 @@
 
 try:
     import board_funcs as bf
+    bf.setup_network()
 except ImportError:
     print("Could not import board_funcs C++ library. Please install it!")
     bf = None
@@ -117,12 +118,12 @@ class Board(object):
             0: 'red',
             1: 'black'
         }
-        self.current_turn_player = RED_PLAYER
-        self.winCondition = -1
         self.setup_board()
 
     # Sets up the pieces.
     def setup_board(self):
+        self.winner = None
+        self.current_turn_player = RED_PLAYER
         for checker in range(12):
             self.board[checker] = 'r'
             self.board[31 - checker] = 'b'
@@ -132,13 +133,13 @@ class Board(object):
             return False
         return True
 
-    def make_king_if_king_space(self, to_):
+    def make_king_if_king_space(self, board, to_):
         # Make red pawns kings
         if to_ in [28, 29, 30, 31]:
-            self.board[to_] = 'R'
+            board[to_] = 'R'
         # Make black pawns kings
         if to_ in [0, 1, 2, 3]:
-            self.board[to_] = 'B'
+            board[to_] = 'B'
 
     def is_enemy_in_position(self, from_, to_):
         possJumps = [jump for jump in jumpTable[from_] if jump != -1]
@@ -163,12 +164,12 @@ class Board(object):
         return enemyPos[0]
 
     # Called from GUI
-    def take_move(self, from_, to_):
-        piece = self.board[from_]
-        self.board[from_] = '1'
-        self.board[to_] = piece
+    def take_move(self, board, from_, to_):
+        piece = board[from_]
+        board[from_] = '1'
+        board[to_] = piece
 
-        self.make_king_if_king_space(to_)
+        self.make_king_if_king_space(board, to_)
 
     def take_jump(self, from_, to_):
         enemyPos = self.get_enemy_position(from_, to_)
@@ -177,7 +178,7 @@ class Board(object):
         self.board[from_] = '1'
         self.board[to_] = piece
 
-        self.make_king_if_king_space(to_)
+        self.make_king_if_king_space(self.board, to_)
 
     def get_possible_moves_of_piece(self, from_):
         piece = self.board[from_]
@@ -241,7 +242,6 @@ class Board(object):
         return True
 
     def get_all_jumps(self):
-
         allPossibleJumps = []
 
         for i in range(32):
@@ -253,9 +253,7 @@ class Board(object):
             for jump in possJumps:
                 if self.is_valid_jump(i, jump[0]):
                     allPossibleJumps.append((i, jump))
-                    print('Piece:', i, ' - Jumps:', possJumps)
 
-        print('These are the possibles jumps:', allPossibleJumps)
         return allPossibleJumps
 
     def get_all_moves(self):
@@ -288,21 +286,49 @@ class Board(object):
         self.take_jump(first_jump[0], first_jump[1][0])
 
     def choose_move(self, moves):
-        first_move = moves[0]
-        self.take_move(first_move[0], first_move[1])
+        if bf is None:
+            # Take the first move if the c++ lib is not available
+            best_move = moves[0]
+        else:
+            best_move = self.simple_search_for_best_move(moves)
+
+        self.take_move(self.board, best_move[0], best_move[1])
+
+    def simple_search_for_best_move(self, moves):
+        best_score = 0
+        best_move = moves[0]
+        for move in moves:
+            board_string = self.board_to_string(self.expand_move(move))
+            score = bf.evaluate_board(board_string)
+            # TODO: check which player's turn it is
+            if score > best_score:
+                best_score = score
+                best_move = move
+
+        return best_move
+
+    def expand_move(self, move):
+        board_copy = list(self.board)
+        self.take_move(board_copy, move[0], move[1])
+        return board_copy
+
+    def board_to_string(self, board):
+        string = ""
+        for piece in board:
+            string += piece
+        return string
 
     def make_ai_move(self):
-        # Visual Testing
-        print('=='*20)
-
-        print('Current Player:', self.current_turn_player, 'Number of Jumps', len(self.get_all_jumps()))
-
         available_jumps = self.get_all_jumps()
         if available_jumps != []:
             self.choose_jump(available_jumps)
             return
         else:
             available_moves = self.get_all_moves()
+            if available_moves == []:
+                # We lost
+                self.winner = RED_PLAYER if self.current_turn_player == BLACK_PLAYER else BLACK_PLAYER
+                return
             self.choose_move(available_moves)
 
     def ai_turn(self):
