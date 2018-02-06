@@ -320,7 +320,7 @@ class Board(object):
                     return 
 
 
-    def play_ai(self):
+    def ai_turn(self):
 
         self.make_ai_move()
         self.printBoard()
