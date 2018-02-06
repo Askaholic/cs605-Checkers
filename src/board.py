@@ -151,7 +151,6 @@ class Board(object):
         if not enemyPos:
             return False
 
-        # print('board piece:', self.board[enemyPos[0]])
         if self.board[enemyPos[0]] not in playerPieces[not self.current_turn_player]:
             return False
 
@@ -230,10 +229,6 @@ class Board(object):
             return False
         if self.board[self.get_enemy_position(from_, to_)] not in playerPieces[not self.current_turn_player]:
             return False
-
-        # print('from_:', from_, ' to_:', to_)
-        # print('Possible jumps:',self.get_possible_jumps_of_piece(from_))
-        # print('I think this is ...', [jump[0] for jump in self.get_possible_jumps_of_piece(from_)])
         if not self.get_possible_jumps_of_piece(from_):
             return False
         if (to_ not in [jump[0] for jump in self.get_possible_jumps_of_piece(from_)]):
