@@ -73,10 +73,10 @@ class BoardHandlers(object):
 
         move_to = self.get_piece_under(x, y)
         self.debug_label.text = "Space: " + str(move_to)
-        if(move_to is None):
-            self.dragged = None
+        if(move_to is None) or (self.dragged['piece'] == move_to):
+            self.dragged = None    
             return
-        self.window.game_board.player_take_move(self.dragged['piece'], move_to)
+        self.window.game_board.player_turn(self.dragged['piece'], move_to)
         self.dragged = None
 
     def adjust_window_coords(self, x, y):
