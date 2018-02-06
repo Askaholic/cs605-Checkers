@@ -134,11 +134,12 @@ class Board(object):
         return True
 
     def make_king_if_king_space(self, board, to_):
+        piece = board[to_]
         # Make red pawns kings
-        if to_ in [28, 29, 30, 31]:
+        if to_ in [28, 29, 30, 31] and piece == 'r':
             board[to_] = 'R'
         # Make black pawns kings
-        if to_ in [0, 1, 2, 3]:
+        if to_ in [0, 1, 2, 3] and piece == 'b':
             board[to_] = 'B'
 
     def is_enemy_in_position(self, from_, to_):
