@@ -192,7 +192,7 @@ class Board(object):
 
     def get_possible_jumps_of_piece(self, from_):
         piece = self.board[from_]
-        possJumps = [jump for jump in jumpTable[from_] if jump != -1]
+        possJumps = jumpTable[from_]
 
         if piece == 'r':
             possJumps = [jump for jump in possJumps[2:] if jump != -1]
@@ -252,6 +252,7 @@ class Board(object):
                     allPossibleJumps.append((jump))
                     print('Piece:', i, ' - Jumps:', possJumps)
 
+        print('These are the possibles jumps:', allPossibleJumps)
         return allPossibleJumps
 
     def get_all_moves(self):
@@ -283,8 +284,8 @@ class Board(object):
         if len(self.get_all_jumps()) > 0:
             for i in range(32):
                 for jump in self.get_all_jumps():
-                    print('Possible Jump:', jump)
                     if self.is_valid_jump(i, jump[0]):
+                        print('Possible Jump:', jump, ' for piece i:', i )
                         self.take_jump(i,jump[0])
 
             return
@@ -314,7 +315,7 @@ class Board(object):
                 for move in possMoves:
                     if (not self.is_valid_move(i, move)):
                         continue
-                    print('All possible moves', move, 'for piece', i)
+                    # print('All possible moves', move, 'for piece', i)
                 
                     self.take_move(i, move)
                     return 
