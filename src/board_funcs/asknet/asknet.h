@@ -21,6 +21,9 @@ private:
 public:
     Node(std::vector<float> weights):_weights(weights) {};
     float evaluate(const std::vector<float> &inputs);
+    size_t size() { return _weights.size(); }
+    void setWeight(size_t index, float weight) { _weights[index] = weight; }
+    float getWeight(size_t index) { return _weights[index]; }
 };
 
 
@@ -32,6 +35,8 @@ public:
     Layer (std::vector<Node> nodes):_nodes(nodes) {};
     std::vector<float> evaluate(const std::vector<float> &inputs);
     std::vector<float> evaluateFirst(const std::vector<float> &inputs);
+    size_t size() { return _nodes.size(); }
+    std::vector<Node> & getNodes() { return _nodes; }
 };
 
 
@@ -41,12 +46,11 @@ private:
 
 public:
     Network (std::vector<Layer> layers):_layers(layers) {};
+    Network (const std::vector<size_t> &topology);
     float evaluate(const std::vector<float> &inputs);
+    void randomizeWeights();
+    void evolveWeights();
 };
-
-
-
-
 
 
 #endif
