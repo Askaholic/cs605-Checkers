@@ -5,11 +5,13 @@
 // Implementation for AskNet neural network
 
 #include "asknet.h"
-#include <vector>
 #include <cstddef>
+#include <random>
+#include <iostream>
+#include <memory>
 #include <string>
 #include <stdexcept>
-#include <memory>
+#include <vector>
 
 Network::Network(const std::vector<size_t> &topology){
     auto num_layers = topology.size();
@@ -20,7 +22,6 @@ Network::Network(const std::vector<size_t> &topology){
         auto num_nodes = topology[i];
         std::vector<float> weights(prev_num_nodes, 0.0f);
         std::vector<Node> nodes(num_nodes, weights);
-
 
         _layers.push_back(Layer(nodes));
         prev_num_nodes = num_nodes;
@@ -34,7 +35,6 @@ float Network::evaluate(const std::vector<float> &inputs) {
         std::vector<float>(_layers[0].evaluateFirst(inputs))
     );
 
-
     if (_layers.size() == 1) {
         (*layer_outputs)[0];
     }
@@ -46,6 +46,22 @@ float Network::evaluate(const std::vector<float> &inputs) {
     }
 
     return (*layer_outputs)[0];
+}
+
+void Network::randomizeWeights() {
+    std::random_device rd;
+    std::mt19937 e2(rd());
+    std::uniform_real_distribution<> dist(0, 1);
+    for (size_t i = 0; i < _layers.size(); i++) {
+        for (size_t j = 0; j < _layers[i].size(); j++) {
+            auto node = &_layers[i].getNodes()[j];
+            for (size_t k = 0; k < node->size(); k++) {
+                float r = std::rand();
+                std::cout << r << '\n';
+                node->setWeight(k, r);
+            }
+        }
+    }
 }
 
 std::vector<float> Layer::evaluate(const std::vector<float> &inputs) {
@@ -89,6 +105,5 @@ float Node::_sumWeights(const std::vector<float> &inputs) {
 }
 
 float Node::_applySigmoid(float num) {
-    if (num > 0.5f) { return 1.0f; }
-    return 0.0f;
+    return (num / _weights.size());
 }

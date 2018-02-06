@@ -25,6 +25,7 @@ int main() {
     std::vector<float> inputs = {1.0f, 0.0f, 1.0f};
 
     Network net2({ 32, 64, 1 });
+    net2.randomizeWeights();
     std::vector<float> inputs2(32, 1.0f);
 
     std::cout << "Network output: " << net.evaluate(inputs) << '\n';
