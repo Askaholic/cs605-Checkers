@@ -279,9 +279,9 @@ class Board(object):
         return allPossibleMoves
 
     def choose_jump(self, jumps):
-        # Always just pick the first available jump
-        first_jump = jumps[0]
-        self.take_jump(first_jump[0], first_jump[1][0])
+        # Always take all jumps.
+        for jump in jumps:
+            self.take_jump(jump[0], jump[1][0])
 
     def choose_move(self, moves):
         if bf is None:
@@ -323,6 +323,7 @@ class Board(object):
     def make_ai_move(self):
         available_jumps = self.get_all_jumps()
         if available_jumps != []:
+            print(available_jumps)
             self.choose_jump(available_jumps)
             return
         else:
