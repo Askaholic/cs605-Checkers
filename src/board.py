@@ -3,6 +3,7 @@
 # Created: Jan. 18, 2018
 
 # Game class for keeping track of high level game info
+from random import shuffle
 
 try:
     import board_funcs as bf
@@ -280,10 +281,11 @@ class Board(object):
 
     def choose_jump(self, jumps):
         # Always take all jumps.
-        for jump in jumps:
-            if not self.is_valid_jump(jump[0], jump[1][0]):
-                return
-            self.take_jump(jump[0], jump[1][0])
+        # for jump in jumps:
+            # self.take_jump()
+            # print
+        first_jump = jumps[0]
+        self.take_jump(first_jump[0], first_jump[1][0])
 
     def choose_move(self, moves):
         if bf is None:
@@ -322,16 +324,28 @@ class Board(object):
             string += piece
         return string
 
+    def ai_take_all_jumps(self, jumps):
+        while len(jumps) > 0:
+
+            # O(n) shuffle, randomizes 
+            shuffle(jumps)
+
+            first_jump = jumps[0]
+            self.take_jump(first_jump[0], first_jump[1][0])
+
+            jumps = self.get_all_jumps()
+            print(len(jumps))
+
     def make_ai_move(self):
         available_jumps = self.get_all_jumps()
         if available_jumps != []:
-            self.choose_jump(available_jumps)
+            self.ai_take_all_jumps(available_jumps)
             return
         else:
             available_moves = self.get_all_moves()
             if available_moves == []:
                 # We lost
-                self.winner = RED_PLAYER if self.current_turn_player == BLACK_PLAYER else BLACK_PLAYER
+                # self.winner = RED_PLAYER if self.current_turn_player == BLACK_PLAYER else BLACK_PLAYER
                 return
             self.choose_move(available_moves)
 

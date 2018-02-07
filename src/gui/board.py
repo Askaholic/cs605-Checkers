@@ -40,7 +40,8 @@ class BoardHandlers(object):
         draw_pieces(self.sprites, self.window.game_board, self.dragged)
         glPopMatrix()
 
-        if self.window.game_board.board.winner is not None:
+        print('wtf is your problem:', self.window.game_board.board.winner )
+        if self.window.game_board.winner is not None:
             draw_winner(self.window.game_board.board.winner, self.window)
 
         # self.debug_label.draw()
