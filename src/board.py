@@ -263,14 +263,6 @@ class Board(object):
                 continue
 
             possMoves = moveTable[i]
-            piece = self.board[i]
-
-            if (self.current_turn_player == RED_PLAYER):
-                if piece == 'r':
-                    possMoves = possMoves[2:]
-            else:
-                if piece == 'b':
-                    possMoves = possMoves[2:]
 
             for move in possMoves:
                 if (not self.is_valid_move(i, move)):
