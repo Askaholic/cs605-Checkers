@@ -6,7 +6,10 @@
 
 try:
     import board_funcs as bf
-    bf.setup_network()
+    try:
+        bf.setup_network()
+    except:
+        print('No network available')
 except ImportError:
     print("Could not import board_funcs C++ library. Please install it!")
     bf = None
@@ -294,7 +297,11 @@ class Board(object):
         best_move = moves[0]
         for move in moves:
             board_string = self.board_to_string(self.expand_move(move))
-            score = bf.evaluate_board(board_string)
+            try:
+                score = bf.evaluate_board(board_string)
+            except:
+                print('No evaluate Board')
+                score = 0
             # TODO: check which player's turn it is
             if score > best_score:
                 best_score = score
