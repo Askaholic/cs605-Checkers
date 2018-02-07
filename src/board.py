@@ -281,6 +281,8 @@ class Board(object):
     def choose_jump(self, jumps):
         # Always take all jumps.
         for jump in jumps:
+            if not self.is_valid_jump(jump[0], jump[1][0]):
+                return
             self.take_jump(jump[0], jump[1][0])
 
     def choose_move(self, moves):
@@ -323,7 +325,6 @@ class Board(object):
     def make_ai_move(self):
         available_jumps = self.get_all_jumps()
         if available_jumps != []:
-            print(available_jumps)
             self.choose_jump(available_jumps)
             return
         else:
