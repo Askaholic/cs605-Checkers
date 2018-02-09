@@ -10,6 +10,8 @@
 #include <cstddef>
 #include <vector>
 #include <iostream>
+#include <memory>
+#include <utility>
 
 #define RED_PLAYER 0
 #define BLACK_PLAYER 1
@@ -22,14 +24,23 @@
 
 #define BOARD_ELEMENTS 32
 
+struct Move {
+    size_t _from;
+    size_t _to;
+};
+
 class BoardState {
 private:
     char _tiles[BOARD_ELEMENTS / 2];
 
 public:
+    BoardState() = default;
+    BoardState(const BoardState &);
     char operator[](size_t index);
     const char operator[](size_t index) const;
     void set(size_t index, char value);
+    // test timing with reference?
+    void apply_move(const Move);
 };
 
 class BoardStateFast {
@@ -44,13 +55,7 @@ public:
 class Board {
 private:
     BoardState currentBoardState;
-
 public:
-};
-
-struct Move {
-    size_t _from;
-    size_t _to;
 };
 
 // Test function. To verify that the module is installed and works
@@ -59,8 +64,12 @@ char * test(char * str);
 void setup_board();
 void setup_network();
 BoardState get_board();
+
 std::vector<Move> get_possible_moves(const BoardState &board, int player);
 float evaluate_board(const BoardState &board);
+int piece_count(const BoardState &board, int player);
+std::pair<std::unique_ptr<BoardState>, int> min_max_search(const BoardState & board, int player, int depth);
+
 void time_boards();
 
 template <typename T>

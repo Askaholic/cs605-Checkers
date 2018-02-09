@@ -137,6 +137,10 @@ static PyObject * evaluate_board_wrapper(PyObject * self, PyObject * args) {
     return PyFloat_FromDouble(f);
 }
 
+static PyObject * min_max_search_wrapper(PyObject * self, PyObject * args) {
+
+}
+
 static PyObject * time_boards_wrapper(PyObject * self, PyObject * args) {
     // There are no arguments
     if (!PyArg_ParseTuple(args, "")) {

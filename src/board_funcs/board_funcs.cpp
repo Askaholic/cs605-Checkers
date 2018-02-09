@@ -133,10 +133,7 @@ float evaluate_board(const BoardState &board) {
     return the_network.evaluate(inputs);
 }
 
-std::vector<Move> get_possible_moves(const BoardState &board, int player) {
-    std::vector<Move> moves;
-
-    char targets[2];
+void _set_targets(char * targets, int player) {
     if (player == RED_PLAYER) {
         targets[0] = RED_CHECKER;
         targets[1] = RED_KING;
@@ -145,7 +142,30 @@ std::vector<Move> get_possible_moves(const BoardState &board, int player) {
         targets[0] = BLACK_CHECKER;
         targets[1] = BLACK_KING;
     }
+}
 
+int piece_count(const BoardState &board, int player) {
+    char targets[2];
+    _set_targets(targets, player);
+    size_t count = 0;
+
+    for (size_t b_loc = 0; b_loc < BOARD_ELEMENTS; b_loc++) {
+        auto current_piece = board[b_loc];
+        // Skip squares that don't have the correct color checker
+        if (!in_<char>(targets, 2, current_piece)) {
+            continue;
+        }
+        count++;
+    }
+    
+    return count;
+}
+
+std::vector<Move> get_possible_moves(const BoardState &board, int player) {
+    std::vector<Move> moves;
+
+    char targets[2];
+    _set_targets(targets, player);
 
     for (size_t b_loc = 0; b_loc < BOARD_ELEMENTS; b_loc++) {
         auto current_piece = board[b_loc];
