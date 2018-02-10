@@ -157,8 +157,12 @@ int piece_count(const BoardState &board, int player) {
         }
         count++;
     }
-    
+
     return count;
+}
+
+int piece_count(const char * start, int player) {
+    
 }
 
 std::vector<Move> get_possible_moves(const BoardState &board, int player) {

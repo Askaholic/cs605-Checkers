@@ -52,6 +52,13 @@ public:
     void set(size_t index, char value);
 };
 
+// Char * manipulation functions
+char board_get_one(char * start, size_t i);
+void board_set_one(char * start, size_t i, char val);
+void board_write(char * start, const BoardState & board);
+void board_read(char * start, BoardState & board);
+
+
 class Board {
 private:
     BoardState currentBoardState;

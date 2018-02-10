@@ -56,3 +56,40 @@ void BoardStateFast::set(size_t i, char val) {
   if (i < 0 || i > BOARD_ELEMENTS - 1) { throw std::out_of_range("Board index out of range " + std::to_string(i)); }
   _tiles[i] = val;
 }
+
+/* *************************************************** *
+    Char * manipulation functions
+ * *************************************************** */
+
+char board_get_one(char * start, size_t i) {
+    // Remove the check eventually
+
+    if (i < 0 || i > BOARD_ELEMENTS - 1) { throw std::out_of_range("Board index out of range " + std::to_string(i)); }
+    if (i & 0x1) {
+        return start[i / 2] & 0x0F;
+    }
+    return (start[i / 2] >> 4) & 0x0F;
+}
+
+void board_set_one(char * start, size_t i, char val) {
+    // Remove the check eventually
+    if (i < 0 || i > BOARD_ELEMENTS - 1) { throw std::out_of_range("Board index out of range " + std::to_string(i)); }
+    if (i & 0x1) {
+        start[i / 2] = (start[i / 2] & 0xF0) | (val & 0x0F);
+    }
+    else {
+        start[i / 2] = (start[i / 2] & 0x0F) | ((val & 0x0F) << 4);
+    }
+}
+
+void board_write(char * start, const BoardState & board) {
+    for (size_t i = 0; i < BOARD_ELEMENTS; i++) {
+        board_set_one(start, i, board[i]);
+    }
+}
+
+void board_read(char * start, BoardState & board) {
+    for (size_t i = 0; i < BOARD_ELEMENTS; i++) {
+        board.set(i, board_get_one(start, i));
+    }
+}

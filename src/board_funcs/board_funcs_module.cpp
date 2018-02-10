@@ -5,6 +5,7 @@
 // Python module exports for C++ functions
 
 #include <Python.h>
+#include <chrono>
 #include <string>
 #include <string.h>
 #include "board_funcs.h"
@@ -145,7 +146,13 @@ static PyObject * min_max_search_wrapper(PyObject * self, PyObject * args) {
     BoardState board;
     string_to_board_state(board_string, board);
 
+    auto start = std::chrono::high_resolution_clock::now();
     auto search_result = min_max_search(board, player, depth);
+    auto end = std::chrono::high_resolution_clock::now();
+
+    auto time = ((std::chrono::nanoseconds)(end - start)).count();
+    std::cout << "Fast: " << ((double)time) << " ns / call\n";
+
     auto tuple = PyTuple_New(2);
     auto list = PyList_New(BOARD_ELEMENTS);
     board_state_to_py_list(*(search_result.first), list);
