@@ -61,7 +61,7 @@ void BoardStateFast::set(size_t i, char val) {
     Char * manipulation functions
  * *************************************************** */
 
-char board_get_one(char * start, size_t i) {
+char board_get_one(const char * start, size_t i) {
     // Remove the check eventually
 
     if (i < 0 || i > BOARD_ELEMENTS - 1) { throw std::out_of_range("Board index out of range " + std::to_string(i)); }
@@ -88,7 +88,7 @@ void board_write(char * start, const BoardState & board) {
     }
 }
 
-void board_read(char * start, BoardState & board) {
+void board_read(const char * start, BoardState & board) {
     for (size_t i = 0; i < BOARD_ELEMENTS; i++) {
         board.set(i, board_get_one(start, i));
     }

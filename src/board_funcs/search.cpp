@@ -5,12 +5,14 @@
 // Implementation for searching functions
 
 #include "board_funcs.h"
+#include "math.h"
 #include <iostream>
 #include <memory>
+#include <stack>
 #include <utility>
 
 void min_max_search_helper(std::pair<std::unique_ptr<BoardState>, int> &, const BoardState & board, int player, int depth);
-void min_max_no_alloc_helper(std::pair<BoardState, int> &, int player, int depth, char * mem, size_t mem_length, size_t branch_factor);
+void min_max_no_alloc_helper(std::pair<BoardState, int> &, int player, size_t depth, char * mem, size_t mem_length, size_t branch_factor);
 
 std::pair<std::unique_ptr<BoardState>, int> min_max_search(const BoardState & board, int player, int depth) {
     auto result = std::make_pair<std::unique_ptr<BoardState>, int>(nullptr, 0);
@@ -36,6 +38,7 @@ std::pair<BoardState, int> min_max_no_alloc(const BoardState & board, int player
         throw;
     }
     free(mem);
+    return result;
 }
 
 // DFS min max search
@@ -80,16 +83,45 @@ void min_max_search_helper(std::pair<std::unique_ptr<BoardState>, int> & result,
     return;
 }
 
-void min_max_no_alloc_helper(std::pair<BoardState, int> & result, int player, int depth, char * mem, size_t mem_size, size_t branch_factor) {
+int get_index(int depth) {
+
+}
+
+void min_max_no_alloc_helper(std::pair<BoardState, int> & result, int player, size_t depth, char * mem, size_t mem_size, size_t branch_factor) {
     // Index at each search depth
-    size_t * indecies = new size_t[depth];
-    size_t current_depth = 0;
 
-    while (true) {
-        if (current_depth <= depth) {
+    int best = 0;
 
+    std::vector<bool> visited((size_t)pow(branch_factor, depth), false);
+    std::stack<size_t> stack;
+    while (!stack.empty()) {
+        auto i = stack.top();
+        stack.pop();
+
+        if (visited[i]) {
+            std::cout << "Visited " << i << " alerady..." << '\n';
+            continue;
         }
+
+        std::cout << "Visited: " << i << '\n';
+        visited[i] = true;
+
+        for (size_t i = 0; i < branch_factor; i++) {
+            /* code */
+        }
+        // if (indecies[current_depth] >= depth) {
+        //     // tree is done
+        //     best = piece_count(mem, player);
+        //     board_read(mem, result.first);
+        //     result.second = best;
+        //     break;
+        // }
+
+
+        // moves[current_depth] = get_possible_moves(mem, player);
+        // if (current_depth == depth - 1) {
+        //
+        // }
         break;
     }
-    free(indecies);
 }

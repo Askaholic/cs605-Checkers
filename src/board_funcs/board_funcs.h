@@ -53,10 +53,10 @@ public:
 };
 
 // Char * manipulation functions
-char board_get_one(char * start, size_t i);
+char board_get_one(const char * start, size_t i);
 void board_set_one(char * start, size_t i, char val);
 void board_write(char * start, const BoardState & board);
-void board_read(char * start, BoardState & board);
+void board_read(const char * start, BoardState & board);
 
 
 class Board {
@@ -73,9 +73,12 @@ void setup_network();
 BoardState get_board();
 
 std::vector<Move> get_possible_moves(const BoardState &board, int player);
+std::vector<Move> get_possible_moves(const char * board, int player);
 float evaluate_board(const BoardState &board);
 int piece_count(const BoardState &board, int player);
+int piece_count(const char *, int player);
 std::pair<std::unique_ptr<BoardState>, int> min_max_search(const BoardState & board, int player, int depth);
+std::pair<BoardState, int> min_max_no_alloc(const BoardState & board, int player, int depth);
 
 void time_boards();
 
