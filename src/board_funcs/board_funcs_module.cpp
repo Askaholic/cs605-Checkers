@@ -151,7 +151,7 @@ static PyObject * min_max_search_wrapper(PyObject * self, PyObject * args) {
     auto end = std::chrono::high_resolution_clock::now();
 
     auto time = ((std::chrono::nanoseconds)(end - start)).count();
-    std::cout << "Fast: " << ((double)time) << " ns / call\n";
+    std::cout << "min_max_search time: " << ((double)time) << " ns / call\n";
 
     auto tuple = PyTuple_New(2);
     auto list = PyList_New(BOARD_ELEMENTS);
@@ -179,7 +179,7 @@ static PyObject * min_max_no_alloc_wrapper(PyObject * self, PyObject * args) {
     auto end = std::chrono::high_resolution_clock::now();
 
     auto time = ((std::chrono::nanoseconds)(end - start)).count();
-    std::cout << "Fast: " << ((double)time) << " ns / call\n";
+    std::cout << "min_max_no_alloc time: " << ((double)time) << " ns / call\n";
 
     auto tuple = PyTuple_New(2);
     auto list = PyList_New(BOARD_ELEMENTS);

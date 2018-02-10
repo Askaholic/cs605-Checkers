@@ -23,7 +23,8 @@ std::pair<std::unique_ptr<BoardState>, int> min_max_search(const BoardState & bo
 std::pair<BoardState, int> min_max_no_alloc(const BoardState & board, int player, int depth) {
     auto result = std::make_pair<BoardState, int>(BoardState(board), 0);
     size_t branch_factor = 10;
-    size_t mem_size = sizeof(BoardState) * (branch_factor + depth);
+
+    size_t mem_size = sizeof(BoardState) * (pow(branch_factor, depth + 1) - 1);
     std::cout << "Allocating " << mem_size << " bytes for tree" << '\n';
     char * mem = new char[mem_size];
 
@@ -83,45 +84,39 @@ void min_max_search_helper(std::pair<std::unique_ptr<BoardState>, int> & result,
     return;
 }
 
-int get_index(int depth) {
-
-}
-
 void min_max_no_alloc_helper(std::pair<BoardState, int> & result, int player, size_t depth, char * mem, size_t mem_size, size_t branch_factor) {
-    // Index at each search depth
+    int best_score = 0;
+    size_t best_index = 0;
 
-    int best = 0;
-
-    std::vector<bool> visited((size_t)pow(branch_factor, depth), false);
+    auto size_of_board = sizeof(BoardState);
+    size_t tree_nodes = mem_size / size_of_board;
+    std::cout << "tree_nodes: " << tree_nodes << '\n';
+    std::vector<bool> visited(tree_nodes, false);
     std::stack<size_t> stack;
+    stack.push(0);
+
     while (!stack.empty()) {
-        auto i = stack.top();
+        auto current = stack.top();
         stack.pop();
 
-        if (visited[i]) {
-            std::cout << "Visited " << i << " alerady..." << '\n';
+        if (visited[current]) {
+            std::cout << "Visited " << current << " alerady..." << '\n';
             continue;
         }
 
-        std::cout << "Visited: " << i << '\n';
-        visited[i] = true;
-
-        for (size_t i = 0; i < branch_factor; i++) {
-            /* code */
+        auto current_score = piece_count(&mem[current * size_of_board], current & 0x1 ? !player : player);
+        if (current_score > best_score) {
+            best_score = current_score;
+            best_index = current;
         }
-        // if (indecies[current_depth] >= depth) {
-        //     // tree is done
-        //     best = piece_count(mem, player);
-        //     board_read(mem, result.first);
-        //     result.second = best;
-        //     break;
-        // }
+        std::cout << "Visited: " << current << '\n';
+        visited[current] = true;
 
-
-        // moves[current_depth] = get_possible_moves(mem, player);
-        // if (current_depth == depth - 1) {
-        //
-        // }
-        break;
+        for (size_t i = branch_factor + 1; i >= 1; i--) {
+            size_t child = current * branch_factor + i;
+            if (child < tree_nodes) {
+                stack.push(child);
+            }
+        }
     }
 }
