@@ -57,6 +57,8 @@ char board_get_one(const char * start, size_t i);
 void board_set_one(char * start, size_t i, char val);
 void board_write(char * start, const BoardState & board);
 void board_read(const char * start, BoardState & board);
+void board_copy(const char * from, char * to);
+void board_apply_move(char * start, Move move);
 
 
 class Board {

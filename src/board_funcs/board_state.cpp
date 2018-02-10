@@ -93,3 +93,15 @@ void board_read(const char * start, BoardState & board) {
         board.set(i, board_get_one(start, i));
     }
 }
+
+void board_copy(const char * from, char * to) {
+    for (size_t i = 0; i < BOARD_ELEMENTS; i++) {
+        to[i] = from[i];
+    }
+}
+
+void board_apply_move(char * start, Move move) {
+    auto piece = board_get_one(start, move._from);
+    board_set_one(start, move._from, BLANK);
+    board_set_one(start, move._to, piece);
+}

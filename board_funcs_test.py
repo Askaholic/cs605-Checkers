@@ -33,12 +33,12 @@ starting_board = 'rrrrrrrrrrrr11111111bbbbbbbbbbbb'
 # bf.setup_network()
 # print("Board value: {}".format(bf.evaluate_board(starting_board)))
 #
-# print("Min Max search with piece_count")
-depth = 1
-# print("Depth: ", depth)
-# board, score = bf.min_max_search(starting_board, 0, depth)
-# print("Score: ", score)
-# printBoard(board)
+print("Min Max search with piece_count")
+depth = 8
+print("Depth: ", depth)
+board, score = bf.min_max_search(starting_board, 0, depth)
+print("Score: ", score)
+printBoard(board)
 #
 #
 print("Min Max search with piece_count **no_alloc**")
