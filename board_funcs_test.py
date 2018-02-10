@@ -28,21 +28,39 @@ def printBoard(some_board):
 
 starting_board = 'rrrrrrrrrrrr11111111bbbbbbbbbbbb'
 
-print("Possible moves")
-print(bf.get_possible_moves(starting_board, 0))
-bf.setup_network()
-print("Board value: {}".format(bf.evaluate_board(starting_board)))
+# print("Possible moves")
+# print(bf.get_possible_moves(starting_board, 0))
+# bf.setup_network()
+# print("Board value: {}".format(bf.evaluate_board(starting_board)))
+#
+# print("Min Max search with piece_count")
+# depth = 0
+# print("Depth: ", depth)
+# board, score = bf.min_max_search(starting_board, 0, depth)
+# print("Score: ", score)
+# printBoard(board)
+#
+#
+# print("Min Max search with piece_count **no_alloc**")
+# print("Depth: ", depth)
+# board, score = bf.min_max_no_alloc(starting_board, 0, depth)
+# print("Score: ", score)
+# printBoard(board)
 
-print("Min Max search with piece_count")
-depth = 0
-print("Depth: ", depth)
-board, score = bf.min_max_search(starting_board, 0, depth)
-print("Score: ", score)
-printBoard(board)
 
+bf = 3
+nodes_to_visit = [0]
+max_depth = 3
+tree_nodes = (pow(bf, max_depth + 1) - 1) // 2
+print("treenodes", tree_nodes)
+while nodes_to_visit != []:
+    current = nodes_to_visit[0]
+    nodes_to_visit = nodes_to_visit[1:]
+    for i in range(1, bf + 1):
+        child = current * bf + i
+        if (child < tree_nodes):
+            # print("   Child: ", child)
+            nodes_to_visit.append(child)
 
-print("Min Max search with piece_count **no_alloc**")
-print("Depth: ", depth)
-board, score = bf.min_max_no_alloc(starting_board, 0, depth)
-print("Score: ", score)
-printBoard(board)
+    print(current, ' ', end='')
+print()
