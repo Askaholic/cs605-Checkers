@@ -319,7 +319,7 @@ class Board(object):
     def ai_take_all_jumps(self, jumps):
         while len(jumps) > 0:
 
-            # O(n) shuffle, randomizes 
+            # O(n) shuffle, randomizes
             shuffle(jumps)
 
             first_jump = jumps[0]
@@ -343,15 +343,15 @@ class Board(object):
 
     def ai_turn(self):
         self.make_ai_move()
-        self.printBoard()
+        self.printBoard(self.board)
 
-    def printBoard(self):
+    def printBoard(self, some_board):
         board = ''
         board += '\n'
         odd = False
 
         for tile in range(32):
-            board_element = self.board[tile]
+            board_element = some_board[tile]
             if board_element == '1':
                 board_element = '.'
             if (tile % 4 == 0 and tile != 0):

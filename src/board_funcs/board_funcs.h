@@ -10,6 +10,8 @@
 #include <cstddef>
 #include <vector>
 #include <iostream>
+#include <memory>
+#include <utility>
 
 #define RED_PLAYER 0
 #define BLACK_PLAYER 1
@@ -22,14 +24,23 @@
 
 #define BOARD_ELEMENTS 32
 
+struct Move {
+    size_t _from;
+    size_t _to;
+};
+
 class BoardState {
 private:
     char _tiles[BOARD_ELEMENTS / 2];
 
 public:
+    BoardState() = default;
+    BoardState(const BoardState &);
     char operator[](size_t index);
     const char operator[](size_t index) const;
     void set(size_t index, char value);
+    // test timing with reference?
+    void apply_move(const Move);
 };
 
 class BoardStateFast {
@@ -41,16 +52,19 @@ public:
     void set(size_t index, char value);
 };
 
+// Char * manipulation functions
+char board_get_one(const char * start, size_t i);
+void board_set_one(char * start, size_t i, char val);
+void board_write(char * start, const BoardState & board);
+void board_read(const char * start, BoardState & board);
+void board_copy(const char * from, char * to);
+void board_apply_move(char * start, Move move);
+
+
 class Board {
 private:
     BoardState currentBoardState;
-
 public:
-};
-
-struct Move {
-    size_t _from;
-    size_t _to;
 };
 
 // Test function. To verify that the module is installed and works
@@ -59,8 +73,15 @@ char * test(char * str);
 void setup_board();
 void setup_network();
 BoardState get_board();
+
 std::vector<Move> get_possible_moves(const BoardState &board, int player);
+std::vector<Move> get_possible_moves(const char * board, int player);
 float evaluate_board(const BoardState &board);
+int piece_count(const BoardState &board, int player);
+int piece_count(const char *, int player);
+std::pair<std::unique_ptr<BoardState>, int> min_max_search(const BoardState & board, int player, int depth);
+std::pair<BoardState, int> min_max_no_alloc(const BoardState & board, int player, int depth);
+
 void time_boards();
 
 template <typename T>

@@ -5,6 +5,7 @@
 // Python module exports for C++ functions
 
 #include <Python.h>
+#include <chrono>
 #include <string>
 #include <string.h>
 #include "board_funcs.h"
@@ -50,20 +51,13 @@ static PyObject * setup_network_wrapper(PyObject * self, PyObject * args) {
     Py_RETURN_NONE;
 }
 
-static PyObject * get_board_wrapper(PyObject * self, PyObject * args) {
-    // There are no arguments
-    if (!PyArg_ParseTuple(args, "")) {
-        return NULL;
-    }
-
-    auto list = PyList_New(BOARD_ELEMENTS);
-    auto b = get_board();
+static void board_state_to_py_list(const BoardState & board, PyObject * list) {
     for (size_t i = 0; i < BOARD_ELEMENTS; i++) {
       size_t len = 1;
-      if (b[i] == BLANK) {
+      if (board[i] == BLANK) {
         len = 0;
       }
-      char tmp = b[i];
+      char tmp = board[i];
       switch (tmp) {
         case BLANK: tmp = '1'; break;
         case BLACK_CHECKER: tmp = 'b'; break;
@@ -76,18 +70,22 @@ static PyObject * get_board_wrapper(PyObject * self, PyObject * args) {
         // Handle error here?
       }
     }
-    return list;
 }
 
-
-static PyObject * get_possible_moves_wrapper(PyObject * self, PyObject * args) {
-    int player;
-    char * board_string;
-    if (!PyArg_ParseTuple(args, "si", &board_string, &player)) {
+static PyObject * get_board_wrapper(PyObject * self, PyObject * args) {
+    // There are no arguments
+    if (!PyArg_ParseTuple(args, "")) {
         return NULL;
     }
 
-    BoardState board;
+    auto board = get_board();
+
+    auto list = PyList_New(BOARD_ELEMENTS);
+    board_state_to_py_list(board, list);
+    return list;
+}
+
+static void string_to_board_state(char * board_string, BoardState & board) {
     for (size_t i = 0; i < BOARD_ELEMENTS; i++) {
         char tmp = board_string[i];
         switch (tmp) {
@@ -98,8 +96,18 @@ static PyObject * get_possible_moves_wrapper(PyObject * self, PyObject * args) {
           default: tmp = BLANK;
         }
         board.set(i, tmp);
-
     }
+}
+
+static PyObject * get_possible_moves_wrapper(PyObject * self, PyObject * args) {
+    int player;
+    char * board_string;
+    if (!PyArg_ParseTuple(args, "si", &board_string, &player)) {
+        return NULL;
+    }
+
+    BoardState board;
+    string_to_board_state(board_string, board);
 
     auto b = get_possible_moves(board, player);
     auto list = PyList_New(b.size());
@@ -121,20 +129,65 @@ static PyObject * evaluate_board_wrapper(PyObject * self, PyObject * args) {
     }
 
     BoardState board;
-    for (size_t i = 0; i < BOARD_ELEMENTS; i++) {
-        char tmp = board_string[i];
-        switch (tmp) {
-          case 'b': tmp = BLACK_CHECKER; break;
-          case 'r': tmp = RED_CHECKER; break;
-          case 'B': tmp = BLACK_KING; break;
-          case 'R': tmp = RED_KING; break;
-          default: tmp = BLANK;
-        }
-        board.set(i, tmp);
-    }
+    string_to_board_state(board_string, board);
 
     auto f = evaluate_board(board);
     return PyFloat_FromDouble(f);
+}
+
+static PyObject * min_max_search_wrapper(PyObject * self, PyObject * args) {
+    char * board_string;
+    int depth;
+    int player;
+    if (!PyArg_ParseTuple(args, "sii", &board_string, &player, &depth)) {
+        return NULL;
+    }
+
+    BoardState board;
+    string_to_board_state(board_string, board);
+
+    auto start = std::chrono::high_resolution_clock::now();
+    auto search_result = min_max_search(board, player, depth);
+    auto end = std::chrono::high_resolution_clock::now();
+
+    auto time = ((std::chrono::nanoseconds)(end - start)).count();
+    std::cout << "min_max_search time: " << ((double)time) << " ns / call\n";
+
+    auto tuple = PyTuple_New(2);
+    auto list = PyList_New(BOARD_ELEMENTS);
+    board_state_to_py_list(*(search_result.first), list);
+
+    PyTuple_SET_ITEM(tuple, 0, list);
+    PyTuple_SET_ITEM(tuple, 1, PyLong_FromLong(search_result.second));
+    return tuple;
+}
+
+
+static PyObject * min_max_no_alloc_wrapper(PyObject * self, PyObject * args) {
+    char * board_string;
+    int depth;
+    int player;
+    if (!PyArg_ParseTuple(args, "sii", &board_string, &player, &depth)) {
+        return NULL;
+    }
+
+    BoardState board;
+    string_to_board_state(board_string, board);
+
+    auto start = std::chrono::high_resolution_clock::now();
+    auto search_result = min_max_no_alloc(board, player, depth);
+    auto end = std::chrono::high_resolution_clock::now();
+
+    auto time = ((std::chrono::nanoseconds)(end - start)).count();
+    std::cout << "min_max_no_alloc time: " << ((double)time) << " ns / call\n";
+
+    auto tuple = PyTuple_New(2);
+    auto list = PyList_New(BOARD_ELEMENTS);
+    board_state_to_py_list(search_result.first, list);
+
+    PyTuple_SET_ITEM(tuple, 0, list);
+    PyTuple_SET_ITEM(tuple, 1, PyLong_FromLong(search_result.second));
+    return tuple;
 }
 
 static PyObject * time_boards_wrapper(PyObject * self, PyObject * args) {
@@ -165,6 +218,10 @@ static PyMethodDef BoardFuncMethods[] = {
         "Print out the amount of time it takes for operations on each type of board" },
     { "get_possible_moves", get_possible_moves_wrapper, METH_VARARGS,
         "Finds all of the available moves given a board state, and which player's turn it is" },
+    { "min_max_search", min_max_search_wrapper, METH_VARARGS,
+        "Finds the best board to go to given the current board" },
+    { "min_max_no_alloc", min_max_no_alloc_wrapper, METH_VARARGS,
+        "Finds the best board to go to given the current board, but only allocates one chunk of memory" },
     { "evaluate_board", evaluate_board_wrapper, METH_VARARGS,
         "Evaluates how good a board state is" },
     { NULL, NULL, 0, NULL }
