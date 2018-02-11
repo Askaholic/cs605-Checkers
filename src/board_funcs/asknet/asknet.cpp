@@ -136,6 +136,5 @@ float Node::_sumWeights(const std::vector<float> &inputs) {
 }
 
 float Node::_applySigmoid(float num) {
-    return num;
     return std::tanh(num);
 }
