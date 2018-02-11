@@ -64,6 +64,29 @@ void Network::randomizeWeights() {
     }
 }
 
+void Network::setWeights(const std::vector<std::vector<std::vector<float>>> & weights) {
+    auto network_size = _layers.size();
+    if (weights.size() != network_size) {
+        throw std::out_of_range("Wrong number of layers (" + std::to_string(weights.size()) + ") passed to setWeights" );
+    }
+    for (size_t i = 0; i < network_size; i++) {
+        auto layer_size = _layers[i].size();
+        if (weights[i].size() != layer_size) {
+            throw std::out_of_range("Wrong number of nodes (" + std::to_string(weights[i].size()) + ") passed to setWeights. Layer (" + std::to_string(i) + ")" );
+        }
+        for (size_t j = 0; j < layer_size; j++) {
+            auto node = &_layers[i].getNodes()[j];
+            auto node_size = node->size();
+            if (weights[i][j].size() != node_size) {
+                throw std::out_of_range("Wrong number of weights (" + std::to_string(weights[i][j].size()) + ") passed to setWeights. Layer (" + std::to_string(i) + "), Node (" + std::to_string(j) + ")" );
+            }
+            for (size_t k = 0; k < node_size; k++) {
+                node->setWeight(k, weights[i][j][k]);
+            }
+        }
+    }
+}
+
 size_t Network::getNumNodes() {
     size_t numNodes = 0;
     for (size_t i = 0; i < _layers.size(); i++) {
@@ -113,5 +136,6 @@ float Node::_sumWeights(const std::vector<float> &inputs) {
 }
 
 float Node::_applySigmoid(float num) {
+    return num;
     return std::tanh(num);
 }

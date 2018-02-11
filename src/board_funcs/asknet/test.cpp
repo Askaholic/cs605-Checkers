@@ -25,9 +25,15 @@ int main() {
     //
     // std::vector<float> inputs = {1.0f, 1.0f, 1.0f};
 
-    Network net2({ 32, 64, 128, 7, 1 });
-    net2.randomizeWeights();
-    std::vector<float> inputs2(32, 1.0f);
+    Network net2({3, 2, 1 });
+    // net2.randomizeWeights();
+    net2.setWeights({
+        { {2.0f}, {3.0f}, {4.0f} },
+        { {2.0f, 3.0f, 4.0f}, {5.0f, 6.0f, 8.0f} },
+        { {2.0f, 3.0f, 4.0} }
+    });
+
+    std::vector<float> inputs2(3, 1.0f);
     auto start = std::chrono::high_resolution_clock::now();
     auto result = net2.evaluate(inputs2);
     auto end = std::chrono::high_resolution_clock::now();
