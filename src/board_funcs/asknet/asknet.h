@@ -50,6 +50,7 @@ public:
     float evaluate(const std::vector<float> &inputs);
     void randomizeWeights();
     void setWeights(const std::vector<std::vector<std::vector<float>>> &);
+    std::vector<std::vector<std::vector<float>>> getWeights();
     std::vector<Network> & evolveWeights(size_t num_children, float stdev);
     size_t getNumNodes();
 };

@@ -87,6 +87,23 @@ void Network::setWeights(const std::vector<std::vector<std::vector<float>>> & we
     }
 }
 
+std::vector<std::vector<std::vector<float>>> Network::getWeights() {
+    std::vector<std::vector<std::vector<float>>> out;
+    for (size_t i = 0; i < _layers.size(); i++) {
+        std::vector<std::vector<float>> layer_weights;
+        for (size_t j = 0; j < _layers[i].size(); j++) {
+            auto node = &_layers[i].getNodes()[j];
+            std::vector<float> node_weights;
+            for (size_t k = 0; k < node->size(); k++) {
+                node_weights.push_back(node->getWeight(k));
+            }
+            layer_weights.push_back(node_weights);
+        }
+        out.push_back(layer_weights);
+    }
+    return out;
+}
+
 size_t Network::getNumNodes() {
     size_t numNodes = 0;
     for (size_t i = 0; i < _layers.size(); i++) {
