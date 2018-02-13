@@ -24,10 +24,18 @@ Network3::Network3(const std::vector<size_t> &topology){
     for (size_t i = 0; i < num_layers; i++) {
         auto num_nodes = topology[i];
         std::vector<float> weights(prev_num_nodes, 0.0f);
-        std::vector<Node3> nodes(num_nodes, weights);
+        auto node = Node3(weights);
+        std::cout << "after node" << '\n';
+        std::vector<Node3> nodes;
+        for (size_t i = 0; i < num_nodes; i++) {
+            nodes.emplace_back(weights);
+        }
+        std::cout << "after nodes" << '\n';
 
-        _layers.push_back(Layer3(nodes));
+        _layers.emplace_back(nodes);
+        std::cout << "after emplace" << '\n';
         prev_num_nodes = num_nodes;
+        std::cout << "for end" << '\n';
     }
 }
 
@@ -140,7 +148,7 @@ std::vector<float> Layer3::evaluateFirst(const std::vector<float> &inputs) {
 Node3::Node3(const std::vector<float> & weights) {
     _size = weights.size();
     _array_size = _size + (weights.size() % 16);
-    allocate(_array_size);
+    _allocate(_array_size);
 
     std::copy(&weights[0], &weights[0] + _size, _weights);
 }
@@ -148,7 +156,7 @@ Node3::Node3(const std::vector<float> & weights) {
 Node3::Node3(const Node3 & other) {
     _size = other._size;
     _array_size = other._array_size;
-    allocate(_array_size);
+    _allocate(_array_size);
 
     std::copy(other._weights, other._weights + _size, _weights);
 }
@@ -166,11 +174,11 @@ Node3 & Node3::operator=(const Node3 & other) {
     if (this == &other) {
         return *this;
     }
-    del();
+    _del();
 
     _size = other._size;
     _array_size = other._array_size;
-    allocate(_array_size);
+    _allocate(_array_size);
 
     std::copy(other._weights, other._weights + _size, _weights);
 
@@ -181,7 +189,7 @@ Node3 & Node3::operator=(Node3 && other) {
     if (this == &other) {
         return *this;
     }
-    del();
+    _del();
 
     _size = other._size;
     _array_size = other._array_size;
@@ -197,20 +205,24 @@ Node3 & Node3::operator=(Node3 && other) {
 }
 
 Node3::~Node3() {
-    del();
+    _del();
 }
 
-void Node3::allocate(size_t size) {
-    _weights = static_cast<float*>(std::aligned_alloc(32, size));
-    _output_temp = static_cast<float*>(std::aligned_alloc(32, size));
+void Node3::_allocate(size_t size) {
+    posix_memalign((void **)&_weights, 32, size);
+    posix_memalign((void **)&_output_temp, 32, size);
+
+    if (_weights == NULL || _output_temp == NULL) {
+        std::cout << "ERROR Got a nullptr when trying to allocate mem" << '\n';
+    }
 }
 
-void Node3::del() {
+void Node3::_del() {
     if (_weights != nullptr) {
-        std::free(_weights);
+        free(_weights);
     }
     if (_output_temp != nullptr) {
-        std::free(_output_temp);
+        free(_output_temp);
     }
 }
 
@@ -228,6 +240,7 @@ float Node3::_sumWeights(const std::vector<float> &inputs) {
 
     auto size = inputs.size();
 
+    std::cout << "_weights addr " << _weights << '\n';
     for (size_t i = 0; i < size; i+=8) {
         __m256 sse_in = _mm256_load_ps(&inputs[i]);
         __m256 sse_wt = _mm256_load_ps(&_weights[i]);
