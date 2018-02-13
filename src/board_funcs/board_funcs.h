@@ -73,6 +73,7 @@ char * test(char * str);
 void setup_board();
 void setup_network();
 BoardState get_board();
+int is_valid_index(int index); 
 
 std::vector<Move> get_possible_moves(const BoardState &board, int player);
 std::vector<Move> get_possible_moves(const char * board, int player);
