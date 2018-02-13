@@ -5,6 +5,7 @@
 // Implementation for AskNet2 fast cpu neural network
 
 #include "asknet2.h"
+#include "immintrin.h"
 #include <cmath>
 #include <cstddef>
 #include <random>
@@ -15,6 +16,7 @@
 #include <vector>
 
 Network2::Network2(const std::vector<size_t> &topology){
+    std::cout << "Network2 constructor" << '\n';
     auto num_layers = topology.size();
     _layers = std::vector<Layer2>();
 
@@ -27,26 +29,23 @@ Network2::Network2(const std::vector<size_t> &topology){
         _layers.push_back(Layer2(nodes));
         prev_num_nodes = num_nodes;
     }
+    std::cout << "Done" << '\n';
 }
 
 float Network2::evaluate(const std::vector<float> &inputs) {
+    std::cout << "Network2 evaluate" << '\n';
     if (_layers.size() == 0) { return 0.0; }
     // Special case for first layer
-    auto layer_outputs = std::make_shared<std::vector<float>>(
-        std::vector<float>(_layers[0].evaluateFirst(inputs))
-    );
+    auto input_size = inputs.size();
+    const float * layer_outputs = &inputs[0];
 
-    if (_layers.size() == 1) {
-        (*layer_outputs)[0];
+    for (size_t i = 0; i < _layers.size(); i++) {
+        _layers[i].evaluate(layer_outputs, input_size);
+        layer_outputs = _layers[i].getOutputs();
+        input_size = _layers[i].getOutputSize();
     }
 
-    for (size_t i = 1; i < _layers.size(); i++) {
-        layer_outputs = std::make_shared<std::vector<float>>(
-            _layers[i].evaluate(*layer_outputs)
-        );
-    }
-
-    return (*layer_outputs)[0];
+    return layer_outputs[0];
 }
 
 void Network2::randomizeWeights() {
@@ -54,34 +53,33 @@ void Network2::randomizeWeights() {
     std::mt19937 engine(rd());
     std::uniform_real_distribution<float> dist(-1, 1);
     for (size_t i = 0; i < _layers.size(); i++) {
-        for (size_t j = 0; j < _layers[i].size(); j++) {
-            auto node = &_layers[i].getNodes()[j];
-            for (size_t k = 0; k < node->size(); k++) {
-                float r = dist(engine);
-                node->setWeight(k, r);
-            }
+        auto layer_weights = _layers[i].getWeights();
+        for (size_t j = 0; j < _layers[i].getWeightsSize(); j++) {
+            float r = dist(engine);
+            layer_weights[j] = r;
         }
     }
 }
 
 void Network2::setWeights(const std::vector<std::vector<std::vector<float>>> & weights) {
-    auto network_size = _layers.size();
-    if (weights.size() != network_size) {
+    auto num_layers = _layers.size();
+    if (weights.size() != num_layers) {
         throw std::out_of_range("Wrong number of layers (" + std::to_string(weights.size()) + ") passed to setWeights" );
     }
-    for (size_t i = 0; i < network_size; i++) {
-        auto layer_size = _layers[i].size();
-        if (weights[i].size() != layer_size) {
+    for (size_t i = 0; i < num_layers; i++) {
+        auto l_weights = _layers[i].getWeights();
+        auto block_size = _layers[i].getBlockSize();
+        auto num_weights = block_size;
+        auto num_nodes = _layers[i].size();
+        if (weights[i].size() != num_nodes) {
             throw std::out_of_range("Wrong number of nodes (" + std::to_string(weights[i].size()) + ") passed to setWeights. Layer (" + std::to_string(i) + ")" );
         }
-        for (size_t j = 0; j < layer_size; j++) {
-            auto node = &_layers[i].getNodes()[j];
-            auto node_size = node->size();
-            if (weights[i][j].size() != node_size) {
+        for (size_t j = 0; j < num_nodes; j++) {
+            if (weights[i][j].size() != num_weights) {
                 throw std::out_of_range("Wrong number of weights (" + std::to_string(weights[i][j].size()) + ") passed to setWeights. Layer (" + std::to_string(i) + "), Node (" + std::to_string(j) + ")" );
             }
-            for (size_t k = 0; k < node_size; k++) {
-                node->setWeight(k, weights[i][j][k]);
+            for (size_t k = 0; k < num_weights; k++) {
+                l_weights[j * block_size + k] = weights[i][j][k];
             }
         }
     }
@@ -90,32 +88,42 @@ void Network2::setWeights(const std::vector<std::vector<std::vector<float>>> & w
 size_t Network2::getNumNodes() {
     size_t numNodes = 0;
     for (size_t i = 0; i < _layers.size(); i++) {
-        numNodes += _layers[i].size();
+        numNodes += _layers[i].size() / _layers[i].getBlockSize();
     }
     return numNodes;
 }
 
-std::vector<float> Layer2::evaluate(const std::vector<float> &inputs) {
-    std::vector<float> outputs;
-    for (size_t i = 0; i < _nodes.size(); i++) {
-        outputs.push_back(_nodes[i].evaluate(inputs));
+Layer2::Layer2(std::vector<Node2> nodes) {
+    auto num_nodes = nodes.size();
+    _weight_block_size = nodes[0].size();
+    _weights_size = _weight_block_size * num_nodes;
+    _layer_mem_size = _weights_size + num_nodes;
+    _layer_mem = new float[_layer_mem_size];
+    _weights = _layer_mem;
+
+    for (size_t i = 0; i < num_nodes; i++) {
+        auto node = nodes[i];
+        auto node_size = node.array_size();
+        auto index_offset = i * node_size;
+        for (size_t j = 0; j < node_size; j++) {
+            _weights[index_offset + j] = node.getWeight(j);
+        }
     }
-    return outputs;
+    _outputs = &_weights[_weights_size];
+    _output_size = num_nodes;
 }
 
-std::vector<float> Layer2::evaluateFirst(const std::vector<float> &inputs) {
-    auto layer_size = _nodes.size();
-    if (inputs.size() != layer_size) {
-        throw std::out_of_range("Must pass exactly " + std::to_string(layer_size) + " weights to Layer");
-    }
+Layer2::~Layer2() {
+    delete[] _layer_mem;
+}
 
-    std::vector<float> output(layer_size);
-    std::vector<float> input(1);
-    for (size_t i = 0; i < layer_size; i++) {
-        input[0] = inputs[i];
-        output[i] = _nodes[i].evaluate(input);
+void Layer2::evaluate(const float * inputs, size_t input_size) {
+    for (size_t i = 0; i < input_size; i++) {
+        float input = inputs[i];
+        for (size_t j = 0; j < _weight_block_size; j++) {
+            _outputs[j] += _weights[j] * input;
+        }
     }
-    return output;
 }
 
 Node2::Node2(const std::vector<float> & weights) {
@@ -129,8 +137,8 @@ Node2::Node2(const std::vector<float> & weights) {
 }
 
 Node2::~Node2() {
-    free(_weights);
-    free(_output_temp);
+    delete[] _weights;
+    delete[] _output_temp;
 }
 
 float Node2::evaluate(const std::vector<float> &inputs) {
@@ -145,13 +153,13 @@ float Node2::evaluate(const std::vector<float> &inputs) {
 float Node2::_sumWeights(const float * inputs) {
     float output = 0.0f;
 
-    for (size_t i = 0; i < _array_size; i+=4) {
+    for (size_t i = 0; i < _array_size; i+=8) {
         // SIMD multiply... Doesn't actually seem to help much
-        __m128 sse_in = _mm_load1_ps(&inputs[i]);
-        __m128 sse_wt = _mm_load1_ps(&_weights[i]);
-        __m128 sse_out = _mm_load_ps(&_output_temp[i]);
-        sse_out = _mm_mul_ps(sse_in, sse_wt);
-        _mm_store_ps(&_output_temp[i], sse_out);
+        __m256 sse_in = _mm256_load_ps(&inputs[i]);
+        __m256 sse_wt = _mm256_load_ps(&_weights[i]);
+        __m256 sse_out = _mm256_load_ps(&_output_temp[i]);
+        sse_out = _mm256_mul_ps(sse_in, sse_wt);
+        _mm256_store_ps(&_output_temp[i], sse_out);
     }
     for (size_t i = 0; i < _size; i++) {
         output += _output_temp[i];

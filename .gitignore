@@ -7,6 +7,7 @@ __pycache__
 **.o
 **.out
 **.so
+**.asm
 
 # Misc
 .DH_Store

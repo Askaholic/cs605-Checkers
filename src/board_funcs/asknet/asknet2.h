@@ -6,8 +6,8 @@
 // hopefully faster CPU operaions
 
 
-#ifndef ASK_NET_H
-#define ASK_NET_H
+#ifndef ASK_NET2_H
+#define ASK_NET2_H
 
 #include <vector>
 #include <cstddef>
@@ -26,6 +26,7 @@ public:
     Node2(const std::vector<float> & weights);
     float evaluate(const std::vector<float> &inputs);
     size_t size() { return _size; }
+    size_t array_size() { return _array_size; }
     void setWeight(size_t index, float weight) { _weights[index] = weight; }
     float getWeight(size_t index) { return _weights[index]; }
     ~Node2();
@@ -34,14 +35,24 @@ public:
 
 class Layer2 {
 private:
-    std::vector<Node2> _nodes;
+    size_t _weight_block_size;
+    float * _layer_mem;
+    size_t _layer_mem_size;
+    float * _weights;
+    size_t _weights_size;
+    float * _outputs;
+    size_t _output_size;
 
 public:
-    Layer2 (std::vector<Node2> nodes):_nodes(nodes) {};
-    std::vector<float> evaluate(const std::vector<float> &inputs);
-    std::vector<float> evaluateFirst(const std::vector<float> &inputs);
-    size_t size() { return _nodes.size(); }
-    std::vector<Node2> & getNodes() { return _nodes; }
+    Layer2 (std::vector<Node2> nodes);
+    void evaluate(const float * inputs, size_t input_size);
+    float * getWeights() { return _weights; }
+    size_t getWeightsSize() { return _weights_size; }
+    size_t size() { return _weights_size / _weight_block_size; }
+    size_t getBlockSize() { return _weight_block_size; }
+    float * getOutputs() { return _outputs; }
+    size_t getOutputSize() { return _output_size; }
+    ~Layer2();
 };
 
 

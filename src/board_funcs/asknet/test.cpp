@@ -6,7 +6,59 @@
 #include <vector>
 #include <iostream>
 #include <chrono>
+#include <string>
 
+long time_network(Network net, std::string name, std::vector<float> inputs, size_t iterations) {
+    std::cout << "Evaluating " << name << " ..." << '\n';
+    auto start = std::chrono::high_resolution_clock::now();
+    float result;
+    for (size_t i = 0; i < iterations; i++) {
+        result = net.evaluate(inputs);
+    }
+    auto end = std::chrono::high_resolution_clock::now();
+    auto elapsed = ((std::chrono::nanoseconds)(end - start)).count();
+
+    std::cout << "Network " << name << " size: " << net.getNumNodes() << " nodes" << '\n';
+    std::cout << "Network " << name << " output: " << result << " in " << elapsed / iterations << "ns / evaluation\n";
+    return elapsed;
+}
+
+long time_network(Network2 net, std::string name, std::vector<float> inputs, size_t iterations) {
+    std::cout << "Evaluating " << name << " ..." << '\n';
+    auto start = std::chrono::high_resolution_clock::now();
+    float result;
+    for (size_t i = 0; i < iterations; i++) {
+        result = net.evaluate(inputs);
+    }
+    auto end = std::chrono::high_resolution_clock::now();
+    auto elapsed = ((std::chrono::nanoseconds)(end - start)).count();
+
+    std::cout << "Network " << name << " size: " << net.getNumNodes() << " nodes" << '\n';
+    std::cout << "Network " << name << " output: " << result << " in " << elapsed / iterations << "ns / evaluation\n";
+    return elapsed;
+}
+
+void test_topology(std::vector<size_t> topology, size_t NUM_TESTS) {
+    std::string topoStr = "";
+    for (size_t i = 0; i < topology.size(); i++) {
+        topoStr += " " + std::to_string(topology[i]);
+    }
+    std::cout << "*****************" << '\n' << topoStr << '\n' << "*****************" << '\n';
+    Network net2(topology);
+    net2.randomizeWeights();
+
+    Network2 net3(topology);
+    net3.setWeights(net2.getWeights());
+
+    std::vector<float> inputs(32, 0.001f);
+    auto elapsed = time_network(net3, "(3)", inputs, NUM_TESTS);
+
+    std::cout << 1000000000 * NUM_TESTS / (double) elapsed << " eval / second" << '\n';
+
+    elapsed = time_network(net2, "(2)", inputs, NUM_TESTS);
+    std::cout << 1000000000.0 * NUM_TESTS / (double) elapsed << " eval / second" << '\n';
+
+}
 
 int main() {
 
@@ -25,45 +77,12 @@ int main() {
     // Network net(layers);
     //
     // std::vector<float> inputs = {1.0f, 1.0f, 1.0f};
+    size_t NUM_TESTS = 100;
 
-    std::cout << "Creating Network..." << '\n';
-    Network net2({32, 10000, 1 });
-    net2.randomizeWeights();
-    // net2.setWeights({
-    //     { {2.0f}, {3.0f}, {4.0f} },
-    //     { {2.0f, 3.0f, 4.0f}, {5.0f, 6.0f, 8.0f} },
-    //     { {2.0f, 3.0f, 4.0} }
-    // });
-    std::cout << "Creating Network..." << '\n';
-
-    Network net3({32, 10000, 1 });
-    net3.setWeights(net2.getWeights());
-
-    size_t NUM_TESTS = 1000;
-
-    std::vector<float> inputs3(32, 1.0f);
-    std::cout << "Evaluating..." << '\n';
-    auto start = std::chrono::high_resolution_clock::now();
-    float result;
-    for (size_t i = 0; i < NUM_TESTS; i++) {
-        result = net3.evaluate(inputs3);
-    }
-    auto end = std::chrono::high_resolution_clock::now();
-    auto elapsed = ((std::chrono::nanoseconds)(end - start)).count();
-
-    std::cout << "Network3 size: " << net3.getNumNodes() << " nodes" << '\n';
-    std::cout << "Network3 output: " << result << " in " << elapsed / NUM_TESTS << "ns per call\n";
-
-    std::vector<float> inputs2(32, 1.0f);
-    std::cout << "Evaluating..." << '\n';
-    start = std::chrono::high_resolution_clock::now();
-    for (size_t i = 0; i < NUM_TESTS; i++) {
-        result = net2.evaluate(inputs2);
-    }
-    end = std::chrono::high_resolution_clock::now();
-    elapsed = ((std::chrono::nanoseconds)(end - start)).count();
-
-    std::cout << "Network2 size: " << net2.getNumNodes() << " nodes" << '\n';
-    std::cout << "Network2 output: " << result << " in " << elapsed / NUM_TESTS << "ns\n";
+    test_topology({32, 10000, 1 }, NUM_TESTS);
+    test_topology({32, 5000, 5000, 1 }, NUM_TESTS);
+    test_topology({32, 5000, 3000, 2000, 1 }, NUM_TESTS);
+    test_topology({32, 2000, 3000, 3000, 2000, 1 }, NUM_TESTS);
+    test_topology({32, 5000, 3000, 1000, 1000, 1 }, NUM_TESTS);
 
 }
