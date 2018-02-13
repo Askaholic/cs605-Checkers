@@ -12,9 +12,28 @@
 #include <random>
 #include <iostream>
 #include <memory>
+#include <stdlib.h>
 #include <string>
 #include <stdexcept>
 #include <vector>
+
+
+void * aligned_alloc(size_t size, float*& unaligned_storage) {
+    const size_t align_size = 32;
+    size_t request_size = size + align_size;
+    const size_t needed = request_size;
+
+    float * alloc = new float[needed];
+    void * alloc_void = (void *) alloc;
+    unaligned_storage = alloc;
+    void * ptr = (float *) std::align(
+        align_size,
+        size,
+        alloc_void,
+        request_size
+    );
+    return ptr;
+}
 
 Network3::Network3(const std::vector<size_t> &topology){
     auto num_layers = topology.size();
@@ -23,19 +42,15 @@ Network3::Network3(const std::vector<size_t> &topology){
     size_t prev_num_nodes = 1;
     for (size_t i = 0; i < num_layers; i++) {
         auto num_nodes = topology[i];
-        std::vector<float> weights(prev_num_nodes, 0.0f);
+        std::vector<float> weights(prev_num_nodes, 0.1f);
         auto node = Node3(weights);
-        std::cout << "after node" << '\n';
         std::vector<Node3> nodes;
         for (size_t i = 0; i < num_nodes; i++) {
             nodes.emplace_back(weights);
         }
-        std::cout << "after nodes" << '\n';
 
         _layers.emplace_back(nodes);
-        std::cout << "after emplace" << '\n';
         prev_num_nodes = num_nodes;
-        std::cout << "for end" << '\n';
     }
 }
 
@@ -124,9 +139,12 @@ size_t Network3::getNumNodes() {
 
 std::vector<float> Layer3::evaluate(const std::vector<float> &inputs) {
     std::vector<float> outputs;
+    float * unaligned_temp;
+    float * inputs_aligned = (float *) aligned_alloc(inputs.size(), unaligned_temp);
     for (size_t i = 0; i < _nodes.size(); i++) {
-        outputs.push_back(_nodes[i].evaluate(inputs));
+        outputs.push_back(_nodes[i].evaluate(inputs_aligned, inputs.size()));
     }
+    delete[] unaligned_temp;
     return outputs;
 }
 
@@ -138,19 +156,22 @@ std::vector<float> Layer3::evaluateFirst(const std::vector<float> &inputs) {
 
     std::vector<float> output(layer_size);
     std::vector<float> input(1);
+    float * unaligned_temp;
+    float * inputs_aligned = (float *) aligned_alloc(input.size(), unaligned_temp);
     for (size_t i = 0; i < layer_size; i++) {
         input[0] = inputs[i];
-        output[i] = _nodes[i].evaluate(input);
+        output[i] = _nodes[i].evaluate(inputs_aligned, input.size());
     }
+    delete[] unaligned_temp;
     return output;
 }
 
 Node3::Node3(const std::vector<float> & weights) {
     _size = weights.size();
-    _array_size = _size + (weights.size() % 16);
+    _array_size = _size + (_size % 16);
     _allocate(_array_size);
 
-    std::copy(&weights[0], &weights[0] + _size, _weights);
+    std::copy(weights.begin(), weights.end(), _weights);
 }
 
 Node3::Node3(const Node3 & other) {
@@ -181,6 +202,7 @@ Node3 & Node3::operator=(const Node3 & other) {
     _allocate(_array_size);
 
     std::copy(other._weights, other._weights + _size, _weights);
+    std::copy(other._output_temp, other._output_temp + _size, _output_temp);
 
     return *this;
 }
@@ -209,8 +231,19 @@ Node3::~Node3() {
 }
 
 void Node3::_allocate(size_t size) {
-    posix_memalign((void **)&_weights, 32, size);
-    posix_memalign((void **)&_output_temp, 32, size);
+    // if (posix_memalign((void **)&_weights, 32, size)) {
+    //     std::cout << "Error in alloc" << '\n';
+    // }
+    // if (posix_memalign((void **)&_output_temp, 32, size)) {
+    //         std::cout << "Error in alloc" << '\n';
+    // }
+    float * w_unaligned;
+    _weights = (float *) aligned_alloc(size, w_unaligned);
+    _weights_unaligned = w_unaligned;
+
+    float * o_unaligned;
+    _output_temp = (float *) aligned_alloc(size, o_unaligned);
+    _output_temp_unaligned = o_unaligned;
 
     if (_weights == NULL || _output_temp == NULL) {
         std::cout << "ERROR Got a nullptr when trying to allocate mem" << '\n';
@@ -219,28 +252,27 @@ void Node3::_allocate(size_t size) {
 
 void Node3::_del() {
     if (_weights != nullptr) {
-        free(_weights);
+        // free(_weights);
+        delete[] _weights_unaligned;
     }
     if (_output_temp != nullptr) {
-        free(_output_temp);
+        // free(_output_temp);
+        delete[] _output_temp_unaligned;
     }
 }
 
-float Node3::evaluate(const std::vector<float> &inputs) {
-    if (inputs.size() != _size) {
+float Node3::evaluate(const float* inputs, size_t size) {
+    if (size != _size) {
         throw std::out_of_range("Must pass exactly " + std::to_string(_size) + " weights to Node");
     }
 
-    float sum = _sumWeights(inputs);
+    float sum = _sumWeights(inputs, size);
     return _applySigmoid(sum);
 }
 
-float Node3::_sumWeights(const std::vector<float> &inputs) {
+float Node3::_sumWeights(const float * inputs, size_t size) {
     float output = 0.0f;
 
-    auto size = inputs.size();
-
-    std::cout << "_weights addr " << _weights << '\n';
     for (size_t i = 0; i < size; i+=8) {
         __m256 sse_in = _mm256_load_ps(&inputs[i]);
         __m256 sse_wt = _mm256_load_ps(&_weights[i]);

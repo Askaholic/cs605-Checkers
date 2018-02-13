@@ -15,9 +15,11 @@ class Node3 {
 private:
     float * _weights;
     float * _output_temp;
+    float * _weights_unaligned;
+    float * _output_temp_unaligned;
     size_t _size;
     size_t _array_size;
-    float _sumWeights(const std::vector<float> &inputs);
+    float _sumWeights(const float * inputs, size_t size);
     float _applySigmoid(float num);
     void _del();
     void _allocate(size_t size);
@@ -30,7 +32,7 @@ public:
     Node3 & operator=(const Node3 &);
     Node3 & operator=(Node3 &&);
     ~Node3();
-    float evaluate(const std::vector<float> &inputs);
+    float evaluate(const float * inputs, size_t size);
     size_t size() { return _size; }
     void setWeight(size_t index, float weight) { _weights[index] = weight; }
     float getWeight(size_t index) { return _weights[index]; }
