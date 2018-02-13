@@ -24,12 +24,16 @@ private:
 
 public:
     Node2(const std::vector<float> & weights);
+    Node2(const Node2 & node);
+    Node2(Node2 && node);
+    Node2 & operator=(const Node2 & node);
+    Node2 & operator=(Node2 && node);
+    ~Node2();
     float evaluate(const std::vector<float> &inputs);
     size_t size() { return _size; }
     size_t array_size() { return _array_size; }
     void setWeight(size_t index, float weight) { _weights[index] = weight; }
     float getWeight(size_t index) { return _weights[index]; }
-    ~Node2();
 };
 
 
@@ -44,7 +48,12 @@ private:
     size_t _output_size;
 
 public:
-    Layer2 (std::vector<Node2> nodes);
+    Layer2() {}
+    Layer2(std::vector<Node2> nodes);
+    Layer2(const Layer2 & layer);
+    Layer2(const Layer2 && layer);
+    Layer2 & operator=(const Layer2 & layer);
+    Layer2 & operator=(Layer2 && layer);
     void evaluate(const float * inputs, size_t input_size);
     float * getWeights() { return _weights; }
     size_t getWeightsSize() { return _weights_size; }

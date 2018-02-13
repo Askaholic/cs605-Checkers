@@ -2,7 +2,7 @@
 
 
 #include "asknet.h"
-#include "asknet2.h"
+#include "asknet3.h"
 #include <vector>
 #include <iostream>
 #include <chrono>
@@ -10,6 +10,8 @@
 
 long time_network(Network net, std::string name, std::vector<float> inputs, size_t iterations) {
     std::cout << "Evaluating " << name << " ..." << '\n';
+    std::cout << "Network " << name << " size: " << net.getNumNodes() << " nodes" << '\n';
+
     auto start = std::chrono::high_resolution_clock::now();
     float result;
     for (size_t i = 0; i < iterations; i++) {
@@ -18,13 +20,14 @@ long time_network(Network net, std::string name, std::vector<float> inputs, size
     auto end = std::chrono::high_resolution_clock::now();
     auto elapsed = ((std::chrono::nanoseconds)(end - start)).count();
 
-    std::cout << "Network " << name << " size: " << net.getNumNodes() << " nodes" << '\n';
     std::cout << "Network " << name << " output: " << result << " in " << elapsed / iterations << "ns / evaluation\n";
     return elapsed;
 }
 
-long time_network(Network2 net, std::string name, std::vector<float> inputs, size_t iterations) {
+long time_network(Network3 net, std::string name, std::vector<float> inputs, size_t iterations) {
     std::cout << "Evaluating " << name << " ..." << '\n';
+    std::cout << "Network " << name << " size: " << net.getNumNodes() << " nodes" << '\n';
+
     auto start = std::chrono::high_resolution_clock::now();
     float result;
     for (size_t i = 0; i < iterations; i++) {
@@ -33,7 +36,6 @@ long time_network(Network2 net, std::string name, std::vector<float> inputs, siz
     auto end = std::chrono::high_resolution_clock::now();
     auto elapsed = ((std::chrono::nanoseconds)(end - start)).count();
 
-    std::cout << "Network " << name << " size: " << net.getNumNodes() << " nodes" << '\n';
     std::cout << "Network " << name << " output: " << result << " in " << elapsed / iterations << "ns / evaluation\n";
     return elapsed;
 }
@@ -47,13 +49,13 @@ void test_topology(std::vector<size_t> topology, size_t NUM_TESTS) {
     Network net2(topology);
     net2.randomizeWeights();
 
-    Network2 net3(topology);
+    Network3 net3(topology);
     net3.setWeights(net2.getWeights());
 
     std::vector<float> inputs(32, 0.001f);
     auto elapsed = time_network(net3, "(3)", inputs, NUM_TESTS);
 
-    std::cout << 1000000000 * NUM_TESTS / (double) elapsed << " eval / second" << '\n';
+    std::cout << 1000000000.0 * NUM_TESTS / (double) elapsed << " eval / second" << '\n';
 
     elapsed = time_network(net2, "(2)", inputs, NUM_TESTS);
     std::cout << 1000000000.0 * NUM_TESTS / (double) elapsed << " eval / second" << '\n';
@@ -77,7 +79,7 @@ int main() {
     // Network net(layers);
     //
     // std::vector<float> inputs = {1.0f, 1.0f, 1.0f};
-    size_t NUM_TESTS = 100;
+    size_t NUM_TESTS = 10;
 
     test_topology({32, 10000, 1 }, NUM_TESTS);
     test_topology({32, 5000, 5000, 1 }, NUM_TESTS);
