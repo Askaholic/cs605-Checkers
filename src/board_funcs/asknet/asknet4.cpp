@@ -5,6 +5,7 @@
 // Implementation for AskNet v4. Check the header file for documentation
 
 #include "asknet4.h"
+#include "aligned_array.h"
 #include <cmath>
 #include <vector>
 #include <cstddef>
@@ -161,7 +162,7 @@ float Network4::evaluate(const std::vector<float> & inputs) {
     float * layerStart = &_data[0];
     float * dataEnd = &_data[_data.size() - 1];
 
-    std::vector<float> layer_outputs(inputs.size());
+    AlignedArray<float, 32> layer_outputs(inputs.size());
 
     auto header = _readLayerHeader(layerStart);
     if (header.num_nodes != layer_outputs.size()) {
@@ -177,7 +178,7 @@ float Network4::evaluate(const std::vector<float> & inputs) {
     size_t i = 1;
     while (layerStart < dataEnd) {
         // Does a copy
-        std::vector<float> layer_inputs(layer_outputs);
+        AlignedArray<float, 32> layer_inputs(layer_outputs);
 
         header = _readLayerHeader(layerStart);
 
@@ -188,7 +189,7 @@ float Network4::evaluate(const std::vector<float> & inputs) {
     return layer_outputs[0];
 }
 
-void Network4::_evaluateLayer(float * layer_start, LayerHeader & header, const std::vector<float> & inputs, std::vector<float> & outputs) {
+void Network4::_evaluateLayer(float * layer_start, LayerHeader & header, const AlignedArray<float, 32> & inputs, AlignedArray<float, 32> & outputs) {
     auto inputs_size = inputs.size();
 
     if (header.num_node_weights != inputs_size) {

@@ -9,12 +9,14 @@
 #ifndef ASK_NET4_h
 #define ASK_NET4_h
 
+#include "aligned_array.h"
 #include <vector>
 #include <cstddef>
 
 
 /* Size of the header block for each Layer (in bytes) */
 #define LAYER_HEADER_SIZE 4;
+
 
 struct LayerHeader {
     float size;
@@ -35,7 +37,7 @@ private:
     size_t _getNodeRequiredSpace(size_t num_weights);
     float * _writeLayerHeader(float * start, size_t num_nodes, size_t num_node_weights);
     LayerHeader _readLayerHeader(float * start);
-    void _evaluateLayer(float * start, LayerHeader & header, const std::vector<float> & inputs, std::vector<float> & outputs);
+    void _evaluateLayer(float * start, LayerHeader & header, const AlignedArray<float, 32> & inputs, AlignedArray<float, 32> & outputs);
     float _applySigmoid(float);
 
 public:
