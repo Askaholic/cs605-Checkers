@@ -35,6 +35,7 @@ private:
     size_t _getNodeRequiredSpace(size_t num_weights);
     float * _writeLayerHeader(float * start, size_t num_nodes, size_t num_node_weights);
     LayerHeader _readLayerHeader(float * start);
+    void _evaluateLayer(float * start, LayerHeader & header, const std::vector<float> & inputs, std::vector<float> & outputs);
     float _applySigmoid(float);
 
 public:
@@ -43,7 +44,8 @@ public:
     std::vector<std::vector<std::vector<float>>> getWeights();
     float evaluate(const std::vector<float> & inputs);
     const std::vector<float> & getData() { return _data; }
-    size_t getNumNodes() { return 0; }
+    size_t getNumNodes();
+    size_t getNumWeights();
 };
 
 #endif

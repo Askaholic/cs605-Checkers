@@ -128,6 +128,34 @@ std::vector<std::vector<std::vector<float>>> Network4::getWeights() {
     return weights;
 }
 
+
+size_t Network4::getNumNodes() {
+    size_t total = 0;
+    float * layerStart = &_data[0];
+    float * dataEnd = &_data[_data.size() - 1];
+
+    while (layerStart < dataEnd) {
+        auto header = _readLayerHeader(layerStart);
+        total += (size_t) header.num_nodes;
+        layerStart += (size_t) (header.size + header.num_nodes * header.node_size);
+    }
+    return total;
+}
+
+size_t Network4::getNumWeights() {
+    size_t total;
+
+    float * layerStart = &_data[0];
+    float * dataEnd = &_data[_data.size() - 1];
+
+    while (layerStart < dataEnd) {
+        auto header = _readLayerHeader(layerStart);
+        total += (size_t) header.num_nodes * (size_t) header.num_node_weights;
+        layerStart += (size_t) (header.size + header.num_nodes * header.node_size);
+    }
+    return total;
+}
+
 // TODO: Refactor this......
 float Network4::evaluate(const std::vector<float> & inputs) {
     float * layerStart = &_data[0];
@@ -150,26 +178,32 @@ float Network4::evaluate(const std::vector<float> & inputs) {
     while (layerStart < dataEnd) {
         // Does a copy
         std::vector<float> layer_inputs(layer_outputs);
-        auto layer_inputs_size = layer_inputs.size();
 
         header = _readLayerHeader(layerStart);
-        if (header.num_node_weights != layer_inputs_size) {
-            throw std::out_of_range("Wrong number of inputs (" + std::to_string(layer_inputs_size) + ") passed to evaluate. Expecting " + std::to_string((size_t) header.num_node_weights ));
-        }
-        layer_outputs.resize((size_t) header.num_nodes);
 
-        for (size_t j = 0; j < header.num_nodes; j++) {
-            float node_output = 0.0f;
-            for (size_t k = 0; k < header.num_node_weights; k++) {
-                node_output += (layerStart[(size_t) header.size + ((size_t) header.node_size * j) + k] * layer_inputs[k]);
-            }
-            node_output = _applySigmoid(node_output);
-            layer_outputs[j] = node_output;
-        }
+        _evaluateLayer(layerStart, header, layer_inputs, layer_outputs);
         layerStart += (size_t) (header.size + header.num_nodes * header.node_size);
         i++;
     }
     return layer_outputs[0];
+}
+
+void Network4::_evaluateLayer(float * layer_start, LayerHeader & header, const std::vector<float> & inputs, std::vector<float> & outputs) {
+    auto inputs_size = inputs.size();
+
+    if (header.num_node_weights != inputs_size) {
+        throw std::out_of_range("Wrong number of inputs (" + std::to_string(inputs_size) + ") passed to evaluate. Expecting " + std::to_string((size_t) header.num_node_weights ));
+    }
+    outputs.resize((size_t) header.num_nodes);
+
+    for (size_t j = 0; j < header.num_nodes; j++) {
+        float node_output = 0.0f;
+        for (size_t k = 0; k < header.num_node_weights; k++) {
+            node_output += (layer_start[(size_t) header.size + ((size_t) header.node_size * j) + k] * inputs[k]);
+        }
+        node_output = _applySigmoid(node_output);
+        outputs[j] = node_output;
+    }
 }
 
 
