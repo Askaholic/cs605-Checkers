@@ -184,6 +184,7 @@ float Network4::evaluate(const std::vector<float> & inputs) {
     size_t i = 1;
     while (layerStart < dataEnd) {
         // Does a copy
+        // TODO: Use pointer to vector instead
         AlignedArray<float, 32> layer_inputs(layer_outputs);
 
         header = _readLayerHeader(layerStart);
@@ -203,6 +204,20 @@ float horizontal_add (__m256 a) {
     return _mm_cvtss_f32(t4);
 }
 
+// Slower than horizontal_add?
+float avx_only_hadd(__m256 const& v) {
+    auto x = _mm256_permute2f128_ps(v, v, 1);
+    auto y = _mm256_add_ps(v, x);
+    x = _mm256_shuffle_ps(y, y, _MM_SHUFFLE(2, 3, 0, 1));
+    x = _mm256_add_ps(x, y);
+    y = _mm256_shuffle_ps(x, x, _MM_SHUFFLE(1, 0, 3, 2));
+    return _mm_cvtss_f32(
+        _mm256_castps256_ps128(
+            _mm256_add_ps(x, y)
+        )
+    );
+}
+
 void Network4::_evaluateLayer(float * layer_start, LayerHeader & header, const AlignedArray<float, 32> & inputs, AlignedArray<float, 32> & outputs) {
     auto inputs_size = inputs.size();
     size_t node_size = header.node_size;
@@ -216,6 +231,7 @@ void Network4::_evaluateLayer(float * layer_start, LayerHeader & header, const A
     for (size_t j = 0; j < (size_t)header.num_nodes; j++) {
         float node_output = 0.0f;
 
+        // #pragma omp parallel for reduction(+:node_output)
         for (size_t k = 0; k < num_weights; k+=8) {
             auto layer_start_index = (size_t) header.size + (node_size * j) + k;
             __m256 sse_in = _mm256_load_ps(&inputs[k]);
