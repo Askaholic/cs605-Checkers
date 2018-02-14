@@ -6,6 +6,7 @@
 
 #include "asknet4.h"
 #include "aligned_array.h"
+#include "immintrin.h"
 #include <cmath>
 #include <vector>
 #include <cstddef>
@@ -176,9 +177,6 @@ float Network4::evaluate(const std::vector<float> & inputs) {
     for (size_t i = 0; i < inputs.size(); i++) {
         float output = layerStart[(size_t)header.size + ((size_t) header.node_size * i)] * inputs[i];
         output = _applySigmoid(output);
-        if (i > 25000000) {
-            std::cout << "i is big " << i << '\n';
-        }
         layer_outputs[i] = output;
     }
     layerStart += (size_t) (header.size + header.num_nodes * header.node_size);
@@ -197,6 +195,14 @@ float Network4::evaluate(const std::vector<float> & inputs) {
     return layer_outputs[0];
 }
 
+float horizontal_add (__m256 a) {
+    __m256 t1 = _mm256_hadd_ps(a, a);
+    __m256 t2 = _mm256_hadd_ps(t1, t1);
+    __m128 t3 = _mm256_extractf128_ps(t2, 1);
+    __m128 t4 = _mm_add_ss(_mm256_castps256_ps128(t2), t3);
+    return _mm_cvtss_f32(t4);
+}
+
 void Network4::_evaluateLayer(float * layer_start, LayerHeader & header, const AlignedArray<float, 32> & inputs, AlignedArray<float, 32> & outputs) {
     auto inputs_size = inputs.size();
     size_t node_size = header.node_size;
@@ -207,20 +213,15 @@ void Network4::_evaluateLayer(float * layer_start, LayerHeader & header, const A
     }
     outputs.resize((size_t) header.num_nodes);
 
-    AlignedArray<float, 32> output_temp(8 + (size_t) header.num_nodes * (size_t) num_weights);
-
     for (size_t j = 0; j < (size_t)header.num_nodes; j++) {
         float node_output = 0.0f;
 
-        for (size_t k = 0; k < num_weights; k += 8) {
-            __m256 sse_in = _mm256_load_ps(&inputs[k]);
+        for (size_t k = 0; k < num_weights; k+=8) {
             auto layer_start_index = (size_t) header.size + (node_size * j) + k;
+            __m256 sse_in = _mm256_load_ps(&inputs[k]);
             __m256 sse_wt = _mm256_load_ps(&layer_start[layer_start_index]);
             __m256 sse_out = _mm256_mul_ps(sse_in, sse_wt);
-            _mm256_store_ps(&output_temp[j * num_weights + k], sse_out);
-        }
-        for (size_t i = 0; i < num_weights; i++) {
-            node_output += output_temp[j * num_weights + i];
+            node_output += horizontal_add(sse_out);
         }
         node_output = _applySigmoid(node_output);
         outputs[j] = node_output;
