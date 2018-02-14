@@ -92,13 +92,13 @@ public:
 
 
     AlignedArray & operator=(AlignedArray && other) {
-        if (this == other) {
+        if (this == &other) {
             return *this;
         }
 
         _data = other._data;
         other._data = nullptr;
-        _data_unaligned = other.__data_unaligned;
+        _data_unaligned = other._data_unaligned;
         other._data_unaligned = nullptr;
 
         _size = other._size;
@@ -108,10 +108,16 @@ public:
     }
 
     const T & operator[](int index) const {
+        if(index >= _size) {
+            throw std::out_of_range("Index out of bounds" + std::to_string(index));
+        }
         return _data[index];
     }
 
     T & operator[](int index) {
+        if(index >= _size) {
+            throw std::out_of_range("Index out of bounds" + std::to_string(index));
+        }
         return _data[index];
     }
 

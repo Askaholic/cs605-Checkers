@@ -15,7 +15,7 @@
 
 
 /* Size of the header block for each Layer (in bytes) */
-#define LAYER_HEADER_SIZE 4;
+#define LAYER_HEADER_SIZE 32;
 
 
 struct LayerHeader {
@@ -30,7 +30,7 @@ struct LayerHeader {
 */
 class Network4 {
 private:
-    std::vector<float> _data;
+    AlignedArray<float, 32> _data;
     size_t _num_layers;
     size_t _getRequiredSpace(const std::vector<size_t> & topology);
     size_t _getLayerRequiredSpace(size_t num_nodes, size_t num_node_weights);
@@ -45,7 +45,7 @@ public:
     void setWeights(const std::vector<std::vector<std::vector<float>>> & weights);
     std::vector<std::vector<std::vector<float>>> getWeights();
     float evaluate(const std::vector<float> & inputs);
-    const std::vector<float> & getData() { return _data; }
+    const AlignedArray<float, 32> & getData() { return _data; }
     size_t getNumNodes();
     size_t getNumWeights();
 };

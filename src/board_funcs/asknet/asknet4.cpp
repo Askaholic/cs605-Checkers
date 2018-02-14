@@ -15,9 +15,10 @@
 
 Network4::Network4(const std::vector<size_t> & topology) {
     size_t required_space = _getRequiredSpace(topology);
+    std::cout << "required space " << required_space << '\n';
     _num_layers = topology.size();
 
-    _data = std::vector<float>(required_space, 0.0f);
+    _data = AlignedArray<float, 32>(required_space);
 
     auto layer_start = &_data[0];
     size_t num_node_inputs = 1;
@@ -64,7 +65,11 @@ size_t Network4::_getLayerRequiredSpace(size_t num_nodes, size_t num_node_weight
 }
 
 size_t Network4::_getNodeRequiredSpace(size_t num_weights) {
-    return num_weights;
+    auto r = num_weights % 32;
+    if (r == 0) {
+        return num_weights;
+    }
+    return num_weights + 32 - (r);
 }
 
 LayerHeader Network4::_readLayerHeader(float * start) {
@@ -171,6 +176,9 @@ float Network4::evaluate(const std::vector<float> & inputs) {
     for (size_t i = 0; i < inputs.size(); i++) {
         float output = layerStart[(size_t)header.size + ((size_t) header.node_size * i)] * inputs[i];
         output = _applySigmoid(output);
+        if (i > 25000000) {
+            std::cout << "i is big " << i << '\n';
+        }
         layer_outputs[i] = output;
     }
     layerStart += (size_t) (header.size + header.num_nodes * header.node_size);
@@ -191,16 +199,28 @@ float Network4::evaluate(const std::vector<float> & inputs) {
 
 void Network4::_evaluateLayer(float * layer_start, LayerHeader & header, const AlignedArray<float, 32> & inputs, AlignedArray<float, 32> & outputs) {
     auto inputs_size = inputs.size();
+    size_t node_size = header.node_size;
+    size_t num_weights = header.num_node_weights;
 
     if (header.num_node_weights != inputs_size) {
         throw std::out_of_range("Wrong number of inputs (" + std::to_string(inputs_size) + ") passed to evaluate. Expecting " + std::to_string((size_t) header.num_node_weights ));
     }
     outputs.resize((size_t) header.num_nodes);
 
-    for (size_t j = 0; j < header.num_nodes; j++) {
+    AlignedArray<float, 32> output_temp(8 + (size_t) header.num_nodes * (size_t) num_weights);
+
+    for (size_t j = 0; j < (size_t)header.num_nodes; j++) {
         float node_output = 0.0f;
-        for (size_t k = 0; k < header.num_node_weights; k++) {
-            node_output += (layer_start[(size_t) header.size + ((size_t) header.node_size * j) + k] * inputs[k]);
+
+        for (size_t k = 0; k < num_weights; k += 8) {
+            __m256 sse_in = _mm256_load_ps(&inputs[k]);
+            auto layer_start_index = (size_t) header.size + (node_size * j) + k;
+            __m256 sse_wt = _mm256_load_ps(&layer_start[layer_start_index]);
+            __m256 sse_out = _mm256_mul_ps(sse_in, sse_wt);
+            _mm256_store_ps(&output_temp[j * num_weights + k], sse_out);
+        }
+        for (size_t i = 0; i < num_weights; i++) {
+            node_output += output_temp[j * num_weights + i];
         }
         node_output = _applySigmoid(node_output);
         outputs[j] = node_output;
