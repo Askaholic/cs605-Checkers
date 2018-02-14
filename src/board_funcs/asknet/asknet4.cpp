@@ -186,6 +186,7 @@ float Network4::evaluate(const std::vector<float> & inputs) {
         // Does a copy
         // TODO: Use pointer to vector instead
         AlignedArray<float, 32> layer_inputs(layer_outputs);
+        layer_inputs.setOverflow(0);
 
         header = _readLayerHeader(layerStart);
 

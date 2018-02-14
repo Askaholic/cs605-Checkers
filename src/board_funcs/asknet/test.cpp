@@ -106,6 +106,8 @@ int main() {
     size_t NUM_TESTS = 50;
 
     test_topology({3, 1 }, NUM_TESTS);
+    test_topology({32, 40, 10, 1 }, NUM_TESTS);
+    test_topology({92, 32, 40, 10, 1 }, NUM_TESTS);
     // test_topology({32, 10000, 1 }, NUM_TESTS);
     test_topology({32, 5000, 5000, 1 }, NUM_TESTS);
     // test_topology({32, 5000, 3000, 2000, 1 }, NUM_TESTS);

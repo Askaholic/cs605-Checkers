@@ -136,6 +136,21 @@ public:
     size_t size() const {
         return _size;
     }
+
+    void setOverflow(T & val) {
+        T * start = _data + _size;
+        while (start < _data_unaligned + _size + A) {
+            start[0] = val;
+            start++;
+        }
+    }
+    void setOverflow(T && val) {
+        T * start = _data + _size;
+        while (start < _data_unaligned + _size + A) {
+            start[0] = val;
+            start++;
+        }
+    }
 };
 
 #endif
