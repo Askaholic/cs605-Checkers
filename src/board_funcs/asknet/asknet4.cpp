@@ -168,33 +168,41 @@ float Network4::evaluate(const std::vector<float> & inputs) {
     float * layerStart = &_data[0];
     float * dataEnd = &_data[_data.size() - 1];
 
-    AlignedArray<float, 32> layer_outputs(inputs.size());
+    // AlignedArray<float, 32> layer_outputs(inputs.size());
 
+    AlignedArray<float, 32> all_layer_outputs[_num_layers];
+    all_layer_outputs[0] = std::move(AlignedArray<float, 32>(inputs.size()));
+    auto layer_outputs = std::make_unique<AlignedArray<float, 32>>(
+        all_layer_outputs[0]
+    );
+
+    // TODO: Refactor first time special case
     auto header = _readLayerHeader(layerStart);
-    if (header.num_nodes != layer_outputs.size()) {
-        throw std::out_of_range("Wrong number of inputs (" + std::to_string(layer_outputs.size()) + ") passed to evaluate. Expecting " + std::to_string((size_t) header.num_nodes ));
+    if (header.num_nodes != layer_outputs->size()) {
+        throw std::out_of_range("Wrong number of inputs (" + std::to_string(layer_outputs->size()) + ") passed to evaluate. Expecting " + std::to_string((size_t) header.num_nodes ));
     }
     for (size_t i = 0; i < inputs.size(); i++) {
         float output = layerStart[(size_t)header.size + ((size_t) header.node_size * i)] * inputs[i];
         output = _applySigmoid(output);
-        layer_outputs[i] = output;
+        (*layer_outputs)[i] = output;
     }
     layerStart += (size_t) (header.size + header.num_nodes * header.node_size);
 
     size_t i = 1;
     while (layerStart < dataEnd) {
-        // Does a copy
-        // TODO: Use pointer to vector instead
-        AlignedArray<float, 32> layer_inputs(layer_outputs);
-        layer_inputs.setOverflow(0);
+        auto layer_inputs = std::move(layer_outputs);
+        layer_outputs = std::make_unique<AlignedArray<float, 32>> (
+                all_layer_outputs[i]
+        );
+        layer_inputs->setOverflow(0);
 
         header = _readLayerHeader(layerStart);
 
-        _evaluateLayer(layerStart, header, layer_inputs, layer_outputs);
+        _evaluateLayer(layerStart, header, *layer_inputs, *layer_outputs);
         layerStart += (size_t) (header.size + header.num_nodes * header.node_size);
         i++;
     }
-    return layer_outputs[0];
+    return (*layer_outputs)[0];
 }
 
 float horizontal_add (__m256 a) {
