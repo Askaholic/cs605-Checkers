@@ -52,7 +52,7 @@ void test_topology(std::vector<size_t> topology, size_t NUM_TESTS) {
     Network3 net3(topology);
     net3.setWeights(net2.getWeights());
 
-    std::vector<float> inputs(32, 0.001f);
+    std::vector<float> inputs(topology[0], 0.1f);
     auto elapsed = time_network(net3, "(3)", inputs, NUM_TESTS);
 
     std::cout << 1000000000.0 * NUM_TESTS / (double) elapsed << " eval / second" << '\n';
@@ -81,10 +81,13 @@ int main() {
     // std::vector<float> inputs = {1.0f, 1.0f, 1.0f};
     size_t NUM_TESTS = 10;
 
+    test_topology({3, 1 }, NUM_TESTS);
     test_topology({32, 10000, 1 }, NUM_TESTS);
-    test_topology({32, 5000, 5000, 1 }, NUM_TESTS);
-    test_topology({32, 5000, 3000, 2000, 1 }, NUM_TESTS);
-    test_topology({32, 2000, 3000, 3000, 2000, 1 }, NUM_TESTS);
-    test_topology({32, 5000, 3000, 1000, 1000, 1 }, NUM_TESTS);
+    // test_topology({32, 5000, 5000, 1 }, NUM_TESTS);
+    // test_topology({32, 5000, 3000, 2000, 1 }, NUM_TESTS);
+    // test_topology({32, 2000, 3000, 3000, 2000, 1 }, NUM_TESTS);
+    // test_topology({32, 5000, 3000, 1000, 1000, 1 }, NUM_TESTS);
+    // test_topology({32, 1000, 3000, 1000, 50, 4, 1 }, NUM_TESTS);
+    // test_topology({32, 3000, 1000, 500, 50, 4, 1 }, NUM_TESTS);
 
 }

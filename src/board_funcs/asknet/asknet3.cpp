@@ -141,6 +141,7 @@ std::vector<float> Layer3::evaluate(const std::vector<float> &inputs) {
     std::vector<float> outputs;
     float * unaligned_temp;
     float * inputs_aligned = (float *) aligned_alloc(inputs.size(), unaligned_temp);
+    std::copy(inputs.begin(), inputs.end(), inputs_aligned);
     for (size_t i = 0; i < _nodes.size(); i++) {
         outputs.push_back(_nodes[i].evaluate(inputs_aligned, inputs.size()));
     }
@@ -155,12 +156,11 @@ std::vector<float> Layer3::evaluateFirst(const std::vector<float> &inputs) {
     }
 
     std::vector<float> output(layer_size);
-    std::vector<float> input(1);
     float * unaligned_temp;
-    float * inputs_aligned = (float *) aligned_alloc(input.size(), unaligned_temp);
+    float * inputs_aligned = (float *) aligned_alloc(1, unaligned_temp);
     for (size_t i = 0; i < layer_size; i++) {
-        input[0] = inputs[i];
-        output[i] = _nodes[i].evaluate(inputs_aligned, input.size());
+        inputs_aligned[0] = inputs[i];
+        output[i] = _nodes[i].evaluate(inputs_aligned, 1);
     }
     delete[] unaligned_temp;
     return output;
@@ -231,12 +231,6 @@ Node3::~Node3() {
 }
 
 void Node3::_allocate(size_t size) {
-    // if (posix_memalign((void **)&_weights, 32, size)) {
-    //     std::cout << "Error in alloc" << '\n';
-    // }
-    // if (posix_memalign((void **)&_output_temp, 32, size)) {
-    //         std::cout << "Error in alloc" << '\n';
-    // }
     float * w_unaligned;
     _weights = (float *) aligned_alloc(size, w_unaligned);
     _weights_unaligned = w_unaligned;
@@ -252,11 +246,9 @@ void Node3::_allocate(size_t size) {
 
 void Node3::_del() {
     if (_weights != nullptr) {
-        // free(_weights);
         delete[] _weights_unaligned;
     }
     if (_output_temp != nullptr) {
-        // free(_output_temp);
         delete[] _output_temp_unaligned;
     }
 }
@@ -276,10 +268,10 @@ float Node3::_sumWeights(const float * inputs, size_t size) {
     for (size_t i = 0; i < size; i+=8) {
         __m256 sse_in = _mm256_load_ps(&inputs[i]);
         __m256 sse_wt = _mm256_load_ps(&_weights[i]);
-        __m256 sse_out = _mm256_load_ps(&_output_temp[i]);
-        sse_out = _mm256_mul_ps(sse_in, sse_wt);
+        __m256 sse_out = _mm256_mul_ps(sse_in, sse_wt);
         _mm256_store_ps(&_output_temp[i], sse_out);
     }
+    // TODO: Horizontal add
     for (size_t i = 0; i < size; i++) {
         output += _output_temp[i];
     }
