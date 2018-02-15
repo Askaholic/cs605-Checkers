@@ -29,6 +29,12 @@ struct Move {
     size_t _to;
 };
 
+struct Jump {
+    size_t _from;
+    size_t _to;
+    size_t _enemy;
+};
+
 class BoardState {
 private:
     char _tiles[BOARD_ELEMENTS / 2];
@@ -78,6 +84,10 @@ bool is_valid_index(int index);
 
 std::vector<Move> get_possible_moves(const BoardState &board, int player);
 std::vector<Move> get_possible_moves(const char * board, int player);
+
+std::vector<Jump> get_possible_jumps(const BoardState &board, int player);
+std::vector<Jump> get_possible_jumps(const char * board, int player);
+
 float evaluate_board(const BoardState &board);
 int piece_count(const BoardState &board, int player);
 int piece_count(const char *, int player);
