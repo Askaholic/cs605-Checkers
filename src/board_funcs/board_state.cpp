@@ -47,6 +47,13 @@ void BoardState::apply_move(const Move move) {
     set(move._to, piece);
 }
 
+void BoardState::apply_jump(const Jump jump){
+    auto piece = (*this)[jump._from];
+    set(jump._from, BLANK);
+    set(jump._to, piece);
+    set(jump._enemy, BLANK);
+}
+
 char BoardStateFast::operator[](size_t i) {
   if (i < 0 || i > BOARD_ELEMENTS - 1) { throw std::out_of_range("Board index out of range " + std::to_string(i)); }
   return _tiles[i];
@@ -105,3 +112,7 @@ void board_apply_move(char * start, Move move) {
     board_set_one(start, move._from, BLANK);
     board_set_one(start, move._to, piece);
 }
+
+
+
+
