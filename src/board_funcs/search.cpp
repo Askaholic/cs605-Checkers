@@ -159,6 +159,11 @@ void min_max_search_helper_ab(std::pair<BoardState, int> & result, const BoardSt
     size_t best_index = 0;
     std::pair<BoardState, int> next_result;
 
+    if (next_boards.size() == 0) {
+        result.first = BoardState(board);
+        result.second = 0;
+        return;
+    }
     for (size_t i = 0; i < next_boards.size(); i++) {
         min_max_search_helper_ab(
             next_result,

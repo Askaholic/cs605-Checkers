@@ -135,7 +135,7 @@ static PyObject * get_possible_jumps_wrapper(PyObject * self, PyObject * args) {
     auto b = get_possible_jumps(board, player);
     auto list = PyList_New(b.size());
     for (size_t i = 0; i < b.size(); i++) {
-        auto tuple = PyTuple_New(2);
+        auto tuple = PyTuple_New(3);
         PyTuple_SET_ITEM(tuple, 0, PyLong_FromSize_t(b[i]._from));
         PyTuple_SET_ITEM(tuple, 1, PyLong_FromSize_t(b[i]._to));
         PyTuple_SET_ITEM(tuple, 2, PyLong_FromSize_t(b[i]._enemy));

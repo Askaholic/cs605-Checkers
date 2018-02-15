@@ -34,11 +34,11 @@ starting_board = 'rrrrrrrrrrrr11111111bbbbbbbbbbbb'
 # print("Board value: {}".format(bf.evaluate_board(starting_board)))
 #
 # print("Min Max search with piece_count")
-depth = 18
-# print("Depth: ", depth)
-# board, score = bf.min_max_search(starting_board, 0, depth)
-# print("Score: ", score)
-# printBoard(board)
+depth = 8
+print("Depth: ", depth)
+board, score = bf.min_max_search_ab(starting_board, 0, depth)
+print("Score: ", score)
+printBoard(board)
 #
 #
 #print("Min Max search with piece_count **no_alloc**")
@@ -47,14 +47,14 @@ depth = 18
 #print("Score: ", score)
 #printBoard(board)
 
-print("Get possible jumps")
-num_jumps = bf.get_possible_jumps(starting_board, 0)
-print("Red player number of valid jumps:", num_jumps)
-
-possible_jump = 'rrrrrrrrr1111b111111bbbbbbbbbbbb'
-printBoard(possible_jump)
-num_jumps = bf.get_possible_jumps(possible_jump, 0)
-print("Red player number of valid jumps:", num_jumps)
+# print("Get possible jumps")
+# num_jumps = bf.get_possible_jumps(starting_board, 0)
+# print("Red player number of valid jumps:", num_jumps)
+#
+# possible_jump = 'rrrrrrrrr1111b111111bbbbbbbbbbbb'
+# printBoard(possible_jump)
+# num_jumps = bf.get_possible_jumps(possible_jump, 0)
+# print("Red player number of valid jumps:", num_jumps)
 # branch_factor = 3
 # nodes_to_visit = [0]
 # max_depth = 3
