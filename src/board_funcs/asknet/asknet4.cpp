@@ -172,9 +172,7 @@ float Network4::evaluate(const std::vector<float> & inputs) {
 
     AlignedArray<float, 32> all_layer_outputs[_num_layers];
     all_layer_outputs[0] = std::move(AlignedArray<float, 32>(inputs.size()));
-    auto layer_outputs = std::make_unique<AlignedArray<float, 32>>(
-        all_layer_outputs[0]
-    );
+    AlignedArray<float, 32> * layer_outputs = &all_layer_outputs[0];
 
     // TODO: Refactor first time special case
     auto header = _readLayerHeader(layerStart);
@@ -190,10 +188,8 @@ float Network4::evaluate(const std::vector<float> & inputs) {
 
     size_t i = 1;
     while (layerStart < dataEnd) {
-        auto layer_inputs = std::move(layer_outputs);
-        layer_outputs = std::make_unique<AlignedArray<float, 32>> (
-                all_layer_outputs[i]
-        );
+        auto layer_inputs = layer_outputs;
+        layer_outputs = &all_layer_outputs[i];
         layer_inputs->setOverflow(0);
 
         header = _readLayerHeader(layerStart);
