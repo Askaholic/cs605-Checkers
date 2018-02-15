@@ -5,6 +5,7 @@
 // Shared library for code that needs to be fast and small...
 
 #include "asknet.h"
+#include "asknet4.h"
 #include "board_funcs.h"
 #include <vector>
 #include <cstddef>
@@ -101,7 +102,7 @@ std::vector<std::vector<std::vector<int>>> jumpTable = {
 BoardState the_board = {};
 Network the_network({0, 0});
 
-bool is_valid_index(int index){
+bool is_valid_index(int index) {
     if (index < 0 || index > 31)
         return false;
     return true;

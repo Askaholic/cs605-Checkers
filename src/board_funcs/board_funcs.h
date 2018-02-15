@@ -73,7 +73,7 @@ char * test(char * str);
 void setup_board();
 void setup_network();
 BoardState get_board();
-int is_valid_index(int index); 
+bool is_valid_index(int index);
 
 std::vector<Move> get_possible_moves(const BoardState &board, int player);
 std::vector<Move> get_possible_moves(const char * board, int player);
@@ -81,6 +81,7 @@ float evaluate_board(const BoardState &board);
 int piece_count(const BoardState &board, int player);
 int piece_count(const char *, int player);
 std::pair<std::unique_ptr<BoardState>, int> min_max_search(const BoardState & board, int player, int depth);
+std::pair<std::unique_ptr<BoardState>, int> min_max_search_ab(const BoardState & board, int player, int depth);
 std::pair<BoardState, int> min_max_no_alloc(const BoardState & board, int player, int depth);
 
 void time_boards();

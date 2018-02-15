@@ -14,11 +14,18 @@
 #include <utility>
 
 void min_max_search_helper(std::pair<std::unique_ptr<BoardState>, int> &, const BoardState & board, int player, int depth);
+void min_max_search_helper_ab(std::pair<std::unique_ptr<BoardState>, int> &, const BoardState & board, int player, int depth, int alpha, int beta);
 std::pair<size_t, int> min_max_no_alloc_helper(int player, size_t depth, char * mem, size_t mem_size, size_t mem_offset, size_t branch_factor);
 
 std::pair<std::unique_ptr<BoardState>, int> min_max_search(const BoardState & board, int player, int depth) {
     auto result = std::make_pair<std::unique_ptr<BoardState>, int>(nullptr, 0);
     min_max_search_helper(result, board, player, depth);
+    return result;
+}
+
+std::pair<std::unique_ptr<BoardState>, int> min_max_search_ab(const BoardState & board, int player, int depth) {
+    auto result = std::make_pair<std::unique_ptr<BoardState>, int>(nullptr, 0);
+    min_max_search_helper_ab(result, board, player, depth, 0, 0);
     return result;
 }
 
@@ -81,6 +88,58 @@ void min_max_search_helper(std::pair<std::unique_ptr<BoardState>, int> & result,
         if (i == 0 || next_result.second > best) {
             best_index = i;
             best = next_result.second;
+        }
+    }
+    result.first = std::make_unique<BoardState>(next_boards[best_index]);
+    result.second = best;
+
+    return;
+}
+
+// DFS min max search
+void min_max_search_helper_ab(std::pair<std::unique_ptr<BoardState>, int> & result, const BoardState & board, int player, int depth, int alpha, int beta) {
+    if (depth <= 1) {
+        result.first = std::make_unique<BoardState>(
+            BoardState(board)
+        );
+        result.second = piece_count(board, player);
+        return;
+    }
+
+    // Generate all possible next board states
+    auto moves = get_possible_moves(board, player);
+    std::vector<BoardState> next_boards;
+    for (size_t i = 0; i < moves.size(); i++) {
+        auto next = BoardState(board);
+        next.apply_move(moves[i]);
+        next_boards.push_back(next);
+    }
+
+    int best = 0;
+    size_t best_index = 0;
+    std::pair<std::unique_ptr<BoardState>, int> next_result;
+
+    for (size_t i = 0; i < next_boards.size(); i++) {
+        min_max_search_helper_ab(
+            next_result,
+            next_boards[i],
+            player == RED_PLAYER ? BLACK_PLAYER : RED_PLAYER,
+            depth - 1,
+            alpha,
+            beta
+        );
+        if (i == 0 || next_result.second > best) {
+            best_index = i;
+            best = next_result.second;
+        }
+        if (player == RED_PLAYER && best > alpha) {
+            alpha = best;
+        }
+        else if (player == BLACK_PLAYER && best > beta) {
+            beta = best;
+        }
+        if (beta <= alpha){
+            break;
         }
     }
     result.first = std::make_unique<BoardState>(next_boards[best_index]);
