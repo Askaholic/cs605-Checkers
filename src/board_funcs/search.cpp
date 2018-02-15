@@ -68,12 +68,23 @@ void min_max_search_helper(std::pair<std::unique_ptr<BoardState>, int> & result,
     }
 
     // Generate all possible next board states
-    auto moves = get_possible_moves(board, player);
     std::vector<BoardState> next_boards;
-    for (size_t i = 0; i < moves.size(); i++) {
-        auto next = BoardState(board);
-        next.apply_move(moves[i]);
-        next_boards.push_back(next);
+    auto jumps = get_possible_jumps(board, player);
+
+    if (jumps.size() != 0) {
+        for (size_t i = 0; i < jumps.size(); i++) {
+            auto next = BoardState(board);
+            next.apply_jump(jumps[i]);
+            next_boards.push_back(next);
+        }
+    }
+    else {
+        auto moves = get_possible_moves(board, player);
+        for (size_t i = 0; i < moves.size(); i++) {
+            auto next = BoardState(board);
+            next.apply_move(moves[i]);
+            next_boards.push_back(next);
+        }
     }
 
     int best = 0;
@@ -125,12 +136,23 @@ void min_max_search_helper_ab(std::pair<BoardState, int> & result, const BoardSt
     }
 
     // Generate all possible next board states
-    auto moves = get_possible_moves(board, player);
     std::vector<BoardState> next_boards;
-    for (size_t i = 0; i < moves.size(); i++) {
-        auto next = BoardState(board);
-        next.apply_move(moves[i]);
-        next_boards.push_back(next);
+    auto jumps = get_possible_jumps(board, player);
+
+    if (jumps.size() != 0) {
+        for (size_t i = 0; i < jumps.size(); i++) {
+            auto next = BoardState(board);
+            next.apply_jump(jumps[i]);
+            next_boards.push_back(next);
+        }
+    }
+    else {
+        auto moves = get_possible_moves(board, player);
+        for (size_t i = 0; i < moves.size(); i++) {
+            auto next = BoardState(board);
+            next.apply_move(moves[i]);
+            next_boards.push_back(next);
+        }
     }
 
     int best = 0;
