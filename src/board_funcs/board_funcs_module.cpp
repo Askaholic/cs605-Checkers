@@ -182,7 +182,7 @@ static PyObject * min_max_search_ab_wrapper(PyObject * self, PyObject * args) {
 
     auto tuple = PyTuple_New(2);
     auto list = PyList_New(BOARD_ELEMENTS);
-    board_state_to_py_list(*(search_result.first), list);
+    board_state_to_py_list(search_result.first, list);
 
     PyTuple_SET_ITEM(tuple, 0, list);
     PyTuple_SET_ITEM(tuple, 1, PyLong_FromLong(search_result.second));

@@ -9,10 +9,22 @@
 #include "board_funcs.h"
 
 BoardState::BoardState(const BoardState & board) {
-    for (size_t i = 0; i < BOARD_ELEMENTS / 2; i++) {
+    if (&board == nullptr || &board == 0) {
+        std::cout << "trying to copy nullptr...." << '\n';
+        return;
+    }
+    // if ((unsigned long)this >= 0x7fffffffcc00) {
+        // std::cout << "board: " << &board << '\n';
+    // }
+    for (size_t i = 0; i < 16; i++) {
         _tiles[i] = board._tiles[i];
     }
+    // std::copy(board._tiles, board._tiles + (BOARD_ELEMENTS / 2), _tiles);
 }
+BoardState & BoardState::operator=(const BoardState & other) {
+    std::copy(other._tiles, other._tiles + (BOARD_ELEMENTS / 2), _tiles);
+}
+
 
 char BoardState::operator[](size_t i) {
   if (i < 0 || i > BOARD_ELEMENTS - 1) { throw std::out_of_range("Board index out of range " + std::to_string(i)); }

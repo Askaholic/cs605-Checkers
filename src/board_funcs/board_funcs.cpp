@@ -130,6 +130,7 @@ void setup_network() {
     std::cout << "Initialized network with " << the_network.getNumNodes() << " nodes" << '\n';
 }
 
+
 BoardState get_board() {
   return the_board;
 }

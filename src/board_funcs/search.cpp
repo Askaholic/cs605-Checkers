@@ -14,7 +14,7 @@
 #include <utility>
 
 void min_max_search_helper(std::pair<std::unique_ptr<BoardState>, int> &, const BoardState & board, int player, int depth);
-void min_max_search_helper_ab(std::pair<std::unique_ptr<BoardState>, int> &, const BoardState & board, int player, int depth, int alpha, int beta);
+void min_max_search_helper_ab(std::pair<BoardState, int> &, const BoardState & board, int player, int depth, int alpha, int beta);
 std::pair<size_t, int> min_max_no_alloc_helper(int player, size_t depth, char * mem, size_t mem_size, size_t mem_offset, size_t branch_factor);
 
 std::pair<std::unique_ptr<BoardState>, int> min_max_search(const BoardState & board, int player, int depth) {
@@ -23,9 +23,11 @@ std::pair<std::unique_ptr<BoardState>, int> min_max_search(const BoardState & bo
     return result;
 }
 
-std::pair<std::unique_ptr<BoardState>, int> min_max_search_ab(const BoardState & board, int player, int depth) {
-    auto result = std::make_pair<std::unique_ptr<BoardState>, int>(nullptr, 0);
+size_t leaves = 0;
+std::pair<BoardState, int> min_max_search_ab(const BoardState & board, int player, int depth) {
+    auto result = std::make_pair<BoardState, int>(BoardState(), 0);
     min_max_search_helper_ab(result, board, player, depth, 0, 0);
+    std::cout << "leaves: " << leaves << '\n';
     return result;
 }
 
@@ -96,12 +98,28 @@ void min_max_search_helper(std::pair<std::unique_ptr<BoardState>, int> & result,
     return;
 }
 
+void verify_board_state(const BoardState & board) {
+    for (size_t i = 0; i < BOARD_ELEMENTS; i++) {
+        bool good = false;
+        switch (board[i]) {
+            case BLANK: good=true; break;
+            case BLACK_CHECKER: good=true; break;
+            case BLACK_KING: good=true; break;
+            case RED_CHECKER: good=true; break;
+            case RED_KING: good=true; break;
+        }
+        if (!good) {
+            std::cout << "bad piece detected" << '\n';
+        }
+    }
+}
 // DFS min max search
-void min_max_search_helper_ab(std::pair<std::unique_ptr<BoardState>, int> & result, const BoardState & board, int player, int depth, int alpha, int beta) {
+void min_max_search_helper_ab(std::pair<BoardState, int> & result, const BoardState & board, int player, int depth, int alpha, int beta) {
+    verify_board_state(board);
     if (depth <= 1) {
-        result.first = std::make_unique<BoardState>(
-            BoardState(board)
-        );
+        leaves++;
+        // std::cout << "leaves: " << leaves << '\n';
+        result.first = BoardState(board);
         result.second = piece_count(board, player);
         return;
     }
@@ -117,7 +135,7 @@ void min_max_search_helper_ab(std::pair<std::unique_ptr<BoardState>, int> & resu
 
     int best = 0;
     size_t best_index = 0;
-    std::pair<std::unique_ptr<BoardState>, int> next_result;
+    std::pair<BoardState, int> next_result;
 
     for (size_t i = 0; i < next_boards.size(); i++) {
         min_max_search_helper_ab(
@@ -142,7 +160,7 @@ void min_max_search_helper_ab(std::pair<std::unique_ptr<BoardState>, int> & resu
             break;
         }
     }
-    result.first = std::make_unique<BoardState>(next_boards[best_index]);
+    result.first = BoardState(next_boards[best_index]);
     result.second = best;
 
     return;

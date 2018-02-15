@@ -36,6 +36,7 @@ private:
 public:
     BoardState() = default;
     BoardState(const BoardState &);
+    BoardState & operator=(const BoardState & other);
     char operator[](size_t index);
     const char operator[](size_t index) const;
     void set(size_t index, char value);
@@ -81,7 +82,7 @@ float evaluate_board(const BoardState &board);
 int piece_count(const BoardState &board, int player);
 int piece_count(const char *, int player);
 std::pair<std::unique_ptr<BoardState>, int> min_max_search(const BoardState & board, int player, int depth);
-std::pair<std::unique_ptr<BoardState>, int> min_max_search_ab(const BoardState & board, int player, int depth);
+std::pair<BoardState, int> min_max_search_ab(const BoardState & board, int player, int depth);
 std::pair<BoardState, int> min_max_no_alloc(const BoardState & board, int player, int depth);
 
 void time_boards();
