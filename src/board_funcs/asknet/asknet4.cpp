@@ -232,7 +232,7 @@ void Network4::_evaluateLayer(float * layer_start, LayerHeader & header, const A
     for (size_t j = 0; j < (size_t)header.num_nodes; j++) {
         float node_output = 0.0f;
 
-        // #pragma omp parallel for reduction(+:node_output)
+        #pragma omp parallel for reduction(+:node_output)
         for (size_t k = 0; k < num_weights; k+=8) {
             auto layer_start_index = (size_t) header.size + (node_size * j) + k;
             __m256 sse_in = _mm256_load_ps(&inputs[k]);
