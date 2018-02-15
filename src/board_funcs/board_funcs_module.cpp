@@ -122,6 +122,32 @@ static PyObject * get_possible_moves_wrapper(PyObject * self, PyObject * args) {
     return list;
 }
 
+static PyObject * get_possible_jumps_wrapper(PyObject * self, PyObject * args) {
+    int player;
+    char * board_string;
+    if (!PyArg_ParseTuple(args, "si", &board_string, &player)) {
+        return NULL;
+    }
+
+    BoardState board;
+    string_to_board_state(board_string, board);
+
+    auto b = get_possible_jumps(board, player);
+    auto list = PyList_New(b.size());
+    for (size_t i = 0; i < b.size(); i++) {
+        auto tuple = PyTuple_New(2);
+        PyTuple_SET_ITEM(tuple, 0, PyLong_FromSize_t(b[i]._from));
+        PyTuple_SET_ITEM(tuple, 1, PyLong_FromSize_t(b[i]._to));
+        PyTuple_SET_ITEM(tuple, 2, PyLong_FromSize_t(b[i]._enemy));
+        if (PyList_SetItem(list, i, tuple) == -1) {
+            // Handle error here?
+        }
+    }
+    return list;
+}
+
+
+
 static PyObject * evaluate_board_wrapper(PyObject * self, PyObject * args) {
     char * board_string;
     if (!PyArg_ParseTuple(args, "s", &board_string)) {
@@ -245,6 +271,8 @@ static PyMethodDef BoardFuncMethods[] = {
         "Print out the amount of time it takes for operations on each type of board" },
     { "get_possible_moves", get_possible_moves_wrapper, METH_VARARGS,
         "Finds all of the available moves given a board state, and which player's turn it is" },
+    { "get_possible_jumps", get_possible_jumps_wrapper, METH_VARARGS,
+        "Finds all of the available jumps given a board state, and which player's turn it is" },
     { "min_max_search", min_max_search_wrapper, METH_VARARGS,
         "Finds the best board to go to given the current board" },
     { "min_max_search_ab", min_max_search_ab_wrapper, METH_VARARGS,
