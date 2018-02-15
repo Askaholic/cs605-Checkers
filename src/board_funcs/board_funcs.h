@@ -48,6 +48,7 @@ public:
     void set(size_t index, char value);
     // test timing with reference?
     void apply_move(const Move);
+    void apply_jump(const Jump);
 };
 
 class BoardStateFast {
