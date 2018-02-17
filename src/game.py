@@ -22,14 +22,24 @@ class Game(object):
         self.timeout = time() + .3
         self.all_jumps_taken = False
 
+    def set_draw(self):
+        self.winner = '--DRAW--'
+
+    def end_game(self):
+        self.turns == 300
+
     def check_winner(self):
 
-        allMoves = self.board.get_all_moves()
-        print('Current Player:', self.board.current_turn_player, ' All possible moves:', allMoves)
-
+        all_moves = self.board.get_all_moves()
+        all_jumps = self.board.get_all_jumps()
+        print('Current Player:', self.board.current_turn_player, ' All possible moves:', all_moves)
+        print('am i fucking winning yet-- moves:', all_moves, 'jumps:', all_jumps)
+        if all_moves == [] and all_jumps == []:
+            print('the fucking winner is', self.winner)
+            self.winner = not self.board.current_turn_player
+            self.end_game()
 
     def player_turn(self, from_, to_):
-        self.check_winner()
         if not self.player == self.board.current_turn_player:
             return
 
@@ -48,7 +58,7 @@ class Game(object):
             self.board.take_move(self.board.board, from_, to_)
 
         self.end_turn()
-
+        self.check_winner()
 
     def update(self, dt):
         if self.timeout:
@@ -59,7 +69,14 @@ class Game(object):
 
         if self.turns < 200:
             if self.player != self.board.current_turn_player:
-                self.check_winner()
                 self.board.ai_turn()
                 self.board.current_turn_player = BLACK_PLAYER if self.player == BLACK_PLAYER else RED_PLAYER
+                self.check_winner()
                 self.turns += 1
+
+        elif self.turns == 200:
+            self.winner = not self.board.current_turn_player
+        else:
+            self.set_draw()
+
+
