@@ -103,6 +103,7 @@ int main() {
     // Network net(layers);
     //
     // std::vector<float> inputs = {1.0f, 1.0f, 1.0f};
+
     size_t NUM_TESTS = 100;
 
     // test_topology({3, 1 }, NUM_TESTS);
