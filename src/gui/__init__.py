@@ -48,7 +48,7 @@ class CheckersGame(Window):
             app.exit()
 
     def update(self, dt):
-        if self.game_board.board.winner is not None and self.handlers_enabled is True:
+        if self.game_board.winner is not None and self.handlers_enabled is True:
             self.pop_handlers()
             self.handlers_enabled = False
 
