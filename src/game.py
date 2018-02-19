@@ -32,14 +32,14 @@ class Game(object):
 
         all_moves = self.board.get_all_moves()
         all_jumps = self.board.get_all_jumps()
-        print('Current Player:', self.board.current_turn_player, ' All possible moves:', all_moves)
-        print('am i fucking winning yet-- moves:', all_moves, 'jumps:', all_jumps)
+
         if all_moves == [] and all_jumps == []:
-            print('the fucking winner is', self.winner)
+
             self.winner = not self.board.current_turn_player
             self.end_game()
 
     def player_turn(self, from_, to_):
+        self.check_winner()
         if not self.player == self.board.current_turn_player:
             return
 

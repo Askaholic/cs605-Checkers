@@ -164,6 +164,7 @@ void min_max_search_helper_ab(std::pair<BoardState, int> & result, const BoardSt
         result.second = 0;
         return;
     }
+
     for (size_t i = 0; i < next_boards.size(); i++) {
         min_max_search_helper_ab(
             next_result,
@@ -194,8 +195,12 @@ void min_max_search_helper_ab(std::pair<BoardState, int> & result, const BoardSt
 }
 
 size_t get_child_offset(size_t parent, size_t branch_factor, size_t i) {
+
     return (branch_factor * parent / sizeof(BoardState)  + i + 1) * sizeof(BoardState);
+
 }
+
+
 
 std::pair<size_t, int> min_max_no_alloc_helper(int player, size_t depth, char * mem, size_t mem_size, size_t mem_offset, size_t branch_factor) {
     if (depth <= 1) {
