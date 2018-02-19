@@ -3,8 +3,17 @@
 # Created: Jan. 18, 2018
 
 # Game class for keeping track of high level game info
-import sys
-import random
+from random import shuffle
+
+try:
+    import board_funcs as bf
+    try:
+        bf.setup_network()
+    except:
+        print('No network available')
+except ImportError:
+    print("Could not import board_funcs C++ library. Please install it!")
+    bf = None
 
 moveTable = {
     # -1 is a position they cannot move. Allows for [2:] list splitting.
@@ -99,11 +108,9 @@ jumpTable = {
 RED_PLAYER = 0
 BLACK_PLAYER = 1
 
-playerColors = {
-
+playerPieces = {
     0: ['r', 'R'],
     1: ['b', 'B']
-
 }
 
 
@@ -115,278 +122,254 @@ class Board(object):
             0: 'red',
             1: 'black'
         }
-        self.current_turn_player = RED_PLAYER
-        self.winCondition = -1
-        self.allPossibleJumps = []
-        self.enemy = ''
-
-        self.setupBoard()
-        self.printBoard()
+        self.setup_board()
 
     # Sets up the pieces.
-    def setupBoard(self):
+    def setup_board(self):
+        self.winner = None
+        self.current_turn_player = RED_PLAYER
         for checker in range(12):
             self.board[checker] = 'r'
             self.board[31 - checker] = 'b'
 
-
-    def is_winner(self):
-
-       if (self.winCondition == 0):
-         print('Winner is Black - Red cannot make anymore moves!')
-
-       elif (self.winCondition == 1):
-         print('Winner is red - Black canoot make anymore moves!')
-
-       elif (self.winCondition == 2):
-         print('Black is the winner - Red has no more pieces!')
-
-       elif (self.winCondition == 3):
-         print('Red is the winner - Black has no more pieces!')
-
-
-    def generateAllPossibleMoves(self, index, moves):
-
-        allPossMoves = []
-
-        # print(moves)
-        for move in moves:
-            if(self.board[move] == '1'):
-                allPossMoves.append(move)
-
-        if(len(allPossMoves) == 0):
-            return []
-
-        return [{index: allPossMoves}]
-
-    def make_king(self, to_):
-        if not self.is_valid_index(to_):
-            return False
-
-
-        # Make red panws kings
-        if to_ in [28,29,30,31]:
-            self.board[to_] = 'R'
-        if to_ in [0,1,2,3]:
-            self.board[to_] = 'B'
-
-        return True
-
     def is_valid_index(self, x):
         if x < 0 or x > 31:
             return False
+        return True
+
+    def make_king_if_king_space(self, board, to_):
+        piece = board[to_]
+        # Make red pawns kings
+        if to_ in [28, 29, 30, 31] and piece == 'r':
+            board[to_] = 'R'
+        # Make black pawns kings
+        if to_ in [0, 1, 2, 3] and piece == 'b':
+            board[to_] = 'B'
+
+    def is_enemy_in_position(self, from_, to_):
+        possJumps = [jump for jump in jumpTable[from_] if jump != -1]
+        enemyPos = [jump[1] for jump in possJumps if jump[0] == to_]
+
+        # Implicitly check for empty list
+        # print('The enemy position is:', enemyPos)
+        if not enemyPos:
+            return False
+
+        if self.board[enemyPos[0]] not in playerPieces[not self.current_turn_player]:
+            return False
 
         return True
 
-    def is_valid_move(self, from_, to_):
-        # print('in is_valid_move')
-        if not self.is_valid_index(from_) or not self.is_valid_index(to_):
-            return False
+    def get_enemy_position(self, from_, to_):
+        possJumps = [jump for jump in jumpTable[from_] if jump != -1]
+        enemyPos = [jump[1] for jump in possJumps if jump[0] == to_]
+        # enemyPos is a list, should only ever get 1 item
+        # print('enemyPos should not be larger than 1', enemyPos)
+        return enemyPos[0]
 
-        if self.board[to_] != '1':
-            return False
+    # Called from GUI
+    def take_move(self, board, from_, to_):
+        piece = board[from_]
+        board[from_] = '1'
+        board[to_] = piece
 
-        # print('in is_valid_move 1 ')
+        self.make_king_if_king_space(board, to_)
+
+    def take_jump(self, from_, to_):
+        enemyPos = self.get_enemy_position(from_, to_)
+        piece = self.board[from_]
+        self.board[enemyPos] = '1'
+        self.board[from_] = '1'
+        self.board[to_] = piece
+
+        self.make_king_if_king_space(self.board, to_)
+
+    def get_possible_moves_of_piece(self, from_):
         piece = self.board[from_]
         possMoves = moveTable[from_]
 
-        # print('All possible moves:', possMoves)
-
-        if piece in ['r', 'R']:
-            # print('in is_valid_move 2 for red')
+        if piece == 'r':
             possMoves = possMoves[2:]
-        else:
-            # print('in is_valid_move 2 for black')
+        elif piece == 'b':
             possMoves = possMoves[:2]
 
-        # print('to_:', to_, 'possMoves:', possMoves)
-        if (to_ not in possMoves):
-            return False
+        return possMoves
 
-        # print('in is_valid_move 3')
-
-        return True
-
-    def move(self, from_, to_):
+    def get_possible_jumps_of_piece(self, from_):
         piece = self.board[from_]
-        self.board[from_] = '1'
-        self.board[to_] = piece
-
-    def is_move(self, from_, to_):
-        if to_ not in moveTable[from_]:
-            return False
-        return True
-
-    def jump(self, from_, to_):
-        # print('from', from_, 'to', to_)
-
-        piece = self.board[from_]
-        self.board[self.enemy] = '1'
-        self.board[from_] = '1'
-        self.board[to_] = piece
-
-        self.enemy = ''
-
-    def is_valid_jump(self, from_, to_):
-        possJumps = [jump for jump in jumpTable[from_] if jump != -1]
-
-        piece = self.board[from_]
+        possJumps = jumpTable[from_]
 
         if piece == 'r':
-            possJumps = [jump for jump in jumpTable[from_][2:] if jump != -1]
-
+            possJumps = [jump for jump in possJumps[2:] if jump != -1]
         elif piece == 'b':
-            possJumps = [jump for jump in jumpTable[from_][:2] if jump != -1]
-
+            possJumps = [jump for jump in possJumps[:2] if jump != -1]
         else:
             possJumps = [jump for jump in jumpTable[from_] if jump != -1]
 
+        return possJumps
 
-        for jump in possJumps:
-            if jump[0] == to_ and self.board[jump[0]] == '1' and self.board[jump[1]] in playerColors[not self.current_turn_player]:
-                print('Here are my opponents:', playerColors[not self.current_turn_player])
-                # Jumped checker
-                self.enemy = jump[1]
-                print('My enemy is:', self.board[jump[1]], 'at', jump[1])
-                return True
+    def is_valid_move(self, from_, to_):
+        if len(self.get_all_jumps()) > 0:
+            return False
+        if not self.is_valid_index(from_) or not self.is_valid_index(to_):
+            return False
+        if self.board[to_] != '1':
+            return False
+        if from_ == to_:
+            return False
+        if to_ not in moveTable[from_]:
+            return False
+        if (to_ not in self.get_possible_moves_of_piece(from_)):
+            return False
 
-        return False
+        return True
 
-    # Called from GUI
-    def take_move(self, from_, to_):
-        if(self.current_turn_player == RED_PLAYER):
-            print("Red Player")
-        else:
-            print("Black Player")
+    def is_valid_jump(self, from_, to_):
+        if not self.is_valid_index(from_) or not self.is_valid_index(to_):
+            return False
+        if self.board[to_] != '1':
+            return False
+        if not self.is_enemy_in_position(from_, to_):
+            return False
+        if self.board[self.get_enemy_position(from_, to_)] not in playerPieces[not self.current_turn_player]:
+            return False
+        if not self.get_possible_jumps_of_piece(from_):
+            return False
+        if (to_ not in [jump[0] for jump in self.get_possible_jumps_of_piece(from_)]):
+            return False
 
-        # print('from_:', from_, 'to_', to_)
-
-        if self.is_valid_jump(from_, to_):
-            print('I think I should jump now')
-            self.jump(from_, to_)
-            self.make_king(to_)
-            return True
-
-        if (self.is_valid_move(from_, to_)):
-            self.move(from_, to_)
-            self.make_king(to_)
-            return True
-
-        return False
-
-    # def make_all_jump(self):
-    #    turnTaken = False
-
-    #     for jump in self.allPossibleJumps:
-    #         print('am I even trying to take a jump?')
-
-    #         self.take_move(i, jump[0])
-    #         turnTaken = True
-    #     if turnTaken:
+        return True
 
     def get_all_jumps(self):
-
-        turnTaken = False
+        allPossibleJumps = []
 
         for i in range(32):
-            if (self.board[i] not in playerColors[self.current_turn_player]):
+            if (self.board[i] not in playerPieces[self.current_turn_player]):
                 continue
 
             possJumps = [jump for jump in jumpTable[i] if jump != -1]
-            print(possJumps)
 
             for jump in possJumps:
                 if self.is_valid_jump(i, jump[0]):
-                    print(jump)
-                    self.allPossibleJumps.append((jump))
+                    allPossibleJumps.append((i, jump))
 
-            print('All possible jumps:',self.allPossibleJumps)
+        return allPossibleJumps
 
-            for jump in self.allPossibleJumps:
-                print('am I even trying to take a jump?')
+    def get_all_moves(self):
+        allPossibleMoves = []
 
-                self.take_move(i, jump[0])
-                turnTaken = True
+        for i in range(32):
+            if (self.board[i] not in playerPieces[self.current_turn_player]):
+                continue
 
-        self.allPossibleJumps = []
+            possMoves = moveTable[i]
 
-        if turnTaken:
-            return True
-
-        return False
-
-    def make_current_player_move(self):
-        if self.get_all_jumps():
-            return
-
-        else:
-            # Visual Testing
-            print('=='*20)
-            for i in range(32):
-
-                if (self.board[i] not in playerColors[self.current_turn_player]):
+            for move in possMoves:
+                if (not self.is_valid_move(i, move)):
                     continue
+                allPossibleMoves.append((i, move))
 
-                possMoves = moveTable[i]
+        return allPossibleMoves
 
-                if (self.current_turn_player == RED_PLAYER):
+    def choose_jump(self, jumps):
+        # Always take all jumps.
+        # for jump in jumps:
+            # self.take_jump()
+            # print
+        first_jump = jumps[0]
+        self.take_jump(first_jump[0], first_jump[1][0])
 
-                    piece = self.board[i]
-
-                    if piece == 'r':
-                        possMoves = possMoves[2:]
-
+    def choose_move(self, moves):
+        if bf is None:
+            # Take the first move if the c++ lib is not available
+            best_move = moves[0]
+            self.take_move(self.board, best_move[0], best_move[1])
+        else:
+            board_string = ""
+            for c in self.board:
+                board_string += c
+            print("Using board_funcs")
+            board, score = bf.min_max_search_ab(board_string, self.current_turn_player, 4)
+            for i in range(len(board)):
+                if (board[i] == ''):
+                    self.board[i] = '1'
                 else:
-                    piece = self.board[i]
+                    self.board[i] = board[i]
 
-                    if piece == 'b':
-                        possMoves = possMoves[2:]
+    def simple_search_for_best_move(self, moves):
+        best_score = 0
+        best_move = moves[0]
+        for move in moves:
+            board_string = self.board_to_string(self.expand_move(move))
+            try:
+                score = bf.evaluate_board(board_string)
+            except:
+                print('No evaluate Board')
+                score = 0
+            # TODO: check which player's turn it is
+            if score > best_score:
+                best_score = score
+                best_move = move
 
-                print('All possible moves', possMoves, 'for piece', i)
-                for move in possMoves:
-                    if (not self.is_valid_move(i, move)):
-                        continue
+        return best_move
 
-                    self.take_move(i, move)
-                    return
+    def expand_move(self, move):
+        board_copy = list(self.board)
+        self.take_move(board_copy, move[0], move[1])
+        return board_copy
 
-            self.winCondition = 0
+    def board_to_string(self, board):
+        string = ""
+        for piece in board:
+            string += piece
+        return string
 
-    # Rename
-    def moveGenerator(self):
+    def ai_take_all_jumps(self, jumps):
+        while len(jumps) > 0:
 
-        self.make_current_player_move()
-        self.printBoard()
+            # O(n) shuffle, randomizes
+            shuffle(jumps)
 
-    def printBoard(self):
+            first_jump = jumps[0]
+            self.take_jump(first_jump[0], first_jump[1][0])
 
+            jumps = self.get_all_jumps()
+            print(len(jumps))
+
+    def make_ai_move(self):
+        available_jumps = self.get_all_jumps()
+        if available_jumps != []:
+            self.ai_take_all_jumps(available_jumps)
+            return
+        else:
+            available_moves = self.get_all_moves()
+            if available_moves == []:
+                # We lost
+                # self.winner = RED_PLAYER if self.current_turn_player == BLACK_PLAYER else BLACK_PLAYER
+                return
+            self.choose_move(available_moves)
+
+    def ai_turn(self):
+        self.make_ai_move()
+        self.printBoard(self.board)
+
+    def printBoard(self, some_board):
         board = ''
-
         board += '\n'
-
-        # odd switch - Switch to next row
         odd = False
 
-
         for tile in range(32):
-
-            # since 0 % 4 = 0, skip the first tile, otherwise we
-            # add an extra row with 5 or 1, depending on indexing.
+            board_element = some_board[tile]
+            if board_element == '1':
+                board_element = '.'
             if (tile % 4 == 0 and tile != 0):
-
                 odd = not odd
                 board += '\n'
 
-
             if (not odd):
-                board += ' ' + self.board[tile]
-
+                board += ' ' + board_element
             else:
-                board += self.board[tile] + ' '
+                board += board_element + ' '
 
-        self.setupBoard()
-
-        # Extra newline at end of board
         board += '\n'
-
         print(board)

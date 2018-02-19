@@ -26,6 +26,7 @@ class CheckersGame(Window):
         init(self)
 
         self.push_handlers(BoardHandlers(self))
+        self.handlers_enabled = True
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         glEnable(GL_BLEND)
         glClearColor(112 / 255, 166 / 255, 1, 0)
@@ -47,6 +48,10 @@ class CheckersGame(Window):
             app.exit()
 
     def update(self, dt):
+        if self.game_board.board.winner is not None and self.handlers_enabled is True:
+            self.pop_handlers()
+            self.handlers_enabled = False
+
         self.game_board.update(dt)
         for obj in self.game_objects:
             obj.update(dt)

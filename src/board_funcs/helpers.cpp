@@ -30,14 +30,14 @@ void time_boards() {
   auto start_slow = std::chrono::high_resolution_clock::now();
   for (size_t i = 0; i < COUNT; i++) {
     char tmp = b_slow[i % 32];
-    b_slow.set((i + 1) % 32, 0x03);
+    b_slow.set((i + (int)tmp) % 32, 0x03);
   }
   auto end_slow = std::chrono::high_resolution_clock::now();
 
   auto start_fast = std::chrono::high_resolution_clock::now();
   for (size_t i = 0; i < COUNT; i++) {
     char tmp = b_fast[i % 32];
-    b_fast.set((i + 1) % 32, 0x03);
+    b_fast.set((i + (int)tmp) % 32, 0x03);
   }
   auto end_fast = std::chrono::high_resolution_clock::now();
 
