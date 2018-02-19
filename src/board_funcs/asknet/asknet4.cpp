@@ -250,6 +250,7 @@ void Network4::_evaluateLayer(float * layer_start, LayerHeader & header, const A
 }
 
 
+
 inline float Network4::_applySigmoid(float num) {
     return tanh(num);
 }
