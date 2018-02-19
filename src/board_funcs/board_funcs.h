@@ -12,6 +12,7 @@
 #include <iostream>
 #include <memory>
 #include <utility>
+#include <string>
 
 #define RED_PLAYER 0
 #define BLACK_PLAYER 1
@@ -35,9 +36,19 @@ struct Jump {
     size_t _enemy;
 };
 
+
+const int red_king_end[] = {28, 29, 30, 31};
+const int black_king_end[] = {12, 13, 14, 15};
+
+
+
+
+
+
+
 class BoardState {
-private:
-    char _tiles[BOARD_ELEMENTS / 2];
+public:
+    char _tiles[BOARD_ELEMENTS/2 ];
 
 public:
     BoardState() = default;
@@ -49,7 +60,15 @@ public:
     // test timing with reference?
     void apply_move(const Move);
     void apply_jump(const Jump);
+    void make_king(const int to);
+
 };
+
+
+
+
+
+
 
 class BoardStateFast {
 private:
@@ -69,6 +88,14 @@ void board_copy(const char * from, char * to);
 void board_apply_move(char * start, Move move);
 
 
+
+
+
+
+
+
+
+
 class Board {
 private:
     BoardState currentBoardState;
@@ -81,20 +108,23 @@ char * test(char * str);
 void setup_board();
 void setup_network();
 BoardState get_board();
-bool is_valid_index(int index);
+
 
 std::vector<Move> get_possible_moves(const BoardState &board, int player);
-std::vector<Move> get_possible_moves(const char * board, int player);
-
 std::vector<Jump> get_possible_jumps(const BoardState &board, int player);
-std::vector<Jump> get_possible_jumps(const char * board, int player);
-
-float evaluate_board(const BoardState &board);
-int piece_count(const BoardState &board, int player);
-int piece_count(const char *, int player);
 std::pair<std::unique_ptr<BoardState>, int> min_max_search(const BoardState & board, int player, int depth);
 std::pair<BoardState, int> min_max_search_ab(const BoardState & board, int player, int depth);
 std::pair<BoardState, int> min_max_no_alloc(const BoardState & board, int player, int depth);
+float evaluate_board(const BoardState &board);
+int piece_count(const BoardState &board, int player);
+
+
+
+
+std::vector<Move> get_possible_moves(const char * board, int player);
+std::vector<Jump> get_possible_jumps(const char * board, int player);
+int piece_count(const char *, int player);
+
 
 void time_boards();
 
@@ -107,5 +137,7 @@ bool in_(const T * array, size_t length, const T &value) {
     }
     return false;
 };
+
+
 
 #endif

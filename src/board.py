@@ -113,15 +113,10 @@ playerPieces = {
     1: ['b', 'B']
 }
 
-
 class Board(object):
 
     def __init__(self):
         self.board = ['1']*32
-        self.players = {
-            0: 'red',
-            1: 'black'
-        }
         self.setup_board()
 
     # Sets up the pieces.
@@ -295,22 +290,29 @@ class Board(object):
                 else:
                     self.board[i] = board[i]
 
-    def simple_search_for_best_move(self, moves):
-        best_score = 0
-        best_move = moves[0]
-        for move in moves:
-            board_string = self.board_to_string(self.expand_move(move))
-            try:
-                score = bf.evaluate_board(board_string)
-            except:
-                print('No evaluate Board')
-                score = 0
-            # TODO: check which player's turn it is
-            if score > best_score:
-                best_score = score
-                best_move = move
+            
+            print(''.join(board))
+            self.printBoard(board)
+            print('RESULTS:', score)
 
-        return best_move
+
+
+    # def simple_search_for_best_move(self, moves):
+    #     best_score = 0
+    #     best_move = moves[0]
+    #     for move in moves:
+    #         board_string = self.board_to_string(self.expand_move(move))
+    #         try:
+    #             score = bf.evaluate_board(board_string)
+    #         except:
+    #             print('No evaluate Board')
+    #             score = 0
+    #         # TODO: check which player's turn it is
+    #         if score > best_score:
+    #             best_score = score
+    #             best_move = move
+
+    #     return best_move
 
     def expand_move(self, move):
         board_copy = list(self.board)
@@ -335,7 +337,7 @@ class Board(object):
             jumps = self.get_all_jumps()
             print(len(jumps))
 
-    def make_ai_move(self):
+    def ai_turn(self):
         available_jumps = self.get_all_jumps()
         if available_jumps != []:
             self.ai_take_all_jumps(available_jumps)
@@ -346,9 +348,6 @@ class Board(object):
             # #     return
             self.choose_move(available_moves)
 
-    def ai_turn(self):
-        self.make_ai_move()
-        self.printBoard(self.board)
 
     def printBoard(self, some_board):
         board = ''

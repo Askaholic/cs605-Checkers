@@ -104,7 +104,7 @@ std::vector<std::vector<std::vector<int>>> jumpTable = {
 BoardState the_board = {};
 Network the_network({0, 0});
 
-bool is_valid_index(int index) {
+bool is_valid_index(const int index) {
     if (index < 0 || index > 31)
         return false;
     return true;
@@ -142,6 +142,7 @@ float evaluate_board(const BoardState &board) {
         }
         inputs[i] = node_value;
     }
+
     return the_network.evaluate(inputs);
 }
 
@@ -274,11 +275,6 @@ std::vector<Move> get_possible_moves(const char * board, int player) {
 }
 
 
-// ##############
-// JUMPS 
-// ##############
-
-
 bool is_valid_jump(const BoardState & board, const Jump & jump, int player){
 
     if (board[jump._to] != BLANK){
@@ -333,9 +329,3 @@ std::vector<Jump> get_possible_jumps(const BoardState &board, int player) {
 
     return jumps;
 }
-
-
-
-
-
-
