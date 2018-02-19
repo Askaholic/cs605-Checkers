@@ -126,7 +126,6 @@ class Board(object):
 
     # Sets up the pieces.
     def setup_board(self):
-        self.winner = None
         self.current_turn_player = RED_PLAYER
         for checker in range(12):
             self.board[checker] = 'r'
@@ -343,10 +342,8 @@ class Board(object):
             return
         else:
             available_moves = self.get_all_moves()
-            if available_moves == []:
-                # We lost
-                # self.winner = RED_PLAYER if self.current_turn_player == BLACK_PLAYER else BLACK_PLAYER
-                return
+            # # if available_moves == []:
+            # #     return
             self.choose_move(available_moves)
 
     def ai_turn(self):
