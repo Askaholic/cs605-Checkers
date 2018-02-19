@@ -201,7 +201,7 @@ float Network4::evaluate(const std::vector<float> & inputs) {
     return (*layer_outputs)[0];
 }
 
-float horizontal_add (__m256 a) {
+inline float horizontal_add (__m256 a) {
     __m256 t1 = _mm256_hadd_ps(a, a);
     __m256 t2 = _mm256_hadd_ps(t1, t1);
     __m128 t3 = _mm256_extractf128_ps(t2, 1);
@@ -233,11 +233,11 @@ void Network4::_evaluateLayer(float * layer_start, LayerHeader & header, const A
     }
     outputs.resize((size_t) header.num_nodes);
 
+    // #pragma omp parallel for
     for (size_t j = 0; j < (size_t)header.num_nodes; j++) {
         float node_output = 0.0f;
 
-        #pragma omp parallel for reduction(+:node_output)
-        for (size_t k = 0; k < num_weights; k+=8) {
+        for (size_t k = 0; k < num_weights; k += 8) {
             auto layer_start_index = (size_t) header.size + (node_size * j) + k;
             __m256 sse_in = _mm256_load_ps(&inputs[k]);
             __m256 sse_wt = _mm256_load_ps(&layer_start[layer_start_index]);
@@ -250,6 +250,7 @@ void Network4::_evaluateLayer(float * layer_start, LayerHeader & header, const A
 }
 
 
-float Network4::_applySigmoid(float num) {
+
+inline float Network4::_applySigmoid(float num) {
     return tanh(num);
 }
