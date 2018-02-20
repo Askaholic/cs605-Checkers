@@ -34,9 +34,14 @@ starting_board = 'rrrrrrrrrrrr11111111bbbbbbbbbbbb'
 # print("Board value: {}".format(bf.evaluate_board(starting_board)))
 #
 # print("Min Max search with piece_count")
-depth = 12
+depth = 1
+# print("Depth: ", depth)
+# board, score = bf.min_max_search_ab(starting_board, 0, depth)
+# print("Score: ", score)
+# printBoard(board)
+
 print("Depth: ", depth)
-board, score = bf.min_max_search_ab(starting_board, 0, depth)
+board, score = bf.min_max_search_inplace(starting_board, 0, depth)
 print("Score: ", score)
 printBoard(board)
 
@@ -45,15 +50,6 @@ printBoard(board)
 #     print("Score: ", score)
 #     printBoard(board)
 
-
-
-#
-#
-#print("Min Max search with piece_count **no_alloc**")
-#print("Depth: ", depth)
-#board, score = bf.min_max_no_alloc(starting_board, 0, depth)
-#print("Score: ", score)
-#printBoard(board)
 
 # print("Get possible jumps")
 # num_jumps = bf.get_possible_jumps(starting_board, 0)
