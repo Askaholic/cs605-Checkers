@@ -84,6 +84,8 @@ void test_topology(std::vector<size_t> topology, size_t NUM_TESTS) {
     elapsed = time_network(net4, "(4)", inputs, NUM_TESTS);
     std::cout << 1000000000.0 * NUM_TESTS / (double) elapsed << " eval / second\n" << '\n';
 
+    net4.writeNNToFile();
+
 }
 
 int main() {
@@ -110,7 +112,8 @@ int main() {
     test_topology({32, 40, 10, 1 }, NUM_TESTS);
     test_topology({32, 110, 40, 10, 1 }, NUM_TESTS);
     // test_topology({32, 10000, 1 }, NUM_TESTS);
-    test_topology({32, 5000, 5000, 1 }, NUM_TESTS);
+    // test_topology({32, 5000, 5000, 1 }, NUM_TESTS);
+    test_topology({32,40,10,1}, NUM_TESTS);
     // test_topology({32, 5000, 3000, 2000, 1 }, NUM_TESTS);
     // test_topology({32, 2000, 3000, 3000, 2000, 1 }, NUM_TESTS);
     // test_topology({32, 5000, 3000, 1000, 1000, 1 }, NUM_TESTS);

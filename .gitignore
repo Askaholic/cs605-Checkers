@@ -8,6 +8,8 @@ build/
 **.out
 **.so
 **.asm
-
+**nnfile.txt
 # Misc
 .DH_Store
+src/board_funcs/.board_funcs.h.swp
+src/board_funcs/asknet/nnfile.txt

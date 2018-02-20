@@ -40,6 +40,7 @@ private:
     void _evaluateLayer(float * start, LayerHeader & header, const AlignedArray<float, 32> & inputs, AlignedArray<float, 32> & outputs);
     float _applySigmoid(float);
 
+
 public:
     Network4 (const std::vector<size_t> & topology);
     void setWeights(const std::vector<std::vector<std::vector<float>>> & weights);
@@ -48,6 +49,9 @@ public:
     const AlignedArray<float, 32> & getData() { return _data; }
     size_t getNumNodes();
     size_t getNumWeights();
+    void writeNNToFile();
+    void readFileToNN();
+
 };
 
 #endif
