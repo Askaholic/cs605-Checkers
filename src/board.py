@@ -276,14 +276,14 @@ class Board(object):
     def choose_move(self, moves):
         if bf is None:
             # Take the first move if the c++ lib is not available
-            best_move = moves[0]
+            best_move = moves[0]ta
             self.take_move(self.board, best_move[0], best_move[1])
         else:
             board_string = ""
             for c in self.board:
                 board_string += c
             print("Using board_funcs")
-            board, score = bf.min_max_search_ab(board_string, self.current_turn_player, 4)
+            board, score = bf.min_max_search_ab(board_string, self.current_turn_player, 8)
             for i in range(len(board)):
                 if (board[i] == ''):
                     self.board[i] = '1'
