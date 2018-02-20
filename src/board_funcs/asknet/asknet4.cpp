@@ -12,6 +12,8 @@
 #include <cstddef>
 #include <iostream>
 #include <stdexcept>
+#include <fstream>
+#include <string>
 
 
 Network4::Network4(const std::vector<size_t> & topology) {
@@ -253,4 +255,29 @@ void Network4::_evaluateLayer(float * layer_start, LayerHeader & header, const A
 
 inline float Network4::_applySigmoid(float num) {
     return tanh(num);
+}
+
+
+void Network4::writeNNToFile(){
+
+    std::ofstream nnf;
+    nnf.open("nnfile.txt", std::ios_base::binary | std::ofstream::trunc);
+
+
+    for(int ii = 0; ii < _data.size(); ii++){
+        nnf << _data[ii] << " ";
+    }
+
+    nnf.close();
+
+}
+
+void Network4::readFileToNN(){
+
+    std::ofstream nnf;
+    nnf.open("nnfile.txt");
+
+
+    nnf.close();
+
 }
