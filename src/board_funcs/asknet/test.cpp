@@ -13,8 +13,8 @@ long time_network(Network net, std::string name, std::vector<float> inputs, size
     std::cout << "Evaluating " << name << " ..." << '\n';
     std::cout << "Network " << name << " size: " << net.getNumNodes() << " nodes" << '\n';
 
-    auto start = std::chrono::high_resolution_clock::now();
     float result;
+    auto start = std::chrono::high_resolution_clock::now();
     for (size_t i = 0; i < iterations; i++) {
         result = net.evaluate(inputs);
     }
@@ -29,8 +29,8 @@ long time_network(Network3 net, std::string name, std::vector<float> inputs, siz
     std::cout << "Evaluating " << name << " ..." << '\n';
     std::cout << "Network " << name << " size: " << net.getNumNodes() << " nodes" << '\n';
 
-    auto start = std::chrono::high_resolution_clock::now();
     float result;
+    auto start = std::chrono::high_resolution_clock::now();
     for (size_t i = 0; i < iterations; i++) {
         result = net.evaluate(inputs);
     }
@@ -45,8 +45,8 @@ long time_network(Network4 net, std::string name, std::vector<float> inputs, siz
     std::cout << "Evaluating " << name << " ..." << '\n';
     std::cout << "Network " << name << " size: " << net.getNumNodes() << " nodes" << '\n';
 
-    auto start = std::chrono::high_resolution_clock::now();
     float result;
+        auto start = std::chrono::high_resolution_clock::now();
     for (size_t i = 0; i < iterations; i++) {
         result = net.evaluate(inputs);
     }

@@ -121,6 +121,23 @@ int piece_count(const BoardState &board, int player);
 
 
 
+
+
+
+
+
+
+std::pair<BoardState, float> min_max_search_inplace(const BoardState & board, int player, int depth);
+
+
+
+
+
+
+
+
+
+
 std::vector<Move> get_possible_moves(const char * board, int player);
 std::vector<Jump> get_possible_jumps(const char * board, int player);
 int piece_count(const char *, int player);
