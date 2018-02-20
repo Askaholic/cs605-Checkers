@@ -50,9 +50,11 @@ float Network::evaluate(const std::vector<float> &inputs) {
 }
 
 void Network::randomizeWeights() {
+
     std::random_device rd;
     std::mt19937 engine(rd());
     std::uniform_real_distribution<float> dist(-1, 1);
+
     for (size_t i = 0; i < _layers.size(); i++) {
         for (size_t j = 0; j < _layers[i].size(); j++) {
             auto node = &_layers[i].getNodes()[j];
@@ -62,6 +64,7 @@ void Network::randomizeWeights() {
             }
         }
     }
+    
 }
 
 void Network::setWeights(const std::vector<std::vector<std::vector<float>>> & weights) {
