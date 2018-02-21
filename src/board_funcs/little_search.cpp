@@ -46,7 +46,6 @@ public:
         auto board = search_mem[(curr_depth - 1) * branch_factor + indecies[curr_depth - 1]].board;
         auto jumps = get_possible_jumps(board, player);
         if (jumps.size() != 0) {
-            std::cout << "got some jumps" << '\n';
             moves_size[curr_depth] = jumps.size();
             // Save all the next jumps
             for (size_t i = 0; i < moves_size[curr_depth]; i++) {
@@ -92,7 +91,12 @@ public:
     }
 
     float evaluateLeaf(const BoardState & board, int player) {
-        return piece_count(board, player);
+        if(curr_depth & 0x1) {
+            // Odd depth
+            return piece_count(board, player);
+        }
+        // Even depth, that means maximize for the opposite player
+        return piece_count(board, player == RED_PLAYER ? BLACK_PLAYER : RED_PLAYER);
     }
 
     float evaluateLeaves(size_t * moves_size, float & best, size_t & best_index, const BoardState & board, int player) {
