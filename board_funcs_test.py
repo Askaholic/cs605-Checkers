@@ -34,7 +34,7 @@ starting_board = 'rrrrrrrrrrrr11111111bbbbbbbbbbbb'
 # print("Board value: {}".format(bf.evaluate_board(starting_board)))
 #
 # print("Min Max search with piece_count")
-depth = 1
+depth = 7
 # print("Depth: ", depth)
 # board, score = bf.min_max_search_ab(starting_board, 0, depth)
 # print("Score: ", score)
