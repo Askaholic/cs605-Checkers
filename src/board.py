@@ -283,7 +283,7 @@ class Board(object):
             for c in self.board:
                 board_string += c
             print("Using board_funcs")
-            board, score = bf.min_max_search_inplace(board_string, self.current_turn_player, 6)
+            board, score = bf.min_max_search_inplace(board_string, self.current_turn_player, 2)
             for i in range(len(board)):
                 if (board[i] == ''):
                     self.board[i] = '1'
@@ -291,8 +291,8 @@ class Board(object):
                     self.board[i] = board[i]
 
 
-            print(''.join(board))
-            self.printBoard(board)
+            print(''.join(self.board))
+            self.printBoard(self.board)
             print('RESULTS:', score)
 
 
@@ -350,8 +350,7 @@ class Board(object):
 
 
     def printBoard(self, some_board):
-        board = ''
-        board += '\n'
+        board = '\n'
         odd = False
 
         for tile in range(32):
