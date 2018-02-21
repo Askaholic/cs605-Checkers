@@ -194,8 +194,6 @@ int piece_count(const char * start, int player) {
 std::vector<Move> get_possible_moves(const BoardState &board, int player) {
     std::vector<Move> moves;
 
-    get_possible_jumps(board, player);
-
     char targets[2];
     _set_targets(targets, player);
 
@@ -285,7 +283,7 @@ bool is_valid_jump(const BoardState & board, const Jump & jump, int player){
     _set_targets(targets, player == RED_PLAYER ? BLACK_PLAYER : RED_PLAYER);
 
     if (!in_<char>(targets, 2, board[jump._enemy]) ){
-        return false; 
+        return false;
     }
 
     return true;
