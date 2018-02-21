@@ -6,7 +6,7 @@
 
 #include "board_funcs.h"
 
-#define BRANCH_FACTOR 16
+#define BRANCH_FACTOR 18
 
 struct SearchNode {
     BoardState board;
