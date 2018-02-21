@@ -44,9 +44,9 @@ public:
     }
 
     void expandChildren(size_t * indecies, size_t * moves_size, int player) {
-        auto board = search_mem[(curr_depth) * branch_factor + indecies[curr_depth]].board;
+        auto board = search_mem[ (curr_depth) * branch_factor + indecies[curr_depth] ].board;
         auto jumps = get_possible_jumps(board, player);
-        if (jumps.size() != 0) {
+        if (jumps.size() > 0) {
             std::cout << "Found jumps" << '\n';
             moves_size[curr_depth + 1] = jumps.size();
             // Save all the next jumps
