@@ -276,7 +276,7 @@ class Board(object):
     def choose_move(self, moves):
         if bf is None:
             # Take the first move if the c++ lib is not available
-            best_move = moves[0]ta
+            best_move = moves[0]
             self.take_move(self.board, best_move[0], best_move[1])
         else:
             board_string = ""
