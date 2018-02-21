@@ -330,10 +330,11 @@ std::vector<Jump> get_possible_jumps(const BoardState &board, int player) {
             start += 2;
         }
 
-        for (size_t ii = start; ii < end; ii++) {
+        for (auto ii = start; ii < end; ii++) {
             auto jump = possible_jump[ii];
-            Jump poss_jump = {b_loc, jump[0], jump[1]};
             if (jump[0] == -1) { continue; }
+            
+            Jump poss_jump = {b_loc, jump[0], jump[1]};
 
             if (is_valid_jump(board, poss_jump, player)) {
                jumps.push_back(poss_jump);
