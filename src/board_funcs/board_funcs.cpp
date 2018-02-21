@@ -157,18 +157,34 @@ void _set_targets(char * targets, int player) {
     }
 }
 
-int piece_count(const BoardState &board, int player) {
+float piece_count(const BoardState &board, int player) {
     char targets[2];
-    _set_targets(targets, player);
-    size_t count = 0;
+
+    float piece_val = 1;
+    float king_val = 1.5;
+
+    const char piece = player == RED_PLAYER ? RED_CHECKER : BLACK_CHECKER;
+    const char king = player == RED_PLAYER ? RED_KING : BLACK_KING;
+
+    const char enemy_piece = player == RED_PLAYER ? BLACK_CHECKER : RED_CHECKER;
+    const char enemy_king = player == RED_PLAYER ? BLACK_KING : RED_KING;
+
+    float count = 0;
 
     for (size_t b_loc = 0; b_loc < BOARD_ELEMENTS; b_loc++) {
         auto current_piece = board[b_loc];
-        // Skip squares that don't have the correct color checker
-        if (!in_<char>(targets, 2, current_piece)) {
-            continue;
+        if (current_piece == piece) {
+            count += piece_val;
         }
-        count++;
+        else if (current_piece == king) {
+            count += king_val;
+        }
+        else if (current_piece == enemy_piece) {
+            count -= piece_val;
+        }
+        else if (current_piece == enemy_king) {
+            count -= king_val;
+        }
     }
 
     return count;

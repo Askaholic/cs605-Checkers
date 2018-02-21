@@ -116,7 +116,7 @@ std::pair<std::unique_ptr<BoardState>, int> min_max_search(const BoardState & bo
 std::pair<BoardState, int> min_max_search_ab(const BoardState & board, int player, int depth);
 std::pair<BoardState, int> min_max_no_alloc(const BoardState & board, int player, int depth);
 float evaluate_board(const BoardState &board);
-int piece_count(const BoardState &board, int player);
+float piece_count(const BoardState &board, int player);
 
 
 
