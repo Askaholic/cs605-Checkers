@@ -266,7 +266,7 @@ static PyObject * min_max_search_inplace_wrapper(PyObject * self, PyObject * arg
     board_state_to_py_list(search_result.first, list);
 
     PyTuple_SET_ITEM(tuple, 0, list);
-    PyTuple_SET_ITEM(tuple, 1, PyLong_FromLong(search_result.second));
+    PyTuple_SET_ITEM(tuple, 1, PyFloat_FromDouble(search_result.second));
     return tuple;
 }
 
