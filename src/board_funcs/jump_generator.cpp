@@ -7,6 +7,6 @@
 #include "board_funcs.h"
 #include <vector>
 
-std::vector<Jump> JumpGenerator::get_possible_jumps(const BoardState & board, int player) {
+std::vector<BoardState> JumpGenerator::get_possible_jumps(const BoardState & board, int player) {
     return {};
 }

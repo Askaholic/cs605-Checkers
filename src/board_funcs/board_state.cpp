@@ -27,7 +27,7 @@ BoardState & BoardState::operator=(const BoardState & other) {
     if(this == &other) {
         return *this;
     }
-    
+
     std::copy(other._tiles, other._tiles + (BOARD_ELEMENTS / 2), _tiles);
     return *this;
 }
@@ -59,7 +59,7 @@ void BoardState::set(size_t i, char val) {
   }
 }
 
-bool BoardState::operator==(const BoardState & other) {
+bool BoardState::operator==(const BoardState & other) const {
     for (size_t i = 0; i < BOARD_ELEMENTS; i++) {
         if (other[i] != (*this)[i]) {
             return false;
