@@ -11,17 +11,6 @@
 #include "board_funcs.h"
 
 
-char * test(char * str) {
-    std::string in(str);
-    auto result_str = std::string(str) + " " + std::to_string(sizeof(BoardState));
-
-    char * result = new char[result_str.length()];
-    strcpy(result, result_str.c_str());
-
-    return result;
-}
-
-
 void time_boards() {
   BoardState b_slow = {};
   BoardStateFast b_fast = {};

@@ -102,8 +102,6 @@ private:
 public:
 };
 
-// Test function. To verify that the module is installed and works
-char * test(char * str);
 
 void setup_board();
 void setup_network();

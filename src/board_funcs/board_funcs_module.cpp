@@ -16,23 +16,6 @@
 /****************************************************************/
 
 
-static PyObject * test_wrapper(PyObject * self, PyObject * args) {
-    char * input;
-    // Parse arguments
-    if (!PyArg_ParseTuple(args, "s", &input)) {
-        return NULL;
-    }
-
-    char * result;
-    PyObject * ret;
-
-    result = test(input);
-    ret = PyUnicode_FromString(result);
-    free(result);
-
-    return ret;
-}
-
 static PyObject * setup_board_wrapper(PyObject * self, PyObject * args) {
     // There are no arguments
     if (!PyArg_ParseTuple(args, "")) {
@@ -286,8 +269,6 @@ static PyObject * time_boards_wrapper(PyObject * self, PyObject * args) {
 
 
 static PyMethodDef BoardFuncMethods[] = {
-    { "test", test_wrapper, METH_VARARGS,
-        "Testing"},
     { "setup_board", setup_board_wrapper, METH_VARARGS,
         "Setup the initial board state"},
     { "setup_network", setup_network_wrapper, METH_VARARGS,
