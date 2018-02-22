@@ -28,6 +28,14 @@ public:
     }
 
     void printBoard(const BoardState & board) {
+        std::string tab = "";
+        for (size_t i = 0; i < curr_depth; i++) {
+            tab += "  ";
+        }
+
+        std::cout << tab;
+
+        bool odd = false;
         for (size_t i = 0; i < 32; i++) {
             auto piece = board[i];
             char next = '.';
@@ -38,16 +46,40 @@ public:
                 case BLACK_KING: next='B'; break;
                 default: next='.'; break;
             }
-            std::cout << next;
+            if (i % 4 == 0 and i != 0) {
+                odd = !odd;
+                std::cout << '\n' << tab;
+            }
+            if (!odd) {
+                std::cout << " " << next;
+            }
+            else {
+                std::cout << next << " ";
+            }
         }
         std::cout << '\n';
     }
 
+    int getCurrentTurnPlayer(int player) {
+        if(curr_depth & 0x1) {
+            // Odd depth
+            return player;
+        }
+        // Even depth, that means maximize for the opposite player
+        return swapPlayer(player);
+    }
+
+    int swapPlayer(int player) {
+        return player == RED_PLAYER ? BLACK_PLAYER : RED_PLAYER;
+    }
+
     void expandChildren(size_t * indecies, size_t * moves_size, int player) {
         auto board = search_mem[ (curr_depth) * branch_factor + indecies[curr_depth] ].board;
+        player = swapPlayer(getCurrentTurnPlayer(player));
+
         auto jumps = get_possible_jumps(board, player);
+
         if (jumps.size() > 0) {
-            std::cout << "Found jumps" << '\n';
             moves_size[curr_depth + 1] = jumps.size();
             // Save all the next jumps
             for (size_t i = 0; i < moves_size[curr_depth + 1]; i++) {
@@ -58,7 +90,9 @@ public:
                 search_mem[index].best_score_index = 0;
 
                 search_mem[index].board.apply_jump(jumps[i]);
+                // std::cout << "Trying jump..." << '\n';
                 // printBoard(search_mem[index].board);
+                // std::cout << "score of this board: " << piece_count(search_mem[index].board, player) << '\n';
             }
             return;
         }
@@ -93,27 +127,19 @@ public:
     }
 
     float evaluateLeaf(const BoardState & board, int player) {
-        if(curr_depth & 0x1) {
-            // Odd depth
-            return piece_count(board, player);
-        }
-        // Even depth, that means maximize for the opposite player
-        return piece_count(board, player == RED_PLAYER ? BLACK_PLAYER : RED_PLAYER);
+        return piece_count(board, player);
     }
 
-    float evaluateLeaves(size_t * moves_size, const BoardState & board, int player) {
+    float evaluateLeaves(size_t * moves_size, int player) {
         for (size_t i = 0; i < moves_size[curr_depth]; i++) {
             tree_nodes++;
-            // std::cout << "Evaluating leaf: ";
-            auto score = evaluateLeaf(board, player);
-            // std::cout << score << '\n';
             auto index = ((curr_depth) *  branch_factor) + i;
+            auto score = evaluateLeaf(search_mem[index].board, player);
+
+            // std::cout << "Evaluating leaf: " << score << '\n';
+            // printBoard(search_mem[index].board);
             search_mem[index].score = score;
         }
-    }
-
-    void nextIndex(size_t * indecies, int depth) {
-
     }
 
     std::pair<BoardState, float> search(const BoardState & board, int player, int depth) {
@@ -127,7 +153,7 @@ public:
         bool done = false;
         while (!done) {
             if (curr_depth == depth) {
-                evaluateLeaves(moves_size, board, player);
+                evaluateLeaves(moves_size, player);
             }
             else if (indecies[curr_depth] == 0) {
                 expandChildren(indecies, moves_size, player);
@@ -143,15 +169,29 @@ public:
             else {
                 do {
                     // Find the max value of this level
-                    float best = -1000000;
+                    float best;
                     size_t best_index = 0;
 
                     for (size_t i = 0; i < moves_size[curr_depth]; i++) {
                         auto index = ((curr_depth) * branch_factor) + i;
+
+                        if(i == 0) {
+                            best = search_mem[index].score;
+                        }
                         auto score = search_mem[index].score;
-                        if (score > best) {
-                            best = score;
-                            best_index = i;
+                        if (player == getCurrentTurnPlayer(player)) {
+                            // Max node
+                            if (score > best) {
+                                best = score;
+                                best_index = i;
+                            }
+                        }
+                        else {
+                            // Min node
+                            if (score < best) {
+                                best = score;
+                                best_index = i;
+                            }
                         }
                     }
 

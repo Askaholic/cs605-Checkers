@@ -279,23 +279,25 @@ class Board(object):
             best_move = moves[0]
             self.take_move(self.board, best_move[0], best_move[1])
         else:
-            board_string = ""
-            for c in self.board:
-                board_string += c
-            print("Using board_funcs")
-            board, score = bf.min_max_search_inplace(board_string, self.current_turn_player, 2)
-            for i in range(len(board)):
-                if (board[i] == ''):
-                    self.board[i] = '1'
-                else:
-                    self.board[i] = board[i]
+            self.search_and_take_move()
+
+    def search_and_take_move(self):
+        board_string = ""
+        for c in self.board:
+            board_string += c
+        print("Using board_funcs")
+        print(self.current_turn_player)
+        board, score = bf.min_max_search_inplace(board_string, self.current_turn_player, 6)
+        for i in range(len(board)):
+            if (board[i] == ''):
+                self.board[i] = '1'
+            else:
+                self.board[i] = board[i]
 
 
-            print(''.join(self.board))
-            self.printBoard(self.board)
-            print('RESULTS:', score)
-
-
+        print(''.join(self.board))
+        self.printBoard(self.board)
+        print('RESULTS:', score)
 
     # def simple_search_for_best_move(self, moves):
     #     best_score = 0
@@ -326,6 +328,7 @@ class Board(object):
         return string
 
     def ai_take_all_jumps(self, jumps):
+        print("Python take jumps")
         while len(jumps) > 0:
 
             # O(n) shuffle, randomizes
@@ -338,6 +341,10 @@ class Board(object):
             print(len(jumps))
 
     def ai_turn(self):
+        self.search_and_take_move()
+        return
+
+        # Old code here
         available_jumps = self.get_all_jumps()
         if available_jumps != []:
             self.ai_take_all_jumps(available_jumps)
