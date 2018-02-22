@@ -106,7 +106,10 @@ public:
 class JumpGenerator {
 private:
     /* data */
-    void _append_jumps_for_piece(std::vector<BoardState> & jumps, const BoardState & board, size_t index, int player);
+    char _checker;
+    char _king;
+    int _player;
+    void _append_jumps_for_piece(std::vector<BoardState> & jumps, const BoardState & board, size_t index);
 
 public:
     JumpGenerator () {}
