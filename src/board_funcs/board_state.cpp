@@ -24,7 +24,12 @@ BoardState::BoardState(const BoardState & board) {
 }
 
 BoardState & BoardState::operator=(const BoardState & other) {
+    if(this == &other) {
+        return *this;
+    }
+    
     std::copy(other._tiles, other._tiles + (BOARD_ELEMENTS / 2), _tiles);
+    return *this;
 }
 
 char BoardState::operator[](size_t i) {
@@ -52,6 +57,15 @@ void BoardState::set(size_t i, char val) {
   else {
     _tiles[i / 2] = (_tiles[i / 2] & 0x0F) | ((val & 0x0F) << 4);
   }
+}
+
+bool BoardState::operator==(const BoardState & other) {
+    for (size_t i = 0; i < BOARD_ELEMENTS; i++) {
+        if (other[i] != (*this)[i]) {
+            return false;
+        }
+    }
+    return true;
 }
 
 void BoardState::apply_move(const Move move) {

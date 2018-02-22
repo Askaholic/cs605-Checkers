@@ -54,6 +54,7 @@ public:
     BoardState() = default;
     BoardState(const BoardState &);
     BoardState & operator=(const BoardState & other);
+    bool operator==(const BoardState & other);
     char operator[](size_t index);
     const char operator[](size_t index) const;
     void set(size_t index, char value);
@@ -99,11 +100,11 @@ private:
     /* data */
 
 public:
-    JumpGenerator ();
+    JumpGenerator () {}
 
+    std::vector<Jump> get_possible_jumps(const BoardState & board, int player);
 
-
-    virtual ~JumpGenerator ();
+    virtual ~JumpGenerator () {}
 };
 
 void setup_board();
