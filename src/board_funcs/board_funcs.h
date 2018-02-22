@@ -79,14 +79,6 @@ public:
     void set(size_t index, char value);
 };
 
-// Char * manipulation functions
-char board_get_one(const char * start, size_t i);
-void board_set_one(char * start, size_t i, char val);
-void board_write(char * start, const BoardState & board);
-void board_read(const char * start, BoardState & board);
-void board_copy(const char * from, char * to);
-void board_apply_move(char * start, Move move);
-
 
 
 
@@ -102,6 +94,17 @@ private:
 public:
 };
 
+class JumpGenerator {
+private:
+    /* data */
+
+public:
+    JumpGenerator ();
+
+
+
+    virtual ~JumpGenerator ();
+};
 
 void setup_board();
 void setup_network();
@@ -137,9 +140,6 @@ std::pair<BoardState, float> min_max_search_inplace(const BoardState & board, in
 
 
 
-std::vector<Move> get_possible_moves(const char * board, int player);
-std::vector<Jump> get_possible_jumps(const char * board, int player);
-int piece_count(const char *, int player);
 
 
 void time_boards();
