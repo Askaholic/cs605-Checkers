@@ -13,6 +13,8 @@ SOURCE_FILES=\
 	test/test.cpp \
 	src/board_funcs/board_funcs.cpp \
 	src/board_funcs/board_state.cpp \
+	src/board_funcs/helpers.cpp \
+	src/board_funcs/jump_table.cpp \
 	src/board_funcs/jump_generator.cpp \
 	src/board_funcs/asknet/asknet.cpp
 
@@ -28,6 +30,7 @@ clean:
 .PHONY: test clean
 
 $(EXECUTABLE_FILES): $(OBJECT_FILES)
+	@echo Building $^
 	@$(CC) $(LDFLAGS) -o $@ $^
 	@echo "Build Successful"
 
