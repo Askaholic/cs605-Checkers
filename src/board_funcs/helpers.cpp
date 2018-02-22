@@ -11,17 +11,6 @@
 #include "board_funcs.h"
 
 
-char * test(char * str) {
-    std::string in(str);
-    auto result_str = std::string(str) + " " + std::to_string(sizeof(BoardState));
-
-    char * result = new char[result_str.length()];
-    strcpy(result, result_str.c_str());
-
-    return result;
-}
-
-
 void time_boards() {
   BoardState b_slow = {};
   BoardStateFast b_fast = {};
@@ -46,4 +35,10 @@ void time_boards() {
   std::cout << "Slow: " << ((double)slow_time / COUNT) << " / call\n";
   std::cout << "Fast: " << ((double)fast_time / COUNT) << " / call\n";
 
+}
+
+bool is_valid_index(const int index) {
+    if (index < 0 || index > 31)
+        return false;
+    return true;
 }

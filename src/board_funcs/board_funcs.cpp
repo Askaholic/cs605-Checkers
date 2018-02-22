@@ -7,11 +7,13 @@
 #include "asknet.h"
 #include "asknet4.h"
 #include "board_funcs.h"
+#include "jump_table.h"
 #include <vector>
 #include <cstddef>
 #include <iostream>
 using std::cout;
 using std::endl;
+
 
 std::vector<std::vector<int>> moveTable = {
     {-1,-1,   4,5},
@@ -55,60 +57,11 @@ std::vector<std::vector<int>> moveTable = {
     {26,27,  -1,-1}
 };
 
-std::vector<std::vector<std::vector<int>>> jumpTable = {
-
-    {{-1,-1},{-1,-1},        {-1,-1},{9,5}},
-    {{-1,-1},{-1,-1},     {8,5},{10,6}},
-    {{-1,-1},{-1,-1},     {9,6},{11,7}},
-    {{-1,-1},{-1,-1},     {10,7},{-1,-1}},
-
-    {{-1,-1},{-1,-1},     {-1,-1},{13,8}},
-    {{-1,-1},{-1,-1},     {12,8},{14,9}},
-    {{-1,-1},{-1,-1},     {13,9},{15,10}},
-    {{-1,-1},{-1,-1},     {14,10},{-1,-1}},
-
-    {{-1,-1},{1,5},          {-1,-1},{17,13}},
-    {{0,5},{2,6},       {16,13},{18,14}},
-    {{1,6},{3,7},        {17,14},{19,15}},
-    {{2,7},{-1,-1},            {18,15},{-1,-1}},
-
-    {{-1,-1},{5,8},      {-1,-1},{21,16}},
-    {{4,8},{6,9},       {20,16},{22,17}},
-    {{5,9},{7,10},      {21,17},{23,18}},
-    {{6,10},{-1,-1},     {22,18},{-1,-1}},
-
-    {{-1,-1},{9, 13},        {-1,-1},{25, 21}},
-    {{8, 13},{10, 14},      {24, 21},{26, 22}},
-    {{9, 14},{11, 15},      {25, 22},{27, 23}},
-    {{10, 15},{-1,-1},       {26, 23},{-1,-1}},
-
-    {{-1,-1},{13, 16},       {-1,-1},{29, 24}},
-    {{12, 16},{14, 17},     {28, 24},{30, 25}},
-    {{13, 17},{15, 18},     {29, 25}, {31, 26}},
-    {{14, 18},{-1,-1},       {30, 26},{-1,-1}},
-
-    {{17, 21},{-1,-1},       {-1,-1},{-1,-1}},
-    {{16, 21},{18, 22},     {-1,-1},{-1,-1}},
-    {{17, 22},{19, 23},     {-1,-1},{-1,-1}},
-    {{18, 23},{-1,-1},       {-1,-1},{-1,-1}},
-
-    {{-1,-1},{21, 24},        {-1,-1},{-1,-1}},
-    {{20, 24},{22, 25},      {-1,-1},{-1,-1}},
-    {{21, 25},{23, 26},      {-1,-1},{-1,-1}},
-    {{22, 26},{-1,-1},        {-1,-1},{-1,-1}}
-
-};
-
 
 
 BoardState the_board = {};
 Network the_network({0, 0});
 
-bool is_valid_index(const int index) {
-    if (index < 0 || index > 31)
-        return false;
-    return true;
-}
 
 void setup_board() {
     for (size_t i = 0; i < 12; i++) {
@@ -157,35 +110,34 @@ void _set_targets(char * targets, int player) {
     }
 }
 
-int piece_count(const BoardState &board, int player) {
+float piece_count(const BoardState &board, int player) {
     char targets[2];
-    _set_targets(targets, player);
-    size_t count = 0;
+
+    float piece_val = 1;
+    float king_val = 1.5;
+
+    const char piece = player == RED_PLAYER ? RED_CHECKER : BLACK_CHECKER;
+    const char king = player == RED_PLAYER ? RED_KING : BLACK_KING;
+
+    const char enemy_piece = player == RED_PLAYER ? BLACK_CHECKER : RED_CHECKER;
+    const char enemy_king = player == RED_PLAYER ? BLACK_KING : RED_KING;
+
+    float count = 0;
 
     for (size_t b_loc = 0; b_loc < BOARD_ELEMENTS; b_loc++) {
         auto current_piece = board[b_loc];
-        // Skip squares that don't have the correct color checker
-        if (!in_<char>(targets, 2, current_piece)) {
-            continue;
+        if (current_piece == piece) {
+            count += piece_val;
         }
-        count++;
-    }
-
-    return count;
-}
-
-int piece_count(const char * start, int player) {
-    char targets[2];
-    _set_targets(targets, player);
-    size_t count = 0;
-
-    for (size_t b_loc = 0; b_loc < BOARD_ELEMENTS; b_loc++) {
-        auto current_piece = board_get_one(start, b_loc);
-        // Skip squares that don't have the correct color checker
-        if (!in_<char>(targets, 2, current_piece)) {
-            continue;
+        else if (current_piece == king) {
+            count += king_val;
         }
-        count++;
+        else if (current_piece == enemy_piece) {
+            count -= piece_val;
+        }
+        else if (current_piece == enemy_king) {
+            count -= king_val;
+        }
     }
 
     return count;
@@ -232,22 +184,64 @@ std::vector<Move> get_possible_moves(const BoardState &board, int player) {
     return moves;
 }
 
-std::vector<Move> get_possible_moves(const char * board, int player) {
-    std::vector<Move> moves;
 
+bool is_valid_jump(const BoardState & board, const Jump & jump, int player) {
+
+    if (board[jump._to] != BLANK){
+       return false;
+    }
+
+    char targets[2];
+    _set_targets(targets, player == RED_PLAYER ? BLACK_PLAYER : RED_PLAYER);
+
+    if (!in_<char>(targets, 2, board[jump._enemy]) ){
+        return false;
+    }
+
+    return true;
+}
+
+void get_possible_jumps_for_piece(std::vector<Jump> & jumps, const BoardState & board, size_t index, int player) {
+    auto current_piece = board[index];
+    auto possible_jump = jumpTable[index];
+    size_t start = 0;
+    size_t end = possible_jump.size();
+
+    // Grab only the north direction
+    if (current_piece == BLACK_CHECKER) {
+        end -= 2;
+    }
+    // grab only the south direction
+    else if (current_piece == RED_CHECKER) {
+        start += 2;
+    }
+
+    for (auto ii = start; ii < end; ii++) {
+        auto jump = possible_jump[ii];
+        if (jump[0] == -1) { continue; }
+
+        Jump poss_jump = {index, jump[0], jump[1]};
+
+        if (is_valid_jump(board, poss_jump, player)) {
+            jumps.push_back(poss_jump);
+        }
+    }
+}
+
+void get_possible_jump_boards(std::vector<BoardState> & currJumps, const BoardState &board, int player) {
     char targets[2];
     _set_targets(targets, player);
 
     for (size_t b_loc = 0; b_loc < BOARD_ELEMENTS; b_loc++) {
-        auto current_piece = board_get_one(board, b_loc);
+        auto current_piece = board[b_loc];
         // Skip squares that don't have the correct color checker
         if (!in_<char>(targets, 2, current_piece)) {
             continue;
         }
 
-        auto possible_moves = moveTable[b_loc];
+        auto possible_jump = jumpTable[b_loc];
         size_t start = 0;
-        size_t end = possible_moves.size();
+        size_t end = possible_jump.size();
 
         // Grab only the north direction
         if (current_piece == BLACK_CHECKER) {
@@ -258,18 +252,46 @@ std::vector<Move> get_possible_moves(const char * board, int player) {
             start += 2;
         }
 
-        for (size_t c = start; c < end; c++) {
-            auto move = possible_moves[c];
+        for (auto ii = start; ii < end; ii++) {
+            auto jump = possible_jump[ii];
+            if (jump[0] == -1) { continue; }
 
-            if (move == -1) { continue; }
+            Jump poss_jump = {b_loc, jump[0], jump[1]};
 
-            if (board_get_one(board, move) == BLANK) {
-                moves.push_back({b_loc, move});
+            if (is_valid_jump(board, poss_jump, player)) {
+                BoardState board_with_jump = BoardState(board);
+                board_with_jump.apply_jump(poss_jump);
+
+                // Very wastefull check if there are more available jumps
+                std::vector<Jump> nextJumps;
+                get_possible_jumps_for_piece(nextJumps, board_with_jump, b_loc, player);
+                if (nextJumps.size() == 0) {
+                    currJumps.push_back(board_with_jump);
+                }
+                else {
+                    get_possible_jump_boards(currJumps, board_with_jump, player);
+                }
             }
         }
     }
+}
 
-    return moves;
+std::vector<Jump> get_possible_jumps(const BoardState &board, int player) {
+    std::vector<Jump> jumps;
+    char targets[2];
+    _set_targets(targets, player);
+
+    for (size_t b_loc = 0; b_loc < BOARD_ELEMENTS; b_loc++) {
+        auto current_piece = board[b_loc];
+        // Skip squares that don't have the correct color checker
+        if (!in_<char>(targets, 2, current_piece)) {
+            continue;
+        }
+
+        get_possible_jumps_for_piece(jumps, board, b_loc, player);
+    }
+
+    return jumps;
 }
 
 

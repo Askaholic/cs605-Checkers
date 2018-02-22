@@ -54,6 +54,7 @@ public:
     BoardState() = default;
     BoardState(const BoardState &);
     BoardState & operator=(const BoardState & other);
+    bool operator==(const BoardState & other) const;
     char operator[](size_t index);
     const char operator[](size_t index) const;
     void set(size_t index, char value);
@@ -79,13 +80,13 @@ public:
     void set(size_t index, char value);
 };
 
-// Char * manipulation functions
-char board_get_one(const char * start, size_t i);
-void board_set_one(char * start, size_t i, char val);
-void board_write(char * start, const BoardState & board);
-void board_read(const char * start, BoardState & board);
-void board_copy(const char * from, char * to);
-void board_apply_move(char * start, Move move);
+
+
+
+
+
+
+
 
 
 
@@ -102,8 +103,18 @@ private:
 public:
 };
 
-// Test function. To verify that the module is installed and works
-char * test(char * str);
+class JumpGenerator {
+private:
+    /* data */
+    void _append_jumps_for_piece(std::vector<BoardState> & jumps, const BoardState & board, size_t index, int player);
+
+public:
+    JumpGenerator () {}
+
+    std::vector<BoardState> get_possible_jumps(const BoardState & board, int player);
+
+    virtual ~JumpGenerator () {}
+};
 
 void setup_board();
 void setup_network();
@@ -112,11 +123,13 @@ BoardState get_board();
 
 std::vector<Move> get_possible_moves(const BoardState &board, int player);
 std::vector<Jump> get_possible_jumps(const BoardState &board, int player);
+void get_possible_jump_boards(std::vector<BoardState> & currJumps, const BoardState &board, int player);
+bool is_valid_jump(const BoardState & board, const Jump & jump, int player);
 std::pair<std::unique_ptr<BoardState>, int> min_max_search(const BoardState & board, int player, int depth);
 std::pair<BoardState, int> min_max_search_ab(const BoardState & board, int player, int depth);
 std::pair<BoardState, int> min_max_no_alloc(const BoardState & board, int player, int depth);
 float evaluate_board(const BoardState &board);
-int piece_count(const BoardState &board, int player);
+float piece_count(const BoardState &board, int player);
 
 
 
@@ -138,9 +151,6 @@ std::pair<BoardState, float> min_max_search_inplace(const BoardState & board, in
 
 
 
-std::vector<Move> get_possible_moves(const char * board, int player);
-std::vector<Jump> get_possible_jumps(const char * board, int player);
-int piece_count(const char *, int player);
 
 
 void time_boards();
@@ -154,6 +164,9 @@ bool in_(const T * array, size_t length, const T &value) {
     }
     return false;
 };
+
+
+bool is_valid_index(const int index);
 
 
 

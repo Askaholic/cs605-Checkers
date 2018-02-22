@@ -40,10 +40,36 @@ depth = 7
 # print("Score: ", score)
 # printBoard(board)
 
-print("Depth: ", depth)
-board, score = bf.min_max_search_inplace(starting_board, 0, depth)
-print("Score: ", score)
-printBoard(board)
+# print("Depth: ", depth)
+# board, score = bf.min_max_search_inplace(starting_board, 0, depth)
+# print("Score: ", score)
+# printBoard(board)
+
+# for ii in range(5):
+#     board, score = bf.min_max_search_ab(''.join(board), 0, depth)
+#     print("Score: ", score)
+#     printBoard(board)
+
+
+print("Get possible jumps")
+num_jumps = bf.get_possible_jumps(starting_board, 0)
+print("Red player number of valid jumps:", num_jumps)
+
+possible_jump = 'rrrrrrrrr1111b111111bbbbbbbbbbbb'
+printBoard(possible_jump)
+num_jumps = bf.get_possible_jumps(possible_jump, 0)
+print("Red player number of valid jumps:", num_jumps)
+
+
+possible_jump = 'rrrr1r1rrr111b111111bbbbbbbbbbbb'
+printBoard(possible_jump)
+num_jumps = bf.get_possible_jumps(possible_jump, 0)
+print("Red player number of valid jumps:", num_jumps)
+
+possible_jump = 'rrrr1r1rrr111b111111bbbbbbbbbbbb'
+printBoard(possible_jump)
+num_jumps = bf.get_possible_jumps(possible_jump, 1)
+print("Black player number of valid jumps:", num_jumps)
 
 # for ii in range(5):
 #     board, score = bf.min_max_search_ab(''.join(board), 0, depth)
