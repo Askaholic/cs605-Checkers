@@ -49,14 +49,13 @@ const int black_king_end[] = {12, 13, 14, 15};
 class BoardState {
 public:
     char _tiles[BOARD_ELEMENTS/2 ];
-    std::string str;
 
 public:
     BoardState() = default;
     BoardState(const BoardState &);
     BoardState & operator=(const BoardState & other);
     bool operator==(const BoardState & other) const;
-    const std::string & toStdString();
+    std::string toStdString() const;
     char operator[](size_t index);
     const char operator[](size_t index) const;
     void set(size_t index, char value);

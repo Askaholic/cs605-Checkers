@@ -68,8 +68,8 @@ bool BoardState::operator==(const BoardState & other) const {
     return true;
 }
 
-const std::string & BoardState::toStdString() {
-    str = "";
+std::string BoardState::toStdString() const {
+    std::string str = "";
     for (size_t i = 0; i < 32; i++) {
         auto piece = (*this)[i];
         char next = '.';
