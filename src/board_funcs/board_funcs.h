@@ -127,7 +127,6 @@ void get_possible_jump_boards(std::vector<BoardState> & currJumps, const BoardSt
 bool is_valid_jump(const BoardState & board, const Jump & jump, int player);
 std::pair<std::unique_ptr<BoardState>, int> min_max_search(const BoardState & board, int player, int depth);
 std::pair<BoardState, int> min_max_search_ab(const BoardState & board, int player, int depth);
-std::pair<BoardState, int> min_max_no_alloc(const BoardState & board, int player, int depth);
 float evaluate_board(const BoardState &board);
 float piece_count(const BoardState &board, int player);
 

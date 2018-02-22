@@ -198,34 +198,6 @@ static PyObject * min_max_search_ab_wrapper(PyObject * self, PyObject * args) {
     return tuple;
 }
 
-
-static PyObject * min_max_no_alloc_wrapper(PyObject * self, PyObject * args) {
-    char * board_string;
-    int depth;
-    int player;
-    if (!PyArg_ParseTuple(args, "sii", &board_string, &player, &depth)) {
-        return NULL;
-    }
-
-    BoardState board;
-    string_to_board_state(board_string, board);
-
-    auto start = std::chrono::high_resolution_clock::now();
-    auto search_result = min_max_no_alloc(board, player, depth);
-    auto end = std::chrono::high_resolution_clock::now();
-
-    auto time = ((std::chrono::nanoseconds)(end - start)).count();
-    std::cout << "min_max_no_alloc time: " << ((double)time) << " ns / call\n";
-
-    auto tuple = PyTuple_New(2);
-    auto list = PyList_New(BOARD_ELEMENTS);
-    board_state_to_py_list(search_result.first, list);
-
-    PyTuple_SET_ITEM(tuple, 0, list);
-    PyTuple_SET_ITEM(tuple, 1, PyLong_FromLong(search_result.second));
-    return tuple;
-}
-
 static PyObject * min_max_search_inplace_wrapper(PyObject * self, PyObject * args) {
     char * board_string;
     int depth;
@@ -285,8 +257,6 @@ static PyMethodDef BoardFuncMethods[] = {
         "Finds the best board to go to given the current board" },
     { "min_max_search_ab", min_max_search_ab_wrapper, METH_VARARGS,
         "Min max search with alpha beta pruning" },
-    { "min_max_no_alloc", min_max_no_alloc_wrapper, METH_VARARGS,
-        "Finds the best board to go to given the current board, but only allocates one chunk of memory" },
     { "min_max_search_inplace", min_max_search_inplace_wrapper, METH_VARARGS,
         "Min max search with in place array for max depth" },
     { "evaluate_board", evaluate_board_wrapper, METH_VARARGS,
