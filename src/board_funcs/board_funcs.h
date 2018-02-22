@@ -49,12 +49,14 @@ const int black_king_end[] = {12, 13, 14, 15};
 class BoardState {
 public:
     char _tiles[BOARD_ELEMENTS/2 ];
+    std::string str;
 
 public:
     BoardState() = default;
     BoardState(const BoardState &);
     BoardState & operator=(const BoardState & other);
     bool operator==(const BoardState & other) const;
+    const std::string & toStdString();
     char operator[](size_t index);
     const char operator[](size_t index) const;
     void set(size_t index, char value);
@@ -64,7 +66,6 @@ public:
     void make_king(const int to);
 
 };
-
 
 
 
@@ -110,6 +111,9 @@ private:
     char _king;
     int _player;
     void _append_jumps_for_piece(std::vector<BoardState> & jumps, const BoardState & board, size_t index);
+    void _do_multi_jump(std::vector<BoardState> & jumps, const BoardState & board, size_t index, std::vector<Jump> & table_jumps);
+    bool _is_players_piece(char piece);
+
 
 public:
     JumpGenerator () {}

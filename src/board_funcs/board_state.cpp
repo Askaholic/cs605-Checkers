@@ -68,6 +68,24 @@ bool BoardState::operator==(const BoardState & other) const {
     return true;
 }
 
+const std::string & BoardState::toStdString() {
+    str = "";
+    for (size_t i = 0; i < 32; i++) {
+        auto piece = (*this)[i];
+        char next = '.';
+        switch (piece) {
+            case RED_CHECKER: next='r'; break;
+            case BLACK_CHECKER: next='b'; break;
+            case RED_KING: next='R'; break;
+            case BLACK_KING: next='B'; break;
+            default: next='.'; break;
+        }
+        str += next;
+    }
+    str += '\n';
+    return str;
+}
+
 void BoardState::apply_move(const Move move) {
     auto piece = (*this)[move._from];
     set(move._from, BLANK);

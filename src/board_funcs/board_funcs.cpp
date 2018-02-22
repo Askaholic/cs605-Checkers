@@ -11,8 +11,6 @@
 #include <vector>
 #include <cstddef>
 #include <iostream>
-using std::cout;
-using std::endl;
 
 
 std::vector<std::vector<int>> moveTable = {

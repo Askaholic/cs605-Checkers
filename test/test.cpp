@@ -11,6 +11,7 @@
 #include <vector>
 #include <string>
 #include <stdexcept>
+#include <iostream>
 
 
 std::unique_ptr<BoardState> make_empty_board() {
@@ -181,7 +182,7 @@ TEST_CASE( "Generate Jumps", "[jump gen]") {
             }))
         };
 
-        auto moves = gen.get_possible_jumps(*board_2, BLACK_PLAYER);
+        auto moves = gen.get_possible_jumps(*board_2, RED_PLAYER);
         REQUIRE( moves == correct_jumps );
     }
 }
