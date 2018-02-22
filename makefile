@@ -11,6 +11,7 @@ OBJ=$(BIN)/obj
 # Files
 SOURCE_FILES=\
 	test/test.cpp \
+	test/catch_main.cpp \
 	src/board_funcs/board_funcs.cpp \
 	src/board_funcs/board_state.cpp \
 	src/board_funcs/helpers.cpp \
@@ -20,7 +21,7 @@ SOURCE_FILES=\
 
 
 EXECUTABLE_FILES = $(EXECUTABLE_NAME:%=$(BIN)/%)
-OBJECT_FILES     = ${subst ../,,$(SOURCE_FILES:%.cpp=$(OBJ)/%.o)}
+OBJECT_FILES     = $(SOURCE_FILES:%.cpp=$(OBJ)/%.o)
 
 test: $(EXECUTABLE_FILES)
 

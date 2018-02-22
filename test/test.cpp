@@ -5,7 +5,6 @@
 // Unit tests using the catch.hpp framework. Make sure you have catch.hpp in
 // your path when compiling this file
 
-#define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 #include "board_funcs.h"
 #include <memory>
