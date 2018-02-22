@@ -98,6 +98,7 @@ public:
 class JumpGenerator {
 private:
     /* data */
+    void _append_jumps_for_piece(std::vector<BoardState> & jumps, const BoardState & board, size_t index, int player);
 
 public:
     JumpGenerator () {}
@@ -115,6 +116,7 @@ BoardState get_board();
 std::vector<Move> get_possible_moves(const BoardState &board, int player);
 std::vector<Jump> get_possible_jumps(const BoardState &board, int player);
 void get_possible_jump_boards(std::vector<BoardState> & currJumps, const BoardState &board, int player);
+bool is_valid_jump(const BoardState & board, const Jump & jump, int player);
 std::pair<std::unique_ptr<BoardState>, int> min_max_search(const BoardState & board, int player, int depth);
 std::pair<BoardState, int> min_max_search_ab(const BoardState & board, int player, int depth);
 std::pair<BoardState, int> min_max_no_alloc(const BoardState & board, int player, int depth);
@@ -154,6 +156,9 @@ bool in_(const T * array, size_t length, const T &value) {
     }
     return false;
 };
+
+
+bool is_valid_index(const int index);
 
 
 

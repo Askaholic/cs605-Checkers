@@ -36,3 +36,9 @@ void time_boards() {
   std::cout << "Fast: " << ((double)fast_time / COUNT) << " / call\n";
 
 }
+
+bool is_valid_index(const int index) {
+    if (index < 0 || index > 31)
+        return false;
+    return true;
+}

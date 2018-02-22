@@ -54,16 +54,6 @@ bool operator==(const Jump & lhs, const Jump & rhs) {
     return true;
 }
 
-
-bool operator==(const BoardState & lhs, const BoardState & rhs) {
-    for (size_t i = 0; i < BOARD_ELEMENTS; i++) {
-        if (lhs[i] != rhs[i]) {
-            return false;
-        }
-    }
-    return true;
-}
-
 TEST_CASE( "Generate Jumps", "[jump gen]") {
     JumpGenerator gen;
 
