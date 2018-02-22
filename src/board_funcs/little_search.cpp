@@ -77,7 +77,8 @@ public:
         auto board = search_mem[ (curr_depth) * branch_factor + indecies[curr_depth] ].board;
         player = swapPlayer(getCurrentTurnPlayer(player));
 
-        auto jumps = get_possible_jumps(board, player);
+        std::vector<BoardState> jumps;
+        get_possible_jump_boards(jumps, board, player);
 
         if (jumps.size() > 0) {
             moves_size[curr_depth + 1] = jumps.size();
@@ -85,11 +86,10 @@ public:
             for (size_t i = 0; i < moves_size[curr_depth + 1]; i++) {
                 auto index = ((curr_depth + 1) *  BRANCH_FACTOR) + i;
                 search_mem[index] = {};
-                search_mem[index].board = board;
+                search_mem[index].board = jumps[i];
                 search_mem[index].score = 0.0f;
                 search_mem[index].best_score_index = 0;
 
-                search_mem[index].board.apply_jump(jumps[i]);
                 // std::cout << "Trying jump..." << '\n';
                 // printBoard(search_mem[index].board);
                 // std::cout << "score of this board: " << piece_count(search_mem[index].board, player) << '\n';

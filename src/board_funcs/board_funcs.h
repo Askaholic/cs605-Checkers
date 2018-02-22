@@ -112,6 +112,7 @@ BoardState get_board();
 
 std::vector<Move> get_possible_moves(const BoardState &board, int player);
 std::vector<Jump> get_possible_jumps(const BoardState &board, int player);
+void get_possible_jump_boards(std::vector<BoardState> & currJumps, const BoardState &board, int player);
 std::pair<std::unique_ptr<BoardState>, int> min_max_search(const BoardState & board, int player, int depth);
 std::pair<BoardState, int> min_max_search_ab(const BoardState & board, int player, int depth);
 std::pair<BoardState, int> min_max_no_alloc(const BoardState & board, int player, int depth);
