@@ -84,7 +84,7 @@ size_t Network4::_getNodeRequiredSpace(size_t num_weights) {
     return padSizeToAlignment(node_size, 32);
 }
 
-LayerHeader Network4::_readLayerHeader(float * start) {
+inline LayerHeader Network4::_readLayerHeader(float * start) {
     return { (size_t) start[0], (size_t) start[1], (size_t) start[2], (size_t) start[3] , (size_t) start[4] , (size_t) start[5]};
 }
 
@@ -214,21 +214,7 @@ inline float horizontal_add (__m256 a) {
     return _mm_cvtss_f32(t4);
 }
 
-// Slower than horizontal_add?
-float avx_only_hadd(__m256 const& v) {
-    auto x = _mm256_permute2f128_ps(v, v, 1);
-    auto y = _mm256_add_ps(v, x);
-    x = _mm256_shuffle_ps(y, y, _MM_SHUFFLE(2, 3, 0, 1));
-    x = _mm256_add_ps(x, y);
-    y = _mm256_shuffle_ps(x, x, _MM_SHUFFLE(1, 0, 3, 2));
-    return _mm_cvtss_f32(
-        _mm256_castps256_ps128(
-            _mm256_add_ps(x, y)
-        )
-    );
-}
-
-void Network4::_evaluateLayer(float * layer_start, LayerHeader & header, const float * inputs, float * outputs) {
+inline void Network4::_evaluateLayer(float * layer_start, LayerHeader & header, const float * inputs, float * outputs) {
     size_t node_size = header.node_size;
     size_t num_weights = header.num_node_weights;
 
