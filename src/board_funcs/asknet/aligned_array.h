@@ -18,11 +18,13 @@ private:
     T * _data_unaligned;
     T * _data;
     size_t _size;
+    size_t _size_unaligned;
 
     void * _aligned_alloc(size_t size, T*& unaligned_storage) {
         const size_t align_size = A;
         size_t request_size = size + align_size;
         const size_t needed = request_size;
+        _size_unaligned = needed;
 
         T * alloc = new T[needed];
         void * alloc_void = (void *) alloc;
@@ -55,11 +57,20 @@ public:
         _data = nullptr;
         _data_unaligned = nullptr;
         _size = 0;
+        _size_unaligned = 0;
+
     }
 
     AlignedArray(size_t size) {
         _size = size;
         _allocate(size);
+    }
+
+    AlignedArray(const std::vector<T> & other) {
+        _size = other.size();
+        _allocate(_size);
+
+        std::copy(other.begin(), other.end(), _data);
     }
 
 
@@ -83,9 +94,10 @@ public:
         _del();
 
         _size = other._size;
+        _size_unaligned = other._size_unaligned;
         _allocate(_size);
 
-        std::copy(other._data_unaligned, other._data_unaligned + _size, _data_unaligned);
+        std::copy(other._data_unaligned, other._data_unaligned + _size_unaligned, _data_unaligned);
 
         return *this;
     }
@@ -102,7 +114,9 @@ public:
         other._data_unaligned = nullptr;
 
         _size = other._size;
+        _size_unaligned = other._size_unaligned;
         other._size = 0;
+        other._size_unaligned = 0;
 
         return *this;
     }
@@ -149,6 +163,18 @@ public:
         while (start < _data_unaligned + _size + A) {
             start[0] = val;
             start++;
+        }
+    }
+
+    void fill(T & val) {
+        for (size_t i = 0; i < _size_unaligned; i++) {
+            _data_unaligned[i] = val;
+        }
+    }
+
+    void fill(T && val) {
+        for (size_t i = 0; i < _size_unaligned; i++) {
+            _data_unaligned[i] = val;
         }
     }
 };
