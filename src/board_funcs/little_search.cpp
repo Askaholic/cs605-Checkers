@@ -6,7 +6,7 @@
 
 #include "board_funcs.h"
 
-#define BRANCH_FACTOR 18
+#define BRANCH_FACTOR 32
 
 struct SearchNode {
     BoardState board;
@@ -18,6 +18,7 @@ class MinMaxSearch {
 private:
     std::vector<SearchNode> search_mem;
     size_t branch_factor = BRANCH_FACTOR;
+    size_t max_branch_factor = 0;
     size_t tree_nodes = 0;
     size_t curr_depth;
     JumpGenerator jump_gen;
@@ -82,6 +83,9 @@ public:
 
         if (jumps.size() > 0) {
             moves_size[curr_depth + 1] = jumps.size();
+            if (jumps.size() > max_branch_factor) {
+                max_branch_factor = jumps.size();
+            }
             // Save all the next jumps
             for (size_t i = 0; i < moves_size[curr_depth + 1]; i++) {
                 auto index = ((curr_depth + 1) *  BRANCH_FACTOR) + i;
@@ -106,6 +110,9 @@ public:
             printBoard(board);
         }
         moves_size[curr_depth + 1] = moves.size();
+        if (moves.size() > max_branch_factor) {
+            max_branch_factor = jumps.size();
+        }
         if (moves_size[curr_depth + 1] > BRANCH_FACTOR) {
             std::cout << "Caused by board: " << indecies[curr_depth] << '\n';
             printBoard(board);
