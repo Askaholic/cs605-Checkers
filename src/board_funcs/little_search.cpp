@@ -160,6 +160,9 @@ public:
         tree_nodes = 0;
         bool done = false;
         while (!done) {
+            if (indecies[curr_depth] > moves_size[curr_depth]) {
+                throw std::out_of_range("Index at current depth exceeded number of moves! " + std::to_string(indecies[curr_depth]));
+            }
             if (curr_depth == depth) {
                 evaluateLeaves(moves_size, player);
             }
@@ -220,7 +223,7 @@ public:
                         done = true;
                     }
                 }
-                while (curr_depth > 0 && indecies[curr_depth] == moves_size[curr_depth]);
+                while (curr_depth > 0 && indecies[curr_depth] >= moves_size[curr_depth]);
             }
         }
 
@@ -241,5 +244,8 @@ std::pair<BoardState, float> min_max_search_inplace(const BoardState & board, in
     }
 
     MinMaxSearch s_helper;
-    return s_helper.search(board, player, depth);
+    auto ret = s_helper.search(board, player, depth);
+    std::cout << "about to return: " << '\n';
+    s_helper.printBoard(ret.first);
+    return ret;
 }
