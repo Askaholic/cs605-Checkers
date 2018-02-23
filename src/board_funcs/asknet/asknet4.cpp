@@ -214,6 +214,31 @@ inline float horizontal_add (__m256 a) {
     return _mm_cvtss_f32(t4);
 }
 
+static bool hasPrinted = false;
+
+inline __m256 remove_overflow(__m256 a, int amount) {
+    int mask[8];
+    for (size_t i = 0; i < 8; i++) {
+        if (i < amount) {
+            mask[7 - i] = 0;
+        }
+        else {
+            mask[7 - i] = -1;
+        }
+    }
+    __m256 mask_ = _mm256_load_ps((float *)&mask);
+    if(!hasPrinted) {
+        hasPrinted=true;
+        std::cout << "amount: " << amount << '\n';
+        std::cout << "mask: ";
+        for (size_t i = 0; i < 8; i++) {
+            std::cout << mask[i] << " ";
+        }
+        std::cout << '\n';
+    }
+    return _mm256_and_ps(a, mask_);
+}
+
 inline void Network4::_evaluateLayer(float * layer_start, LayerHeader & header, const float * inputs, float * outputs) {
     size_t node_size = header.node_size;
     size_t num_weights = header.num_node_weights;
@@ -223,9 +248,23 @@ inline void Network4::_evaluateLayer(float * layer_start, LayerHeader & header, 
 
         for (size_t k = 0; k < num_weights; k += 8) {
             auto layer_start_index = header.size + (node_size * j) + k;
+            if (k + 8 > num_weights) {
+                for (size_t i = 0; i < 8; i++) {
+                    if (inputs[k + i] != 0) {
+                        throw std::out_of_range(
+                            "Overflowed input value not zero: " + std::to_string(inputs[k + i])
+                            + "\nnode: " + std::to_string(j)
+                            + "\nweight: " + std::to_string(k + i)
+                        );
+                    }
+                }
+            }
             __m256 sse_in = _mm256_load_ps(&inputs[k]);
             __m256 sse_wt = _mm256_load_ps(&layer_start[layer_start_index]);
             __m256 sse_out = _mm256_mul_ps(sse_in, sse_wt);
+            if (k + 8 > num_weights) {
+                sse_out = remove_overflow(sse_out, k + 8 - num_weights);
+            }
             node_output += horizontal_add(sse_out);
         }
         node_output = _applySigmoid(node_output);
