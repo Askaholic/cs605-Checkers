@@ -110,7 +110,7 @@ public:
             std::cout << "Caused by board: " << indecies[curr_depth] << '\n';
             printBoard(board);
             std::cout << "Tree nodes: " << tree_nodes << '\n';
-            throw std::out_of_range("Max branch factor exceeded: " + std::to_string(moves_size[curr_depth]));
+            throw std::out_of_range("Max branch factor exceeded: " + std::to_string(moves_size[curr_depth + 1]));
         }
 
         // Save all the next moves
