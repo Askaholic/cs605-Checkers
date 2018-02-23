@@ -20,6 +20,7 @@ private:
     size_t branch_factor = BRANCH_FACTOR;
     size_t tree_nodes = 0;
     size_t curr_depth;
+    JumpGenerator jump_gen;
 
 public:
     void initData(int depth) {
@@ -77,8 +78,7 @@ public:
         auto board = search_mem[ (curr_depth) * branch_factor + indecies[curr_depth] ].board;
         player = swapPlayer(getCurrentTurnPlayer(player));
 
-        std::vector<BoardState> jumps;
-        get_possible_jump_boards(jumps, board, player);
+        std::vector<BoardState> jumps = jump_gen.get_possible_jumps(board, player);
 
         if (jumps.size() > 0) {
             moves_size[curr_depth + 1] = jumps.size();

@@ -14,6 +14,7 @@ try:
 except ImportError:
     print("Could not import board_funcs C++ library. Please install it!")
     bf = None
+    raise
 
 moveTable = {
     # -1 is a position they cannot move. Allows for [2:] list splitting.
