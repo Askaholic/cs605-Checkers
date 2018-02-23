@@ -9,7 +9,7 @@
 #include <chrono>
 #include <string>
 
-long time_network(Network net, std::string name, std::vector<float> inputs, size_t iterations) {
+long time_network(Network & net, const std::string & name, const std::vector<float> & inputs, size_t iterations) {
     std::cout << "Evaluating " << name << " ..." << '\n';
     std::cout << "Network " << name << " size: " << net.getNumNodes() << " nodes" << '\n';
 
@@ -25,7 +25,7 @@ long time_network(Network net, std::string name, std::vector<float> inputs, size
     return elapsed;
 }
 
-long time_network(Network3 net, std::string name, std::vector<float> inputs, size_t iterations) {
+long time_network(Network3 & net, const std::string & name, const std::vector<float> & inputs, size_t iterations) {
     std::cout << "Evaluating " << name << " ..." << '\n';
     std::cout << "Network " << name << " size: " << net.getNumNodes() << " nodes" << '\n';
 
@@ -41,14 +41,17 @@ long time_network(Network3 net, std::string name, std::vector<float> inputs, siz
     return elapsed;
 }
 
-long time_network(Network4 net, std::string name, std::vector<float> inputs, size_t iterations) {
+long time_network(Network4 & net, const std::string & name, const std::vector<float> & inputs, size_t iterations) {
     std::cout << "Evaluating " << name << " ..." << '\n';
     std::cout << "Network " << name << " size: " << net.getNumNodes() << " nodes" << '\n';
 
     float result;
-        auto start = std::chrono::high_resolution_clock::now();
+    AlignedArray<float, 32> aligned_inputs(inputs);
+    aligned_inputs.setOverflow(0);
+
+    auto start = std::chrono::high_resolution_clock::now();
     for (size_t i = 0; i < iterations; i++) {
-        result = net.evaluate(inputs);
+        result = net.evaluate(aligned_inputs);
     }
     auto end = std::chrono::high_resolution_clock::now();
     auto elapsed = ((std::chrono::nanoseconds)(end - start)).count();
@@ -57,7 +60,7 @@ long time_network(Network4 net, std::string name, std::vector<float> inputs, siz
     return elapsed;
 }
 
-void test_topology(std::vector<size_t> topology, size_t NUM_TESTS) {
+void test_topology(const std::vector<size_t> & topology, size_t NUM_TESTS) {
     std::string topoStr = "";
     for (size_t i = 0; i < topology.size(); i++) {
         topoStr += " " + std::to_string(topology[i]);
@@ -106,11 +109,11 @@ int main() {
     //
     // std::vector<float> inputs = {1.0f, 1.0f, 1.0f};
 
-    size_t NUM_TESTS = 10000;
+    size_t NUM_TESTS = 100000;
 
     // test_topology({3, 1 }, NUM_TESTS);
     test_topology({32, 40, 10, 1 }, NUM_TESTS);
-    test_topology({32, 110, 40, 10, 1 }, NUM_TESTS);
+    // test_topology({32, 110, 40, 10, 1 }, NUM_TESTS);
     // test_topology({32, 10000, 1 }, NUM_TESTS);
     // test_topology({32, 5000, 5000, 1 }, NUM_TESTS);
     // test_topology({32,40,10,1}, NUM_TESTS);
