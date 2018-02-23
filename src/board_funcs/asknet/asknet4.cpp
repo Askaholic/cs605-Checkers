@@ -218,7 +218,6 @@ inline void Network4::_evaluateLayer(float * layer_start, LayerHeader & header, 
     size_t node_size = header.node_size;
     size_t num_weights = header.num_node_weights;
 
-    // #pragma omp parallel for
     for (size_t j = 0; j < header.num_nodes; j++) {
         float node_output = 0.0f;
 
