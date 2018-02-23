@@ -137,6 +137,7 @@ public:
             auto score = evaluateLeaf(search_mem[index].board, player);
 
             // std::cout << "Evaluating leaf: " << score << '\n';
+            // std::cout << "moves_size[curr_depth] = " << moves_size[curr_depth]  << '\n';
             // printBoard(search_mem[index].board);
             search_mem[index].score = score;
         }
@@ -155,7 +156,7 @@ public:
             if (curr_depth == depth) {
                 evaluateLeaves(moves_size, player);
             }
-            else if (indecies[curr_depth] == 0) {
+            else {
                 expandChildren(indecies, moves_size, player);
             }
             // std::cout << "Done processing moves" << '\n';
@@ -195,11 +196,13 @@ public:
                         }
                     }
 
-                    // Set this best score to the score of the parent node
                     curr_depth--;
+                    // std::cout << " indecies[curr_depth] = " << indecies[curr_depth] << '\n';
+                    // std::cout << " moves_size[curr_depth] = " << moves_size[curr_depth] << '\n';
 
                     auto index = ((curr_depth) *  branch_factor) + indecies[curr_depth];
 
+                    // Set this best score to the score of the parent node
                     // std::cout << "Setting index: "<< index << " to " << best << '\n';
                     search_mem[index].score = best;
                     search_mem[index].best_score_index = best_index;
