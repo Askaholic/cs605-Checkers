@@ -98,9 +98,7 @@ static PyObject * get_possible_moves_wrapper(PyObject * self, PyObject * args) {
         auto tuple = PyTuple_New(2);
         PyTuple_SET_ITEM(tuple, 0, PyLong_FromSize_t(b[i]._from));
         PyTuple_SET_ITEM(tuple, 1, PyLong_FromSize_t(b[i]._to));
-        if (PyList_SetItem(list, i, tuple) == -1) {
-            // Handle error here?
-        }
+        PyList_SET_ITEM(list, i, tuple);
     }
     return list;
 }
@@ -122,9 +120,7 @@ static PyObject * get_possible_jumps_wrapper(PyObject * self, PyObject * args) {
         PyTuple_SET_ITEM(tuple, 0, PyLong_FromSize_t(b[i]._from));
         PyTuple_SET_ITEM(tuple, 1, PyLong_FromSize_t(b[i]._to));
         PyTuple_SET_ITEM(tuple, 2, PyLong_FromSize_t(b[i]._enemy));
-        if (PyList_SetItem(list, i, tuple) == -1) {
-            // Handle error here?
-        }
+        PyList_SET_ITEM(list, i, tuple);
     }
     return list;
 }

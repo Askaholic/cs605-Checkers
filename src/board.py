@@ -14,6 +14,7 @@ try:
 except ImportError:
     print("Could not import board_funcs C++ library. Please install it!")
     bf = None
+    raise
 
 moveTable = {
     # -1 is a position they cannot move. Allows for [2:] list splitting.
@@ -287,7 +288,7 @@ class Board(object):
             board_string += c
         print("Using board_funcs")
         print(self.current_turn_player)
-        board, score = bf.min_max_search_inplace(board_string, self.current_turn_player, 6)
+        board, score = bf.min_max_search_inplace(board_string, self.current_turn_player, 2)
         for i in range(len(board)):
             if (board[i] == ''):
                 self.board[i] = '1'

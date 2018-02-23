@@ -6,7 +6,7 @@
 
 #include "board_funcs.h"
 
-#define BRANCH_FACTOR 18
+#define BRANCH_FACTOR 32
 
 struct SearchNode {
     BoardState board;
@@ -18,8 +18,10 @@ class MinMaxSearch {
 private:
     std::vector<SearchNode> search_mem;
     size_t branch_factor = BRANCH_FACTOR;
+    size_t max_branch_factor = 0;
     size_t tree_nodes = 0;
     size_t curr_depth;
+    JumpGenerator jump_gen;
 
 public:
     void initData(int depth) {
@@ -77,11 +79,13 @@ public:
         auto board = search_mem[ (curr_depth) * branch_factor + indecies[curr_depth] ].board;
         player = swapPlayer(getCurrentTurnPlayer(player));
 
-        std::vector<BoardState> jumps;
-        get_possible_jump_boards(jumps, board, player);
+        std::vector<BoardState> jumps = jump_gen.get_possible_jumps(board, player);
 
         if (jumps.size() > 0) {
             moves_size[curr_depth + 1] = jumps.size();
+            if (jumps.size() > max_branch_factor) {
+                max_branch_factor = jumps.size();
+            }
             // Save all the next jumps
             for (size_t i = 0; i < moves_size[curr_depth + 1]; i++) {
                 auto index = ((curr_depth + 1) *  BRANCH_FACTOR) + i;
@@ -106,11 +110,14 @@ public:
             printBoard(board);
         }
         moves_size[curr_depth + 1] = moves.size();
+        if (moves.size() > max_branch_factor) {
+            max_branch_factor = jumps.size();
+        }
         if (moves_size[curr_depth + 1] > BRANCH_FACTOR) {
             std::cout << "Caused by board: " << indecies[curr_depth] << '\n';
             printBoard(board);
             std::cout << "Tree nodes: " << tree_nodes << '\n';
-            throw std::out_of_range("Max branch factor exceeded: " + std::to_string(moves_size[curr_depth]));
+            throw std::out_of_range("Max branch factor exceeded: " + std::to_string(moves_size[curr_depth + 1]));
         }
 
         // Save all the next moves
@@ -137,6 +144,7 @@ public:
             auto score = evaluateLeaf(search_mem[index].board, player);
 
             // std::cout << "Evaluating leaf: " << score << '\n';
+            // std::cout << "moves_size[curr_depth] = " << moves_size[curr_depth]  << '\n';
             // printBoard(search_mem[index].board);
             search_mem[index].score = score;
         }
@@ -152,10 +160,13 @@ public:
         tree_nodes = 0;
         bool done = false;
         while (!done) {
+            if (indecies[curr_depth] > moves_size[curr_depth]) {
+                throw std::out_of_range("Index at current depth exceeded number of moves! " + std::to_string(indecies[curr_depth]));
+            }
             if (curr_depth == depth) {
                 evaluateLeaves(moves_size, player);
             }
-            else if (indecies[curr_depth] == 0) {
+            else {
                 expandChildren(indecies, moves_size, player);
             }
             // std::cout << "Done processing moves" << '\n';
@@ -195,11 +206,13 @@ public:
                         }
                     }
 
-                    // Set this best score to the score of the parent node
                     curr_depth--;
+                    // std::cout << " indecies[curr_depth] = " << indecies[curr_depth] << '\n';
+                    // std::cout << " moves_size[curr_depth] = " << moves_size[curr_depth] << '\n';
 
                     auto index = ((curr_depth) *  branch_factor) + indecies[curr_depth];
 
+                    // Set this best score to the score of the parent node
                     // std::cout << "Setting index: "<< index << " to " << best << '\n';
                     search_mem[index].score = best;
                     search_mem[index].best_score_index = best_index;
@@ -210,7 +223,7 @@ public:
                         done = true;
                     }
                 }
-                while (curr_depth > 0 && indecies[curr_depth] == moves_size[curr_depth]);
+                while (curr_depth > 0 && indecies[curr_depth] >= moves_size[curr_depth]);
             }
         }
 
@@ -231,5 +244,8 @@ std::pair<BoardState, float> min_max_search_inplace(const BoardState & board, in
     }
 
     MinMaxSearch s_helper;
-    return s_helper.search(board, player, depth);
+    auto ret = s_helper.search(board, player, depth);
+    std::cout << "about to return: " << '\n';
+    s_helper.printBoard(ret.first);
+    return ret;
 }
