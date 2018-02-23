@@ -152,7 +152,7 @@ size_t Network4::getNumNodes() {
 }
 
 size_t Network4::getNumWeights() {
-    size_t total;
+    size_t total = 0;
 
     float * layerStart = &_data[0];
     float * dataEnd = &_data[_data.size() - 1];
@@ -264,7 +264,7 @@ void Network4::writeNNToFile(){
     nnf.open("nnfile.txt", std::ios_base::binary | std::ofstream::trunc);
 
 
-    for(int ii = 0; ii < _data.size(); ii++){
+    for(size_t ii = 0; ii < _data.size(); ii++){
         nnf << _data[ii] << " ";
     }
 
