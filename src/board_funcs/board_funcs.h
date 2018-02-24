@@ -31,7 +31,6 @@ std::vector<Move> get_possible_moves(const BoardState &board, int player);
 std::vector<Jump> get_possible_jumps(const BoardState &board, int player);
 bool is_valid_jump(const BoardState & board, const Jump & jump, int player);
 float evaluate_board(const BoardState &board);
-float piece_count(const BoardState &board, int player);
 
 
 

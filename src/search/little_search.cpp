@@ -5,6 +5,8 @@
 // Minimax search using in place alocation
 
 #include "search.h"
+#include "jump_generator.h"
+#include "piece_count.h"
 #include "board_funcs.h"
 #include <cstddef>
 #include <exception>
@@ -242,7 +244,7 @@ std::pair<BoardState, float> min_max_search_inplace(const BoardState & board, in
     if (depth < 1) {
         return std::make_pair<BoardState, float>(
             BoardState(board),
-            (float) piece_count(board, player)
+            piece_count(board, player)
         );
     }
 

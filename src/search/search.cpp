@@ -6,6 +6,7 @@
 
 #include "search.h"
 #include "board_state.h"
+#include "piece_count.h"
 #include "board_funcs.h"
 #include "math.h"
 #include <iostream>
