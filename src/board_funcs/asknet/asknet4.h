@@ -15,7 +15,7 @@
 
 
 /* Size of the header block for each Layer (in bytes) */
-#define LAYER_HEADER_SIZE 32;
+#define LAYER_HEADER_SIZE 32
 
 
 struct LayerHeader {
