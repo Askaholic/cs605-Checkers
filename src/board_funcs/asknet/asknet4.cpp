@@ -7,6 +7,7 @@
 #include "asknet4.h"
 #include "aligned_array.h"
 #include "immintrin.h"
+#include <algorithm>
 #include <cmath>
 #include <vector>
 #include <cstddef>
@@ -29,11 +30,15 @@ Network4::Network4(const std::vector<size_t> & topology) {
     std::cout << "required space " << required_space << '\n';
     _num_layers = topology.size();
 
-    _data = AlignedArray<float, 32>(required_space);
+    if (_num_layers == 0) {
+        return;
+    }
 
-    auto layer_start = &_data[0];
+    _data = AlignedArray<float, 32>(required_space);
+    auto layer_start = _writeNetworkHeader(&_data[0], topology[0]);
+
     size_t num_node_inputs = 1;
-    for (size_t i = 0; i < topology.size(); i++) {
+    for (size_t i = 0; i < _num_layers; i++) {
         auto num_nodes_in_layer = topology[i];
 
         layer_start = _writeLayerHeader(layer_start, num_nodes_in_layer, num_node_inputs);
@@ -56,8 +61,22 @@ float * Network4::_writeLayerHeader(float * start, size_t num_nodes, size_t num_
     return end;
 }
 
+float * Network4::_writeNetworkHeader(float * start, size_t num_inputs) {
+    size_t inputs_size = padSizeToAlignment(num_inputs, 32);
+
+    start[0] = NETWORK_HEADER_SIZE;
+    start[1] = num_inputs;
+    start[2] = inputs_size;
+    start[3] = NETWORK_HEADER_SIZE;
+
+    return start + NETWORK_HEADER_SIZE + inputs_size;
+}
+
 size_t Network4::_getRequiredSpace(const std::vector<size_t> & topology) {
     size_t required_space = 0;
+    if (topology.size() > 0) {
+        required_space += topology[0];
+    }
 
     size_t num_node_inputs = 1;
     for (size_t i = 0; i < topology.size(); i++) {
@@ -87,9 +106,16 @@ inline LayerHeader Network4::_readLayerHeader(float * start) {
     return { (size_t) start[0], (size_t) start[1], (size_t) start[2], (size_t) start[3] , (size_t) start[4] , (size_t) start[5]};
 }
 
+inline NetworkHeader Network4::_readNetworkHeader(float * start) {
+    return { (size_t) start[0], (size_t) start[1], (size_t) start[2], (size_t) start[3] };
+}
+
 void Network4::setWeights(const std::vector<std::vector<std::vector<float>>> & weights) {
     float * layerStart = &_data[0];
     float * dataEnd = &_data[_data.size() - 1];
+
+    auto net_header = _readNetworkHeader(layerStart);
+    layerStart += net_header.size + net_header.input_block_size;
 
     size_t i = 0;
     while (layerStart < dataEnd) {
@@ -117,6 +143,9 @@ std::vector<std::vector<std::vector<float>>> Network4::getWeights() {
     std::vector<std::vector<std::vector<float>>> weights;
     float * layerStart = &_data[0];
     float * dataEnd = &_data[_data.size() - 1];
+
+    auto net_header = _readNetworkHeader(layerStart);
+    layerStart += net_header.size + net_header.input_block_size;
 
     size_t i = 0;
     while (layerStart < dataEnd) {
@@ -151,6 +180,9 @@ size_t Network4::getNumNodes() {
     float * layerStart = &_data[0];
     float * dataEnd = &_data[_data.size() - 1];
 
+    auto net_header = _readNetworkHeader(layerStart);
+    layerStart += net_header.size + net_header.input_block_size;
+
     while (layerStart < dataEnd) {
         auto header = _readLayerHeader(layerStart);
         total += header.num_nodes;
@@ -165,6 +197,9 @@ size_t Network4::getNumWeights() {
     float * layerStart = &_data[0];
     float * dataEnd = &_data[_data.size() - 1];
 
+    auto net_header = _readNetworkHeader(layerStart);
+    layerStart += net_header.size + net_header.input_block_size;
+
     while (layerStart < dataEnd) {
         auto header = _readLayerHeader(layerStart);
         total += header.num_nodes * header.num_node_weights;
@@ -173,21 +208,33 @@ size_t Network4::getNumWeights() {
     return total;
 }
 
+void Network4::setInputs(const std::vector<float> inputs) {
+    auto net_header = _readNetworkHeader(&_data[0]);
+
+    if (net_header.num_inputs != inputs.size()) {
+        throw std::out_of_range("Wrong number of inputs (" + std::to_string(inputs.size()) + ") passed to evaluate. Expecting " + std::to_string( net_header.num_inputs ));
+    }
+
+    float * net_inputs = &_data[0] + net_header.input_offset;
+    std::copy(&inputs[0], &inputs[0] + inputs.size(), net_inputs);
+}
+
 // TODO: Refactor this......
-float Network4::evaluate(const AlignedArray<float, 32> & inputs) {
+float Network4::evaluate() {
     float * layerStart = &_data[0];
     float * dataEnd = &_data[_data.size() - 1];
 
-    const float * layer_inputs = &inputs[0];
+    auto net_header = _readNetworkHeader(layerStart);
+
+    float * layer_inputs = layerStart + net_header.input_offset;
+
+    layerStart += net_header.size + net_header.input_block_size;
 
     // TODO: Refactor first time special case
     auto header = _readLayerHeader(layerStart);
     float * layer_outputs = layerStart + header.output_offset;
 
-    if (header.num_nodes != inputs.size()) {
-        throw std::out_of_range("Wrong number of inputs (" + std::to_string(inputs.size()) + ") passed to evaluate. Expecting " + std::to_string( header.num_nodes ));
-    }
-    for (size_t i = 0; i < inputs.size(); i++) {
+    for (size_t i = 0; i < net_header.num_inputs; i++) {
         float output = layerStart[header.size + (header.node_size * i)] * layer_inputs[i];
         output = _applySigmoid(output);
         layer_outputs[i] = output;
