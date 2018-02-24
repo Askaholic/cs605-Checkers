@@ -30,7 +30,6 @@ Network4::Network4(const std::vector<size_t> & topology) {
     _num_layers = topology.size();
 
     _data = AlignedArray<float, 32>(required_space);
-    _data.fill(0);
 
     auto layer_start = &_data[0];
     size_t num_node_inputs = 1;
