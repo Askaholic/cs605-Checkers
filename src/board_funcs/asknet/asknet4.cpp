@@ -214,6 +214,21 @@ inline float horizontal_add (__m256 a) {
     return _mm_cvtss_f32(t4);
 }
 
+static int maskTable[8][8] = {
+    {0, 0, 0, 0, 0, 0, 0, 0},
+    {-1, 0, 0, 0, 0, 0, 0, 0},
+    {-1, -1, 0, 0, 0, 0, 0, 0},
+    {-1, -1, -1, 0, 0, 0, 0, 0},
+    {-1, -1, -1, -1, 0, 0, 0, 0},
+    {-1, -1, -1, -1, -1, 0, 0, 0},
+    {-1, -1, -1, -1, -1, -1, 0, 0},
+    {-1, -1, -1, -1, -1, -1, -1, 0}
+};
+inline __m256 remove_overflow(__m256 a, int amount) {
+    __m256 mask_ = _mm256_load_ps((float *)&maskTable[amount]);
+    return _mm256_and_ps(a, mask_);
+}
+
 inline void Network4::_evaluateLayer(float * layer_start, LayerHeader & header, const float * inputs, float * outputs) {
     size_t node_size = header.node_size;
     size_t num_weights = header.num_node_weights;
@@ -226,6 +241,9 @@ inline void Network4::_evaluateLayer(float * layer_start, LayerHeader & header, 
             __m256 sse_in = _mm256_load_ps(&inputs[k]);
             __m256 sse_wt = _mm256_load_ps(&layer_start[layer_start_index]);
             __m256 sse_out = _mm256_mul_ps(sse_in, sse_wt);
+            if(k + 8 > num_weights) {
+                sse_out = remove_overflow(sse_out, num_weights - k);
+            }
             node_output += horizontal_add(sse_out);
         }
         node_output = _applySigmoid(node_output);
