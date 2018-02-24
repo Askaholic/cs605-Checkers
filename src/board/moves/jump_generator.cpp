@@ -5,7 +5,10 @@
 // Jump generator implementation
 
 #include "board_funcs.h"
+#include "board_state.h"
+#include "jump_generator.h"
 #include "jump_table.h"
+#include <stdexcept>
 #include <vector>
 
 std::vector<Jump> get_jumps_from_table(size_t index, const BoardState & board, int player);

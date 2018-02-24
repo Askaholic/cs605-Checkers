@@ -7,9 +7,7 @@
 #ifndef PY_BOARD_FUNCS_H
 #define PY_BOARD_FUNCS_H
 
-#include "search.h"
 #include "board_state.h"
-#include "jump_generator.h"
 #include <vector>
 
 

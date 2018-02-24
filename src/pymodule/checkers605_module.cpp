@@ -5,6 +5,7 @@
 // Python module exports for C++ functions
 
 #include "board_funcs.h"
+#include "search.h"
 #include <Python.h>
 #include <chrono>
 #include <iostream>
