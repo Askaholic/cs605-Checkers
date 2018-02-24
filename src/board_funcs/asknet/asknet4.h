@@ -15,8 +15,16 @@
 
 
 /* Size of the header block for each Layer (in bytes) */
-#define LAYER_HEADER_SIZE 32;
+#define LAYER_HEADER_SIZE 32
+#define NETWORK_HEADER_SIZE 32
 
+
+struct NetworkHeader {
+    size_t size;
+    size_t num_inputs;
+    size_t input_block_size;
+    size_t input_offset;
+};
 
 struct LayerHeader {
     size_t size;
@@ -38,7 +46,9 @@ private:
     size_t _getLayerRequiredSpace(size_t num_nodes, size_t num_node_weights);
     size_t _getNodeRequiredSpace(size_t num_weights);
     float * _writeLayerHeader(float * start, size_t num_nodes, size_t num_node_weights);
+    float * _writeNetworkHeader(float * start, size_t num_inputs);
     LayerHeader _readLayerHeader(float * start);
+    NetworkHeader _readNetworkHeader(float * start);
     void _evaluateLayer(float * start, LayerHeader & header, const float * inputs, float * outputs);
     float _applySigmoid(float);
 
@@ -47,7 +57,8 @@ public:
     Network4 (const std::vector<size_t> & topology);
     void setWeights(const std::vector<std::vector<std::vector<float>>> & weights);
     std::vector<std::vector<std::vector<float>>> getWeights();
-    float evaluate(const AlignedArray<float, 32> & inputs);
+    void setInputs(const std::vector<float> inputs);
+    float evaluate();
     const AlignedArray<float, 32> & getData() { return _data; }
     size_t getNumNodes();
     size_t getNumWeights();

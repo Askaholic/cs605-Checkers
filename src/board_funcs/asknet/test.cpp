@@ -46,12 +46,11 @@ long time_network(Network4 & net, const std::string & name, const std::vector<fl
     std::cout << "Network " << name << " size: " << net.getNumNodes() << " nodes" << '\n';
 
     float result;
-    AlignedArray<float, 32> aligned_inputs(inputs);
-    aligned_inputs.setOverflow(0);
+    net.setInputs(inputs);
 
     auto start = std::chrono::high_resolution_clock::now();
     for (size_t i = 0; i < iterations; i++) {
-        result = net.evaluate(aligned_inputs);
+        result = net.evaluate();
     }
     auto end = std::chrono::high_resolution_clock::now();
     auto elapsed = ((std::chrono::nanoseconds)(end - start)).count();
