@@ -1,6 +1,6 @@
 # Compiler options
 CC=g++
-CFLAGS=-c -Wall --std=c++14 -Isrc/board_funcs -Isrc/board_funcs/asknet
+CFLAGS=-c -Wall --std=c++14 -Isrc/board_funcs -Isrc/asknet -Isrc/board -I src/board/moves -Isrc/search
 LDFLAGS=
 EXECUTABLE_NAME=test
 
@@ -13,11 +13,11 @@ SOURCE_FILES=\
 	test/test.cpp \
 	test/catch_main.cpp \
 	src/board_funcs/board_funcs.cpp \
-	src/board_funcs/board_state.cpp \
+	src/board/board_state.cpp \
 	src/board_funcs/helpers.cpp \
-	src/board_funcs/jump_table.cpp \
-	src/board_funcs/jump_generator.cpp \
-	src/board_funcs/asknet/asknet.cpp
+	src/board/moves/jump_table.cpp \
+	src/board/moves/jump_generator.cpp \
+	src/asknet/asknet.cpp
 
 
 EXECUTABLE_FILES = $(EXECUTABLE_NAME:%=$(BIN)/%)

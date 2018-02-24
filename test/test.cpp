@@ -6,7 +6,7 @@
 // your path when compiling this file
 
 #include "catch.hpp"
-#include "board_funcs.h"
+#include "jump_generator.h"
 #include <memory>
 #include <vector>
 #include <string>
