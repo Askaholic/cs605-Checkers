@@ -4,9 +4,12 @@
 
 // Minimax search using in place alocation
 
+#include "search.h"
 #include "board_funcs.h"
-
-#define BRANCH_FACTOR 32
+#include <cstddef>
+#include <exception>
+#include <iostream>
+#include <vector>
 
 struct SearchNode {
     BoardState board;
