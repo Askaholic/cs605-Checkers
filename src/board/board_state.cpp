@@ -4,10 +4,11 @@
 
 // Implementation of BoardState data structures
 
+#include "board_state.h"
 #include <stdexcept>
 #include <string>
 #include <typeinfo>
-#include "board_funcs.h"
+
 
 BoardState::BoardState(const BoardState & board) {
     // if (&board == nullptr || &board == 0) {

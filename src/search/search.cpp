@@ -4,6 +4,9 @@
 
 // Implementation for searching functions
 
+#include "search.h"
+#include "board_state.h"
+#include "piece_count.h"
 #include "board_funcs.h"
 #include "math.h"
 #include <iostream>
@@ -12,6 +15,7 @@
 #include <stdexcept>
 #include <string>
 #include <utility>
+#include <vector>
 
 void min_max_search_helper(std::pair<std::unique_ptr<BoardState>, int> &, const BoardState & board, int player, int depth);
 void min_max_search_helper_ab(std::pair<BoardState, int> &, const BoardState & board, int player, int depth, int alpha, int beta);

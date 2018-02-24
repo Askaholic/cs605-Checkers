@@ -108,38 +108,6 @@ void _set_targets(char * targets, int player) {
     }
 }
 
-float piece_count(const BoardState &board, int player) {
-    char targets[2];
-
-    float piece_val = 1;
-    float king_val = 1.5;
-
-    const char piece = player == RED_PLAYER ? RED_CHECKER : BLACK_CHECKER;
-    const char king = player == RED_PLAYER ? RED_KING : BLACK_KING;
-
-    const char enemy_piece = player == RED_PLAYER ? BLACK_CHECKER : RED_CHECKER;
-    const char enemy_king = player == RED_PLAYER ? BLACK_KING : RED_KING;
-
-    float count = 0;
-
-    for (size_t b_loc = 0; b_loc < BOARD_ELEMENTS; b_loc++) {
-        auto current_piece = board[b_loc];
-        if (current_piece == piece) {
-            count += piece_val;
-        }
-        else if (current_piece == king) {
-            count += king_val;
-        }
-        else if (current_piece == enemy_piece) {
-            count -= piece_val;
-        }
-        else if (current_piece == enemy_king) {
-            count -= king_val;
-        }
-    }
-
-    return count;
-}
 
 std::vector<Move> get_possible_moves(const BoardState &board, int player) {
     std::vector<Move> moves;
@@ -222,54 +190,6 @@ void get_possible_jumps_for_piece(std::vector<Jump> & jumps, const BoardState & 
 
         if (is_valid_jump(board, poss_jump, player)) {
             jumps.push_back(poss_jump);
-        }
-    }
-}
-
-void get_possible_jump_boards(std::vector<BoardState> & currJumps, const BoardState &board, int player) {
-    char targets[2];
-    _set_targets(targets, player);
-
-    for (size_t b_loc = 0; b_loc < BOARD_ELEMENTS; b_loc++) {
-        auto current_piece = board[b_loc];
-        // Skip squares that don't have the correct color checker
-        if (!in_<char>(targets, 2, current_piece)) {
-            continue;
-        }
-
-        auto possible_jump = jumpTable[b_loc];
-        size_t start = 0;
-        size_t end = possible_jump.size();
-
-        // Grab only the north direction
-        if (current_piece == BLACK_CHECKER) {
-            end -= 2;
-        }
-        // grab only the south direction
-        else if (current_piece == RED_CHECKER) {
-            start += 2;
-        }
-
-        for (auto ii = start; ii < end; ii++) {
-            auto jump = possible_jump[ii];
-            if (jump[0] == -1) { continue; }
-
-            Jump poss_jump = {b_loc, jump[0], jump[1]};
-
-            if (is_valid_jump(board, poss_jump, player)) {
-                BoardState board_with_jump = BoardState(board);
-                board_with_jump.apply_jump(poss_jump);
-
-                // Very wastefull check if there are more available jumps
-                std::vector<Jump> nextJumps;
-                get_possible_jumps_for_piece(nextJumps, board_with_jump, b_loc, player);
-                if (nextJumps.size() == 0) {
-                    currJumps.push_back(board_with_jump);
-                }
-                else {
-                    get_possible_jump_boards(currJumps, board_with_jump, player);
-                }
-            }
         }
     }
 }
