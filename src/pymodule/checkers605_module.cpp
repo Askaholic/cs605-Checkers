@@ -4,12 +4,12 @@
 
 // Python module exports for C++ functions
 
+#include "board_funcs.h"
 #include <Python.h>
 #include <chrono>
+#include <iostream>
 #include <string>
-#include <string.h>
-#include <exception>
-#include "board_funcs.h"
+#include <stdexcept>
 
 
 /****************************************************************/

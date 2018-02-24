@@ -9,12 +9,8 @@
 
 #include "search.h"
 #include "board_state.h"
-#include <cstddef>
+#include "jump_generator.h"
 #include <vector>
-#include <iostream>
-#include <memory>
-#include <utility>
-#include <string>
 
 
 
@@ -25,24 +21,6 @@ private:
 public:
 };
 
-class JumpGenerator {
-private:
-    /* data */
-    char _checker;
-    char _king;
-    int _player;
-    void _append_jumps_for_piece(std::vector<BoardState> & jumps, const BoardState & board, size_t index);
-    void _do_multi_jump(std::vector<BoardState> & jumps, const BoardState & board, size_t index, std::vector<Jump> & table_jumps);
-    bool _is_players_piece(char piece);
-
-
-public:
-    JumpGenerator () {}
-
-    std::vector<BoardState> get_possible_jumps(const BoardState & board, int player);
-
-    virtual ~JumpGenerator () {}
-};
 
 void setup_board();
 void setup_network();
