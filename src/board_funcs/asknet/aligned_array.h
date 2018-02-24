@@ -11,7 +11,6 @@
 #include <cstddef>
 #include <memory>
 #include <utility>
-#include <vector>
 
 template <typename T, size_t A>
 class AlignedArray {
