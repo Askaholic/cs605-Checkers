@@ -9,6 +9,7 @@
 #include "jump_generator.h"
 #include "search.h"
 #include <cstdlib>
+#include <ctime>
 #include <iostream>
 #include <vector>
 
@@ -29,7 +30,9 @@ private:
     JumpGenerator gen;
 
 public:
-    RandomPlayer(int color):Player(color) {}
+    RandomPlayer(int color):Player(color) {
+        std::srand(std::time(nullptr));
+    }
 
     BoardState takeMove(const BoardState & board) override {
         auto jumps = gen.get_possible_jumps(board, _color_id);
