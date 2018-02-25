@@ -18,8 +18,8 @@
 class Game {
 private:
     BoardState _board;
-    const Player &_redPlayer;
-    const Player &_blackPlayer;
+    Player &_redPlayer;
+    Player &_blackPlayer;
     int _current_turn_player;
 
     int _turn_count;
@@ -29,7 +29,7 @@ private:
     void _endTurn();
 
 public:
-    Game(const Player & red, const Player & black);
+    Game(Player & red, Player & black);
 
     const BoardState & getBoard() const { return _board; }
     int getTurnCount() const { return _turn_count; }

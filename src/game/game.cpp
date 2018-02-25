@@ -9,7 +9,7 @@
 #include "game.h"
 
 
-Game::Game(const Player & red, const Player & black):
+Game::Game(Player & red, Player & black):
     _redPlayer(red),
     _blackPlayer(black) {
     reset();
@@ -29,7 +29,7 @@ void Game::playTurn() {
         return;
     }
 
-    const Player & player = _current_turn_player == RED_PLAYER ? _redPlayer : _blackPlayer;
+    Player & player = _current_turn_player == RED_PLAYER ? _redPlayer : _blackPlayer;
 
     BoardState newBoard = player.takeMove(_board);
 

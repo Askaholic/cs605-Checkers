@@ -36,7 +36,7 @@ public:
      * If the player has no moves left to make (aka. they've lost), then it just
      * returns a copy of board.
      */
-    virtual BoardState takeMove(const BoardState & board) const = 0;
+    virtual BoardState takeMove(const BoardState & board) = 0;
 };
 
 #endif
