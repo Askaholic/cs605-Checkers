@@ -37,6 +37,9 @@ public:
      * returns a copy of board.
      */
     virtual BoardState takeMove(const BoardState & board) = 0;
+
+    virtual ~Player ();
+
 };
 
 #endif
