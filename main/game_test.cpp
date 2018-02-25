@@ -7,7 +7,8 @@
 #include "game.h"
 #include "board_funcs.h"
 #include "jump_generator.h"
-#include "cstdlib"
+#include "search.h"
+#include <cstdlib>
 #include <iostream>
 #include <vector>
 
@@ -48,6 +49,19 @@ public:
     }
 };
 
+class PieceCountPlayer : public Player{
+private:
+    /* data */
+
+public:
+    PieceCountPlayer (int color):Player(color) {}
+
+    BoardState takeMove(const BoardState & board) override {
+        auto result = min_max_search_inplace(board, _color_id, 4);
+        return result.first;
+    }
+};
+
 int main(int argc, char const *argv[]) {
     bool pause_between_moves = false;
     if (argc > 1) {
@@ -55,7 +69,7 @@ int main(int argc, char const *argv[]) {
     }
 
     RandomPlayer p1(RED_PLAYER);
-    RandomPlayer p2(BLACK_PLAYER);
+    PieceCountPlayer p2(BLACK_PLAYER);
 
     Game game(p1, p2);
 
