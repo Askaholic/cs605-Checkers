@@ -15,10 +15,18 @@
  * Abstract base class for player object.
  */
 class Player {
-private:
-    /* data */
+protected:
+    int _color_id;
 
 public:
+
+    /* Constructor
+     *
+     * Takes the player color designation. Either RED_PLAYER or BLACK_PLAYER.
+     */
+    Player(int player):_color_id(player) {}
+
+
     /* takeMove
      *
      * Takes a current BoardState and decides which move the player wants to make.
