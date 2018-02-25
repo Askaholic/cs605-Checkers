@@ -32,6 +32,7 @@ float evaluate_board(const BoardState &board);
 
 
 
+void print_board(const BoardState & board);
 
 
 

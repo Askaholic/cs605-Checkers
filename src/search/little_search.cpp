@@ -98,22 +98,11 @@ public:
                 search_mem[index].board = jumps[i];
                 search_mem[index].score = 0.0f;
                 search_mem[index].best_score_index = 0;
-
-                // std::cout << "Trying jump..." << '\n';
-                // printBoard(search_mem[index].board);
-                // std::cout << "score of this board: " << piece_count(search_mem[index].board, player) << '\n';
             }
             return;
         }
         auto moves = get_possible_moves(board, player);
-        // std::cout << "Got " << moves.size() << " possible moves at depth " <<curr_depth << '\n';
 
-        if (moves.size() == 0) {
-            std::cout << "No move board found!!!" << '\n';
-            std::cout << "current_depth " << curr_depth << '\n';
-            std::cout << "indecies[curr_depth] " << indecies[curr_depth] << '\n';
-            printBoard(board);
-        }
         moves_size[curr_depth + 1] = moves.size();
         if (moves.size() > max_branch_factor) {
             max_branch_factor = jumps.size();
@@ -142,15 +131,11 @@ public:
         return piece_count(board, player);
     }
 
-    float evaluateLeaves(size_t * moves_size, int player) {
+    void evaluateLeaves(size_t * moves_size, int player) {
         for (size_t i = 0; i < moves_size[curr_depth]; i++) {
             tree_nodes++;
             auto index = ((curr_depth) *  branch_factor) + i;
             auto score = evaluateLeaf(search_mem[index].board, player);
-
-            // std::cout << "Evaluating leaf: " << score << '\n';
-            // std::cout << "moves_size[curr_depth] = " << moves_size[curr_depth]  << '\n';
-            // printBoard(search_mem[index].board);
             search_mem[index].score = score;
         }
     }
@@ -174,11 +159,9 @@ public:
             else {
                 expandChildren(indecies, moves_size, player);
             }
-            // std::cout << "Done processing moves" << '\n';
-            // If we're not at a leaf, evaluate at the next depth
 
+            // If we're not at a leaf, evaluate at the next depth
             if (curr_depth < depth) {
-                // std::cout << "inc depth" << '\n';
                 curr_depth++;
                 indecies[curr_depth] = 0;
             }
@@ -212,13 +195,10 @@ public:
                     }
 
                     curr_depth--;
-                    // std::cout << " indecies[curr_depth] = " << indecies[curr_depth] << '\n';
-                    // std::cout << " moves_size[curr_depth] = " << moves_size[curr_depth] << '\n';
 
                     auto index = ((curr_depth) *  branch_factor) + indecies[curr_depth];
 
                     // Set this best score to the score of the parent node
-                    // std::cout << "Setting index: "<< index << " to " << best << '\n';
                     search_mem[index].score = best;
                     search_mem[index].best_score_index = best_index;
 
@@ -233,9 +213,6 @@ public:
         }
 
         auto best_index = BRANCH_FACTOR + search_mem[0].best_score_index;
-        std::cout << "best_index: " << best_index << '\n';
-        std::cout << "Tree nodes: " << tree_nodes << '\n';
-        printBoard(search_mem[best_index].board);
         return std::make_pair(BoardState(search_mem[best_index].board), search_mem[0].score);
     }
 };
@@ -249,8 +226,5 @@ std::pair<BoardState, float> min_max_search_inplace(const BoardState & board, in
     }
 
     MinMaxSearch s_helper;
-    auto ret = s_helper.search(board, player, depth);
-    std::cout << "about to return: " << '\n';
-    s_helper.printBoard(ret.first);
-    return ret;
+    return s_helper.search(board, player, depth);
 }

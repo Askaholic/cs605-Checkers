@@ -42,3 +42,30 @@ bool is_valid_index(const int index) {
         return false;
     return true;
 }
+
+void print_board(const BoardState & board) {
+
+    bool odd = false;
+    for (size_t i = 0; i < 32; i++) {
+        auto piece = board[i];
+        char next = '.';
+        switch (piece) {
+            case RED_CHECKER: next='r'; break;
+            case BLACK_CHECKER: next='b'; break;
+            case RED_KING: next='R'; break;
+            case BLACK_KING: next='B'; break;
+            default: next='.'; break;
+        }
+        if (i % 4 == 0 and i != 0) {
+            odd = !odd;
+            std::cout << '\n';
+        }
+        if (!odd) {
+            std::cout << " " << next;
+        }
+        else {
+            std::cout << next << " ";
+        }
+    }
+    std::cout << '\n';
+}

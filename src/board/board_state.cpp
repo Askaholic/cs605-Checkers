@@ -104,10 +104,10 @@ void BoardState::apply_jump(const Jump jump){
 
 void BoardState::make_king(const int to){
     auto piece = (*this)[to];
-    if (in_<int>(red_king_end,4,to) && piece == RED_CHECKER){
+    if (in_<int>(red_king_end, 4, to) && piece == RED_CHECKER){
         set(to, RED_KING);
     }
-    if (in_<int>(black_king_end,4,piece) && piece == BLACK_CHECKER){
+    if (in_<int>(black_king_end, 4, to) && piece == BLACK_CHECKER){
         set(to, BLACK_KING);
     }
 }

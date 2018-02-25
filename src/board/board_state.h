@@ -29,7 +29,7 @@
 
 
 const int red_king_end[] = {28, 29, 30, 31};
-const int black_king_end[] = {12, 13, 14, 15};
+const int black_king_end[] = {0, 1, 2, 3};
 
 
 struct Move {
