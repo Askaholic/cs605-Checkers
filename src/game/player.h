@@ -38,7 +38,7 @@ public:
      */
     virtual BoardState takeMove(const BoardState & board) = 0;
 
-    virtual ~Player ();
+    virtual ~Player() = default; 
 
 };
 
