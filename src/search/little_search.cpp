@@ -131,7 +131,7 @@ public:
         return piece_count(board, player);
     }
 
-    float evaluateLeaves(size_t * moves_size, int player) {
+    void evaluateLeaves(size_t * moves_size, int player) {
         for (size_t i = 0; i < moves_size[curr_depth]; i++) {
             tree_nodes++;
             auto index = ((curr_depth) *  branch_factor) + i;
