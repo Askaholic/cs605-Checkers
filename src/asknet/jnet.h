@@ -1,13 +1,13 @@
-// asknet4.h
-// Rohan Weeden
-// Created: Feb. 13, 2018
+// jnet.h
+// Jacob McKenna
+// Created: Feb. 25, 2018
 
-// The 4th iteration of AskNet. This iteration aims to Allocate all of the
+// The first iteration of jent, based off AskNet. This iteration aims to Allocate all of the
 // Memory for the entire network in one contiguous chunk, for increased
-// cache performance.
+// cache performance while implementing the evolutionary features of a NN. 
 
-#ifndef ASK_NET4_h
-#define ASK_NET4_h
+#ifndef J_NET_h
+#define J_NET_h
 
 #include "aligned_array.h"
 #include <vector>
@@ -38,8 +38,9 @@ struct LayerHeader {
 /*
  * Network class.
 */
-class Network4 {
+class JNet {
 private:
+    float king_val = 1.4; // Init value based off of Dr. Genetti rec.
     AlignedArray<float, 32> _data;
     size_t _num_layers;
     size_t _getRequiredSpace(const std::vector<size_t> & topology);
@@ -54,7 +55,7 @@ private:
 
 
 public:
-    Network4 (const std::vector<size_t> & topology);
+    JNet (const std::vector<size_t> & topology);
     void setWeights(const std::vector<std::vector<std::vector<float>>> & weights);
     std::vector<std::vector<std::vector<float>>> getWeights();
     void setInputs(const std::vector<float> inputs);
@@ -62,6 +63,12 @@ public:
     const AlignedArray<float, 32> & getData() { return _data; }
     size_t getNumNodes();
     size_t getNumWeights();
+
+    void writeNNToFile();
+    void readFileToNN();
+    void randomizeWeights();
+
+
 };
 
 #endif
