@@ -117,6 +117,8 @@ void test_topology(const std::vector<size_t> & topology, size_t NUM_TESTS) {
 
     jnet.writeNNToFile();
     jnet.readFileToNN();
+    jnet.evolveKing();
+    jnet.writeNNToFile();
 }
 
 int main() {

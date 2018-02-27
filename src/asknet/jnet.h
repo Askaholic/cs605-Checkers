@@ -65,6 +65,7 @@ public:
     size_t getNumNodes();
     size_t getNumWeights();
 
+    void evolveKing();
     void writeNNToFile();
     void readFileToNN();
     void randomizeWeights();

@@ -416,3 +416,13 @@ float JNet::computeTau(const float & n){
 
 //     return child;
 // }
+
+
+void JNet::evolveKing(){
+
+    std::random_device rd;
+    std::mt19937 engine(rd());
+    std::uniform_real_distribution<float> dist(-0.1, 0.1);
+    _kingVal = _kingVal + dist(engine);
+    
+}
