@@ -40,6 +40,10 @@ JNet::JNet(const std::vector<size_t> & topology) {
     _sigmas = AlignedArray<float, 32>(_data.size());
     auto layer_start = _writeNetworkHeader(&_data[0], topology[0]);
 
+    for(int ii = 0; ii < _sigmas.size(); ii++){
+        _sigmas[ii] = 0.5;
+    }
+
     size_t num_node_inputs = 1;
     for (size_t i = 0; i < _num_layers; i++) {
         auto num_nodes_in_layer = topology[i];
@@ -113,7 +117,7 @@ inline NetworkHeader JNet::_readNetworkHeader(float * start) {
     return { (size_t) start[0], (size_t) start[1], (size_t) start[2], (size_t) start[3] };
 }
 
-void JNet::setWeightsAndSigmas(const std::vector<std::vector<std::vector<float>>> & weights) {
+void JNet::setWeights(const std::vector<std::vector<std::vector<float>>> & weights) {
     float * layerStart = &_data[0];
     float * dataEnd = &_data[_data.size() - 1];
 
@@ -134,7 +138,7 @@ void JNet::setWeightsAndSigmas(const std::vector<std::vector<std::vector<float>>
                 throw std::out_of_range("Wrong number of weights (" + std::to_string(weights[i][j].size()) + ") passed to setWeights. Layer (" + std::to_string(i) + "), Node (" + std::to_string(j) + ")" );
             }
             for (size_t k = 0; k < header.num_node_weights; k++) {
-                layerStart[header.size + (header.node_size * j) + k] = weights[i][j][k]; 
+                layerStart[header.size + (header.node_size * j) + k] = weights[i][j][k];
             }
         }
         layerStart += header.layer_size;
@@ -323,7 +327,11 @@ void JNet::writeNNToFile(){
         nnf << _data[ii] << " ";
     }
 
+    for(size_t ii = 0; ii < _sigmas.size(); ii++){
+        nnf << _sigmas[ii] << " ";
+    }
 
+    nnf << _kingVal << " ";
     nnf.close();
 }
 
@@ -348,10 +356,23 @@ void JNet::readFileToNN(){
         std::istringstream iss(line);
         iss >> readFloat;
         _data[ii] = readFloat;
+        std::cout << _data[ii] << std::endl;
     }
 
+    for(int ii = 0; ii < size; ii++){
+        std::getline(nnf, line, ' ');
+        std::istringstream iss(line);
+        iss >> readFloat;
+        _sigmas[ii] = readFloat;
 
+        std::cout << _sigmas[ii] << std::endl;
+    }
 
+    std::getline(nnf, line, ' ');
+    std::istringstream is(line);
+    is >> readFloat;
+    _kingVal = readFloat;
+    std::cout << _kingVal << std::endl;
     nnf.close();
 
 }

@@ -40,7 +40,7 @@ struct LayerHeader {
 */
 class JNet {
 private:
-    float king_val = 1.4; // Init value based off of Dr. Genetti rec.
+    float _kingVal = 1.4; // Init value based off of Dr. Genetti rec.
     AlignedArray<float, 32> _data;
     AlignedArray<float, 32> _sigmas;
     size_t _num_layers;
@@ -57,7 +57,7 @@ private:
 
 public:
     JNet (const std::vector<size_t> & topology);
-    void setWeightsAndSigmas(const std::vector<std::vector<std::vector<float>>> & weights);
+    void setWeights(const std::vector<std::vector<std::vector<float>>> & weights);
     std::vector<std::vector<std::vector<float>>> getWeights();
     void setInputs(const std::vector<float> inputs);
     float evaluate();

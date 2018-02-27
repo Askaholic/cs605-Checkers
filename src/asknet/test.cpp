@@ -97,8 +97,8 @@ void test_topology(const std::vector<size_t> & topology, size_t NUM_TESTS) {
     // net4.setWeights(weights);
 
     JNet jnet(topology);
-    // jnet.setWeights(weights);
-    jnet.randomizeWeights();
+    jnet.setWeights(weights);
+    // jnet.randomizeWeights();
 
 
     std::vector<float> inputs(topology[0], 0.1f);
