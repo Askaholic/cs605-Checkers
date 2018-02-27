@@ -97,7 +97,8 @@ void test_topology(const std::vector<size_t> & topology, size_t NUM_TESTS) {
     // net4.setWeights(weights);
 
     JNet jnet(topology);
-    jnet.setWeights(weights);
+    // jnet.setWeights(weights);
+    jnet.randomizeWeights();
 
 
     std::vector<float> inputs(topology[0], 0.1f);
@@ -114,6 +115,8 @@ void test_topology(const std::vector<size_t> & topology, size_t NUM_TESTS) {
     elapsed = time_network(jnet, "(jnet)", inputs, NUM_TESTS);
     std::cout << 1000000000.0 * NUM_TESTS / (double) elapsed << " eval / second\n" << '\n';
 
+    jnet.writeNNToFile();
+    jnet.readFileToNN();
 }
 
 int main() {

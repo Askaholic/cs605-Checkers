@@ -14,6 +14,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <fstream>
+#include <sstream>
 #include <string>
 #include <random>
 
@@ -304,6 +305,11 @@ inline float JNet::_applySigmoid(float num) {
 }
 
 
+
+
+
+
+
 void JNet::writeNNToFile(){
 
     std::ofstream nnf;
@@ -314,15 +320,38 @@ void JNet::writeNNToFile(){
         nnf << _data[ii] << " ";
     }
 
+    nnf << _king_val << " ";
+
     nnf.close();
 
 }
 
 void JNet::readFileToNN(){
 
-    std::ofstream nnf;
+    std::fstream nnf;
+    std::string line;
     nnf.open("nnfile.txt");
+    std::cout << "REALLY"<< std::endl;
+    
 
+    int ii = 0;
+    float my_float;
+    while(std::getline(nnf, line, ' ')){
+        std::istringstream iss(line);
+
+
+        if (line == "king:")
+            _king_val = 
+        _data[ii] = my_float;
+
+
+
+        ++ii;
+    }
+
+    for(size_t ii = 0; ii < _data.size(); ii++){
+        std::cout << _data.size() << " ";
+    }
 
     nnf.close();
 
@@ -343,17 +372,8 @@ void JNet::randomizeWeights() {
 
     size_t i = 0;
     while (layerStart < dataEnd) {
-        if (! (i < weights.size())) {
-            throw std::out_of_range("Wrong number of layers (" + std::to_string(weights.size()) + ") passed to setWeights" );
-        }
         auto header = _readLayerHeader(layerStart);
-        if (weights[i].size() != header.num_nodes) {
-            throw std::out_of_range("Wrong number of nodes (" + std::to_string(weights[i].size()) + ") passed to setWeights. Layer (" + std::to_string(i) + ")" );
-        }
         for (size_t j = 0; j < header.num_nodes; j++) {
-            if (weights[i][j].size() != header.num_node_weights) {
-                throw std::out_of_range("Wrong number of weights (" + std::to_string(weights[i][j].size()) + ") passed to setWeights. Layer (" + std::to_string(i) + "), Node (" + std::to_string(j) + ")" );
-            }
             for (size_t k = 0; k < header.num_node_weights; k++) {
                 layerStart[header.size + (header.node_size * j) + k] = dist(engine);
             }

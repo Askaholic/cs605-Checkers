@@ -67,6 +67,7 @@ public:
     void writeNNToFile();
     void readFileToNN();
     void randomizeWeights();
+    JNet makeAChild();
 
 
 };
