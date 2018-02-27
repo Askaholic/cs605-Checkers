@@ -42,6 +42,7 @@ class JNet {
 private:
     float king_val = 1.4; // Init value based off of Dr. Genetti rec.
     AlignedArray<float, 32> _data;
+    AlignedArray<float, 32> _sigmas;
     size_t _num_layers;
     size_t _getRequiredSpace(const std::vector<size_t> & topology);
     size_t _getLayerRequiredSpace(size_t num_nodes, size_t num_node_weights);
@@ -56,7 +57,7 @@ private:
 
 public:
     JNet (const std::vector<size_t> & topology);
-    void setWeights(const std::vector<std::vector<std::vector<float>>> & weights);
+    void setWeightsAndSigmas(const std::vector<std::vector<std::vector<float>>> & weights);
     std::vector<std::vector<std::vector<float>>> getWeights();
     void setInputs(const std::vector<float> inputs);
     float evaluate();

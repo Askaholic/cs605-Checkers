@@ -37,6 +37,7 @@ JNet::JNet(const std::vector<size_t> & topology) {
     }
 
     _data = AlignedArray<float, 32>(required_space);
+    _sigmas = AlignedArray<float, 32>(_data.size());
     auto layer_start = _writeNetworkHeader(&_data[0], topology[0]);
 
     size_t num_node_inputs = 1;
@@ -112,7 +113,7 @@ inline NetworkHeader JNet::_readNetworkHeader(float * start) {
     return { (size_t) start[0], (size_t) start[1], (size_t) start[2], (size_t) start[3] };
 }
 
-void JNet::setWeights(const std::vector<std::vector<std::vector<float>>> & weights) {
+void JNet::setWeightsAndSigmas(const std::vector<std::vector<std::vector<float>>> & weights) {
     float * layerStart = &_data[0];
     float * dataEnd = &_data[_data.size() - 1];
 
@@ -133,7 +134,7 @@ void JNet::setWeights(const std::vector<std::vector<std::vector<float>>> & weigh
                 throw std::out_of_range("Wrong number of weights (" + std::to_string(weights[i][j].size()) + ") passed to setWeights. Layer (" + std::to_string(i) + "), Node (" + std::to_string(j) + ")" );
             }
             for (size_t k = 0; k < header.num_node_weights; k++) {
-                layerStart[header.size + (header.node_size * j) + k] = weights[i][j][k];
+                layerStart[header.size + (header.node_size * j) + k] = weights[i][j][k]; 
             }
         }
         layerStart += header.layer_size;
@@ -313,45 +314,43 @@ inline float JNet::_applySigmoid(float num) {
 void JNet::writeNNToFile(){
 
     std::ofstream nnf;
-    nnf.open("nnfile.txt", std::ios_base::binary | std::ofstream::trunc);
+    nnf.open("nnfile.txt");
 
+
+    nnf << _data.size() << " ";
 
     for(size_t ii = 0; ii < _data.size(); ii++){
         nnf << _data[ii] << " ";
     }
 
-    nnf << _king_val << " ";
 
     nnf.close();
-
 }
+
+
 
 void JNet::readFileToNN(){
 
     std::fstream nnf;
     std::string line;
     nnf.open("nnfile.txt");
-    std::cout << "REALLY"<< std::endl;
-    
+    float readFloat;
 
-    int ii = 0;
-    float my_float;
-    while(std::getline(nnf, line, ' ')){
+    // Size of _data structure. 
+    std::getline(nnf, line, ' ');
+    std::istringstream iss(line);
+    iss >> readFloat;
+
+    size_t size = readFloat;
+
+    for(int ii = 0; ii < size; ii++){
+        std::getline(nnf, line, ' ');
         std::istringstream iss(line);
-
-
-        if (line == "king:")
-            _king_val = 
-        _data[ii] = my_float;
-
-
-
-        ++ii;
+        iss >> readFloat;
+        _data[ii] = readFloat;
     }
 
-    for(size_t ii = 0; ii < _data.size(); ii++){
-        std::cout << _data.size() << " ";
-    }
+
 
     nnf.close();
 
@@ -383,3 +382,10 @@ void JNet::randomizeWeights() {
     }
     
 }
+
+// JNet JNet::makeAChild(){
+//     JNet child;
+
+
+//     return child;
+// }
