@@ -18,6 +18,7 @@
 #include <string>
 #include <random>
 
+
 size_t padSizeToAlignment(size_t size, size_t alignment) {
     auto overflow = size % alignment;
     if (overflow == 0) {
@@ -356,7 +357,7 @@ void JNet::readFileToNN(){
         std::istringstream iss(line);
         iss >> readFloat;
         _data[ii] = readFloat;
-        std::cout << _data[ii] << std::endl;
+        // std::cout << _data[ii] << std::endl;
     }
 
     for(int ii = 0; ii < size; ii++){
@@ -365,14 +366,14 @@ void JNet::readFileToNN(){
         iss >> readFloat;
         _sigmas[ii] = readFloat;
 
-        std::cout << _sigmas[ii] << std::endl;
+        // std::cout << _sigmas[ii] << std::endl;
     }
 
     std::getline(nnf, line, ' ');
     std::istringstream is(line);
     is >> readFloat;
     _kingVal = readFloat;
-    std::cout << _kingVal << std::endl;
+    // std::cout << _kingVal << std::endl;
     nnf.close();
 
 }
@@ -404,8 +405,13 @@ void JNet::randomizeWeights() {
     
 }
 
+float JNet::computeTau(const float & n){
+    return (1)/(sqrt(2*sqrt(n)));
+}
+
 // JNet JNet::makeAChild(){
 //     JNet child;
+
 
 
 //     return child;

@@ -69,6 +69,7 @@ public:
     void readFileToNN();
     void randomizeWeights();
     JNet makeAChild();
+    float computeTau(const float & n);
 
 
 };
