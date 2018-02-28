@@ -312,10 +312,6 @@ inline float JNet::_applySigmoid(float num) {
 
 
 
-
-
-
-
 void JNet::writeNNToFile(){
 
     std::ofstream nnf;
@@ -418,11 +414,28 @@ float JNet::computeTau(const float & n){
 // }
 
 
+void JNet::evolveSigmas(){
+
+    std::random_device rd;
+    std::mt19937 engine(rd());
+    std::normal_distribution<float> dist(0.0, 1.0);
+    for(int ii = 0; ii < _sigmas.size(); ii++){
+        _sigmas[ii] = _sigmas[ii] * exp(computeTau(ii) * dist(engine));
+    }
+}
+
+void JNet::evolveWeights(){
+
+
+
+}
+
+
 void JNet::evolveKing(){
 
     std::random_device rd;
     std::mt19937 engine(rd());
     std::uniform_real_distribution<float> dist(-0.1, 0.1);
     _kingVal = _kingVal + dist(engine);
-    
+
 }

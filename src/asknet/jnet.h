@@ -65,13 +65,15 @@ public:
     size_t getNumNodes();
     size_t getNumWeights();
 
-    void evolveKing();
+
     void writeNNToFile();
     void readFileToNN();
     void randomizeWeights();
     JNet makeAChild();
     float computeTau(const float & n);
-
+    void evolveKing();
+    void evolveSigmas();
+    void evolveWeights();
 
 };
 
