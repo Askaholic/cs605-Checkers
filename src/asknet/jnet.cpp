@@ -53,7 +53,7 @@ JNet::JNet(const std::vector<size_t> & topology) {
     }
 
     _sigmas = AlignedArray<float, 32>(numSigmas);
-
+        std::cout << "sigmas size" << _sigmas.size()<<std::endl;
 
 }
 
@@ -322,8 +322,6 @@ void JNet::writeNNToFile(){
     nnf.open("nnfile.txt");
 
 
-    nnf << _data.size() << " ";
-
     for(size_t ii = 0; ii < _data.size(); ii++){
         nnf << _data[ii] << " ";
     }
@@ -345,27 +343,24 @@ void JNet::readFileToNN(){
     nnf.open("nnfile.txt");
     float readFloat;
 
-    // Size of _data structure. 
-    std::getline(nnf, line, ' ');
-    std::istringstream iss(line);
-    iss >> readFloat;
 
-    size_t size = readFloat;
 
-    for(int ii = 0; ii < _data.size() - 1; ii++){
+    for(int ii = 0; ii < _data.size(); ii++){
         std::getline(nnf, line, ' ');
         std::istringstream iss(line);
         iss >> readFloat;
         _data[ii] = readFloat;
+        std::cout << "READING data" << std::endl;
         // std::cout << _data[ii] << std::endl;
     }
 
+    std::cout << "sigmas size" << _sigmas.size() << std::endl;
     for(int ii = 0; ii < _sigmas.size(); ii++){
         std::getline(nnf, line, ' ');
         std::istringstream iss(line);
         iss >> readFloat;
         _sigmas[ii] = readFloat;
-
+        std::cout << "READING sigmas" << std::endl;
         // std::cout << _sigmas[ii] << std::endl;
     }
 
@@ -424,12 +419,13 @@ void JNet::evolveSigmas(){
 
     size_t i = 0;
     size_t iter = 0;
+    float tau = computeTau();
     while (layerStart < dataEnd) {
         auto header = _readLayerHeader(layerStart);
         for (size_t j = 0; j < header.num_nodes; j++) {
             for (size_t k = 0; k < header.num_node_weights; k++) {
                 iter = header.size + (header.node_size * j) + k;
-                _sigmas[iter] = _sigmas[iter]  * exp(computeTau() * dist(engine));
+                _sigmas[iter] = _sigmas[iter] * exp(tau * dist(engine));
             }
         }
         layerStart += header.layer_size;
