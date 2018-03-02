@@ -37,6 +37,7 @@ JNet::JNet(const std::vector<size_t> & topology) {
         return;
     }
 
+
     _data = AlignedArray<float, 32>(required_space);
     auto layer_start = _writeNetworkHeader(&_data[0], topology[0]);
 
