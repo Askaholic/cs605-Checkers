@@ -57,6 +57,7 @@ public:
     Network4 (const std::vector<size_t> & topology);
     void setWeights(const std::vector<std::vector<std::vector<float>>> & weights);
     std::vector<std::vector<std::vector<float>>> getWeights();
+    void randomizeWeights();
     void setInputs(const std::vector<float> inputs);
     float evaluate();
     const AlignedArray<float, 32> & getData() { return _data; }

@@ -27,7 +27,7 @@ size_t padSizeToAlignment(size_t size, size_t alignment) {
 
 Network4::Network4(const std::vector<size_t> & topology) {
     size_t required_space = _getRequiredSpace(topology);
-    std::cout << "required space " << required_space << '\n';
+    // std::cout << "required space " << required_space << '\n';
     _num_layers = topology.size();
 
     if (_num_layers == 0) {
@@ -137,6 +137,10 @@ void Network4::setWeights(const std::vector<std::vector<std::vector<float>>> & w
         layerStart += header.layer_size;
         i++;
     }
+}
+
+void Network4::randomizeWeights() {
+    // TODO: Implement this
 }
 
 std::vector<std::vector<std::vector<float>>> Network4::getWeights() {
