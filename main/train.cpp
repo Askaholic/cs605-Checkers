@@ -15,11 +15,11 @@
 #include <stdexcept>
 #include <vector>
 
-#define STARTING_POOL_SIZE 50
+#define STARTING_POOL_SIZE 10
 /* Must be less than STARTING_POOL_SIZE.
  * Describes the number of networks that survive to the next generation.
  */
-#define SURVIVAL_CUTTOFF 25
+#define SURVIVAL_CUTTOFF 5
 #define NUM_OFFSPRING 2
 #define GENERATION_TARGET 300
 #define NUM_GAMES 5
@@ -184,6 +184,7 @@ void evolveNetworks(std::vector<ScoredNetwork> & pool) {
     pool.clear();
     pool.reserve(NUM_OFFSPRING * survivors.size());
 
+    std::cout << "creating children" << '\n';
     for (size_t i = 0; i < survivors.size(); i++) {
         for (size_t c = 0; c < NUM_OFFSPRING; c++) {
             Network4 child = survivors[i].net;
@@ -191,4 +192,5 @@ void evolveNetworks(std::vector<ScoredNetwork> & pool) {
             pool.emplace_back(child, 0, 0);
         }
     }
+    std::cout << "done" << '\n';
 }
