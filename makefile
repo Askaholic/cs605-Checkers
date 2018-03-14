@@ -12,7 +12,6 @@ OBJ=$(BIN)/obj
 
 # Files
 SOURCE_FILES=\
-	test/test.cpp \
 	src/board_funcs/board_funcs.cpp \
 	src/board/board_state.cpp \
 	src/board/piece_count.cpp \
@@ -24,6 +23,7 @@ SOURCE_FILES=\
 	src/asknet/asknet.cpp
 
 MAIN_FILES=\
+	test/test.cpp \
 	test/catch_main.cpp \
 	main/game_test.cpp \
 	main/train.cpp
@@ -44,7 +44,7 @@ $(GAME_EXECUTABLE): $(BIN)/$(GAME_EXECUTABLE)
 $(TRAIN_EXECUTABLE): $(BIN)/$(TRAIN_EXECUTABLE)
 
 # Link object files
-$(BIN)/$(TEST_EXECUTABLE): $(OBJ)/test/catch_main.o $(OBJECT_FILES)
+$(BIN)/$(TEST_EXECUTABLE): $(OBJ)/test/catch_main.o $(OBJECT_FILES) $(OBJ)/test/test.o
 	@echo Building $^
 	@$(CC) $(LDFLAGS) -o $@ $^
 	@echo "Build Successful"

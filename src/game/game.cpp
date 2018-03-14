@@ -16,9 +16,17 @@ Game::Game(Player & red, Player & black):
 }
 
 
+int Game::getWinner() const {
+    if (_turn_count >= _max_turn_count) {
+        return -1;
+    }
+    return getCurrentPlayer();
+}
+
+
 void Game::playGame() {
     reset();
-    while (!_has_winner) {
+    while (!_has_winner && _turn_count < _max_turn_count) {
         playTurn();
     }
 }
