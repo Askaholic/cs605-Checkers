@@ -12,6 +12,7 @@ OBJ=$(BIN)/obj
 
 # Files
 SOURCE_FILES=\
+	test/test.cpp \
 	src/board_funcs/board_funcs.cpp \
 	src/board/board_state.cpp \
 	src/board/piece_count.cpp \
@@ -70,4 +71,4 @@ $(OBJECT_FILES) $(OBJECT_FILES_MAIN) : $(OBJ)/%.o: %.cpp
 clean:
 	rm -rf $(BIN)
 
-.PHONY: $(TEST_EXECUTABLE) $(GAME_EXECUTABLE) $(TRAIN_EXECUTABLE) clean all
+.PHONY: clean all
