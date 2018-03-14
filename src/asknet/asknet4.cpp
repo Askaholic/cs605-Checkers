@@ -14,6 +14,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <fstream>
+#include <sstream>
 #include <string>
 
 size_t padSizeToAlignment(size_t size, size_t alignment) {
@@ -139,9 +140,6 @@ void Network4::setWeights(const std::vector<std::vector<std::vector<float>>> & w
     }
 }
 
-void Network4::randomizeWeights() {
-    // TODO: Implement this
-}
 
 std::vector<std::vector<std::vector<float>>> Network4::getWeights() {
     std::vector<std::vector<std::vector<float>>> weights;
@@ -305,4 +303,168 @@ inline void Network4::_evaluateLayer(float * layer_start, LayerHeader & header, 
 
 inline float Network4::_applySigmoid(float num) {
     return tanh(num);
+}
+
+
+
+
+void Network4::writeNNToFile(){
+
+    std::ofstream nnf;
+    nnf.open("nnfile.txt");
+
+
+    for(size_t ii = 0; ii < _data.size(); ii++){
+        nnf << _data[ii] << " ";
+    }
+
+    for(size_t ii = 0; ii < _sigmas.size(); ii++){
+        nnf << _sigmas[ii] << " ";
+    }
+
+    nnf << _kingVal << " ";
+    nnf.close();
+}
+
+
+
+void Network4::readFileToNN(){
+
+    std::fstream nnf;
+    std::string line;
+    nnf.open("nnfile.txt");
+    float readFloat;
+
+
+
+    for(int ii = 0; ii < _data.size(); ii++){
+        std::getline(nnf, line, ' ');
+        std::istringstream iss(line);
+        iss >> readFloat;
+        _data[ii] = readFloat;
+    }
+
+    for(int ii = 0; ii < _sigmas.size(); ii++){
+        std::getline(nnf, line, ' ');
+        std::istringstream iss(line);
+        iss >> readFloat;
+        _sigmas[ii] = readFloat;
+    }
+
+    std::getline(nnf, line, ' ');
+    std::istringstream is(line);
+    is >> readFloat;
+    _kingVal = readFloat;
+    nnf.close();
+}
+
+
+void Network4::randomizeWeights() {
+
+    std::random_device rd;
+    std::mt19937 engine(rd());
+    std::uniform_real_distribution<float> dist(-0.2, 0.2);
+
+    float * layerStart = &_data[0];
+    float * dataEnd = &_data[_data.size() - 1];
+
+    auto net_header = _readNetworkHeader(layerStart);
+    layerStart += net_header.size + net_header.input_block_size;
+
+    size_t i = 0;
+    while (layerStart < dataEnd) {
+        auto header = _readLayerHeader(layerStart);
+        for (size_t j = 0; j < header.num_nodes; j++) {
+            for (size_t k = 0; k < header.num_node_weights; k++) {
+                layerStart[header.size + (header.node_size * j) + k] = dist(engine);
+            }
+        }
+        layerStart += header.layer_size;
+        i++;
+    }
+
+}
+
+float Network4::computeTau(){
+    return 1 / (sqrt( 2 * sqrt( _sigmas.size() ) ) );
+}
+
+
+void Network4::evolveSigmas(){
+
+    std::random_device rd;
+    std::mt19937 engine(rd());
+    std::normal_distribution<float> dist(0.0, 1.0);
+
+    float * layerStart = &_data[0];
+    float * dataEnd = &_data[_data.size() - 1];
+
+    auto net_header = _readNetworkHeader(layerStart);
+    layerStart += net_header.size + net_header.input_block_size;
+
+    size_t i = 0;
+    size_t iter = 0;
+    float tau = computeTau();
+    while (layerStart < dataEnd) {
+        auto header = _readLayerHeader(layerStart);
+        for (size_t j = 0; j < header.num_nodes; j++) {
+            for (size_t k = 0; k < header.num_node_weights; k++) {
+                iter = header.size + (header.node_size * j) + k;
+                _sigmas[iter] = _sigmas[iter] * exp(tau * dist(engine));
+            }
+        }
+        layerStart += header.layer_size;
+        i++;
+    }
+}
+
+void Network4::evolveWeights(){
+
+    std::random_device rd;
+    std::mt19937 engine(rd());
+    std::normal_distribution<float> dist(0.0, 1.0);
+
+    float * layerStart = &_data[0];
+    float * dataEnd = &_data[_data.size() - 1];
+
+    auto net_header = _readNetworkHeader(layerStart);
+    layerStart += net_header.size + net_header.input_block_size;
+
+    size_t i = 0;
+    size_t iter = 0;
+    while (layerStart < dataEnd) {
+        auto header = _readLayerHeader(layerStart);
+        for (size_t j = 0; j < header.num_nodes; j++) {
+            for (size_t k = 0; k < header.num_node_weights; k++) {
+                iter = header.size + (header.node_size * j) + k;
+                _data[iter] = _data[iter] + _sigmas[iter] * dist(engine);
+            }
+        }
+        layerStart += header.layer_size;
+        i++;
+    }
+}
+
+
+void Network4::evolveKing(){
+
+    std::random_device rd;
+    std::mt19937 engine(rd());
+    std::uniform_real_distribution<float> dist(-0.1, 0.1);
+    _kingVal = _kingVal + dist(engine);
+
+}
+
+void Network4::evolve() {
+    // std::cout << "read" << '\n';
+    // readFileToNN();
+    std::cout << "evolve king" << '\n';
+    evolveKing();
+    std::cout << "evolve sivmas" << '\n';
+    evolveSigmas();
+    std::cout << "weights" << '\n';
+    evolveWeights();
+    std::cout << "write" << '\n';
+    writeNNToFile();
+    std::cout << "done" << '\n';
 }

@@ -40,7 +40,9 @@ struct LayerHeader {
 */
 class Network4 {
 private:
+    float _kingVal = 1.4;
     AlignedArray<float, 32> _data;
+    std::vector<float> _sigmas;
     size_t _num_layers;
     size_t _getRequiredSpace(const std::vector<size_t> & topology);
     size_t _getLayerRequiredSpace(size_t num_nodes, size_t num_node_weights);
@@ -63,6 +65,15 @@ public:
     const AlignedArray<float, 32> & getData() { return _data; }
     size_t getNumNodes();
     size_t getNumWeights();
+
+
+    void writeNNToFile();
+    void readFileToNN();
+    float computeTau();
+    void evolveKing();
+    void evolveSigmas();
+    void evolveWeights();
+    void evolve();
 };
 
 #endif

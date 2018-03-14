@@ -4,7 +4,7 @@
 
 // The first iteration of jent, based off AskNet. This iteration aims to Allocate all of the
 // Memory for the entire network in one contiguous chunk, for increased
-// cache performance while implementing the evolutionary features of a NN. 
+// cache performance while implementing the evolutionary features of a NN.
 
 #ifndef J_NET_h
 #define J_NET_h
@@ -69,7 +69,6 @@ public:
     void writeNNToFile();
     void readFileToNN();
     void randomizeWeights();
-    JNet makeAChild();
     float computeTau();
     void evolveKing();
     void evolveSigmas();

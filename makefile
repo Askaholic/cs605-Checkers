@@ -23,6 +23,7 @@ SOURCE_FILES=\
 	src/asknet/asknet.cpp
 
 MAIN_FILES=\
+	test/test.cpp \
 	test/catch_main.cpp \
 	main/game_test.cpp \
 	main/train.cpp
@@ -43,7 +44,7 @@ $(GAME_EXECUTABLE): $(BIN)/$(GAME_EXECUTABLE)
 $(TRAIN_EXECUTABLE): $(BIN)/$(TRAIN_EXECUTABLE)
 
 # Link object files
-$(BIN)/$(TEST_EXECUTABLE): $(OBJ)/test/catch_main.o $(OBJECT_FILES)
+$(BIN)/$(TEST_EXECUTABLE): $(OBJ)/test/catch_main.o $(OBJECT_FILES) $(OBJ)/test/test.o
 	@echo Building $^
 	@$(CC) $(LDFLAGS) -o $@ $^
 	@echo "Build Successful"
@@ -70,4 +71,4 @@ $(OBJECT_FILES) $(OBJECT_FILES_MAIN) : $(OBJ)/%.o: %.cpp
 clean:
 	rm -rf $(BIN)
 
-.PHONY: $(TEST_EXECUTABLE) $(GAME_EXECUTABLE) $(TRAIN_EXECUTABLE) clean all
+.PHONY: clean all
