@@ -74,6 +74,9 @@ public:
     void evolveSigmas();
     void evolveWeights();
     void evolve();
+
+    // DEBUG
+    void printWeights();
 };
 
 #endif

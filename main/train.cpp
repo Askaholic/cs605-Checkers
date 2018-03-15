@@ -42,7 +42,12 @@ public:
     ScoredNetwork(const Network4 & net, int score, size_t games_played)
         :net(net), score(score), games_played(games_played) { }
 
+    ScoredNetwork() = delete;
     ScoredNetwork(const ScoredNetwork & other) = default;
+    ScoredNetwork(ScoredNetwork && other) = default;
+    ScoredNetwork & operator=(const ScoredNetwork & other) = default;
+    ScoredNetwork & operator=(ScoredNetwork && other) = default;
+    virtual ~ScoredNetwork() = default;
 };
 
 
@@ -171,9 +176,15 @@ void adjustScore(int winner, std::vector<ScoredNetwork> & pool, size_t i, size_t
 void evolveNetworks(std::vector<ScoredNetwork> & pool) {
     std::sort(pool.begin(), pool.end(),
         [&](const ScoredNetwork & a, const ScoredNetwork & b) {
-            return a.score < b.score;
+            return ((float) b.score / (float) b.games_played) <
+                   ((float) a.score / (float) a.games_played);
         }
     );
+
+    // Use this for checking that the weights are actually changing
+    // for (size_t i = 0; i < pool.size(); i++) {
+    //     pool[i].net.printWeights();
+    // }
 
     std::vector<ScoredNetwork> survivors;
     survivors.reserve(SURVIVAL_CUTTOFF);

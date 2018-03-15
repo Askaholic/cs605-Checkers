@@ -393,6 +393,15 @@ float Network4::computeTau(){
 }
 
 
+void Network4::printWeights() {
+    float * layerStart = &_data[0];
+    std::cout << "Weights: " << '\n';
+    for (float * i = layerStart; i < layerStart + 100; i++) {
+        std::cout << i[0] << " ";
+    }
+    std::cout << "..." << '\n';
+}
+
 void Network4::evolveSigmas(){
 
     std::random_device rd;
@@ -417,6 +426,10 @@ void Network4::evolveSigmas(){
             }
         }
         layerStart += header.layer_size;
+        // TODO: Maybe delete this
+        if (header.layer_size < 1) {
+            throw std::out_of_range("Layer size: " + std::to_string(header.layer_size));
+        }
         i++;
     }
 }
@@ -450,24 +463,17 @@ void Network4::evolveWeights(){
 
 
 void Network4::evolveKing(){
-
     std::random_device rd;
     std::mt19937 engine(rd());
     std::uniform_real_distribution<float> dist(-0.1, 0.1);
     _kingVal = _kingVal + dist(engine);
-
 }
 
 void Network4::evolve() {
     // std::cout << "read" << '\n';
     // readFileToNN();
-    std::cout << "evolve king" << '\n';
     evolveKing();
-    std::cout << "evolve sivmas" << '\n';
     evolveSigmas();
-    std::cout << "weights" << '\n';
     evolveWeights();
-    std::cout << "write" << '\n';
     writeNNToFile();
-    std::cout << "done" << '\n';
 }
