@@ -39,12 +39,15 @@ Network4::Network4(const std::vector<size_t> & topology) {
     auto layer_start = _writeNetworkHeader(&_data[0], topology[0]);
 
     size_t num_node_inputs = 1;
+    size_t numSigmas = 0;
     for (size_t i = 0; i < _num_layers; i++) {
         auto num_nodes_in_layer = topology[i];
 
         layer_start = _writeLayerHeader(layer_start, num_nodes_in_layer, num_node_inputs);
         num_node_inputs = num_nodes_in_layer;
+        numSigmas += (topology[i] * num_node_inputs);
     }
+    _sigmas = std::vector<float>(numSigmas);
 }
 
 float * Network4::_writeLayerHeader(float * start, size_t num_nodes, size_t num_node_weights) {
