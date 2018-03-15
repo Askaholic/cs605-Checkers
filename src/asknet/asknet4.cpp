@@ -475,5 +475,5 @@ void Network4::evolve() {
     evolveKing();
     evolveSigmas();
     evolveWeights();
-    writeNNToFile();
+    writeToFile();
 }
