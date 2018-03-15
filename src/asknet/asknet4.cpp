@@ -470,10 +470,7 @@ void Network4::evolveKing(){
 }
 
 void Network4::evolve() {
-    // std::cout << "read" << '\n';
-    // readFileToNN();
     evolveKing();
     evolveSigmas();
     evolveWeights();
-    writeToFile();
 }
