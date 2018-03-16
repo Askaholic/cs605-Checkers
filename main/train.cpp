@@ -9,22 +9,23 @@
 #include "search.h"
 #include "board_funcs.h"
 #include <algorithm>
+#include <chrono>
 #include <initializer_list>
 #include <iostream>
 #include <random>
 #include <stdexcept>
 #include <vector>
 
-#define STARTING_POOL_SIZE 10
+#define STARTING_POOL_SIZE 50
 /* Must be less than STARTING_POOL_SIZE.
  * Describes the number of networks that survive to the next generation.
  */
-#define SURVIVAL_CUTTOFF 5
+#define SURVIVAL_CUTTOFF 25
 #define NUM_OFFSPRING 2
 #define GENERATION_TARGET 300
 #define NUM_GAMES 5
 #define WIN_POINTS 1
-#define LOSS_POINTS -1
+#define LOSS_POINTS -2
 #define DRAW_POINTS 0
 #define TOPOLOGY (std::initializer_list<size_t>){32, 40, 10, 1}
 
@@ -42,7 +43,12 @@ public:
     ScoredNetwork(const Network4 & net, int score, size_t games_played)
         :net(net), score(score), games_played(games_played) { }
 
+    ScoredNetwork() = delete;
     ScoredNetwork(const ScoredNetwork & other) = default;
+    ScoredNetwork(ScoredNetwork && other) = default;
+    ScoredNetwork & operator=(const ScoredNetwork & other) = default;
+    ScoredNetwork & operator=(ScoredNetwork && other) = default;
+    virtual ~ScoredNetwork() = default;
 };
 
 
@@ -50,7 +56,7 @@ void adjustScore(int winner, std::vector<ScoredNetwork> & pool, size_t i, size_t
 void evolveNetworks(std::vector<ScoredNetwork> & pool);
 size_t getRandomOpponentIndex(size_t i, size_t size);
 void loadPoolFrom(const char * filename, std::vector<ScoredNetwork> & pool);
-int playGame(Network4 & red_net, Network4 & black_net);
+int playGame(const Network4 & red_net, const Network4 & black_net);
 void randomizePool(std::vector<ScoredNetwork> & pool);
 
 
@@ -70,9 +76,31 @@ public:
     AIPlayer (int color, const Network4 & net):Player(color), _net(net) {}
 
     BoardState takeMove(const BoardState & board) override {
-        // TODO: Replace with network search
-        auto result = min_max_search_inplace(board, _color_id, 4);
+        auto result = min_max_search_inplace(board, _color_id, 4, std::bind(&AIPlayer::evaluate, this, std::placeholders::_1, std::placeholders::_2));
         return result.first;
+    }
+
+    float evaluate(const BoardState & board, int player) {
+        std::vector<float> inputs(BOARD_ELEMENTS);
+        for (size_t i = 0; i < BOARD_ELEMENTS; i++) {
+            auto piece = board[i];
+            float score = 0;
+            switch (piece) {
+                case RED_CHECKER: score=1; break;
+                case BLACK_CHECKER: score=-1; break;
+                case RED_KING: score = _net.getKingValue(); break;
+                case BLACK_KING: score = _net.getKingValue() * -1; break;
+                default: score=0; break;
+            }
+            inputs[i] = score;
+        }
+        _net.setInputs(inputs);
+        // _net.printWeights();
+        auto result = _net.evaluate();
+        if (player == BLACK_PLAYER) {
+            result *= -1;
+        }
+        return result;
     }
 };
 
@@ -94,12 +122,13 @@ int main(int argc, char const *argv[]) {
     for (size_t generation = 1; generation < GENERATION_TARGET + 1; generation++) {
         std::cout << "Starting generation " << generation << '\n';
         std::cout << "Playing games..." << '\n';
-        // TODO: Add timing code
+
+        auto start = std::chrono::high_resolution_clock::now();
         for (size_t i = 0; i < pool.size(); i++) {
             auto net = pool[i].net;
             for (size_t c = pool[i].games_played; c < NUM_GAMES; c++) {
                 auto j = getRandomOpponentIndex(i, pool.size());
-                auto net_opponent = pool[i].net;
+                auto net_opponent = pool[j].net;
                 auto winner = playGame(net, net_opponent);
 
                 adjustScore(winner, pool, i, j);
@@ -107,6 +136,10 @@ int main(int argc, char const *argv[]) {
                 pool[j].games_played++;
             }
         }
+        auto end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> elapsed = (end - start);
+        std::cout << "Took " << elapsed.count() << " seconds\n";
+
         std::cout << "Evolving..." << '\n';
         evolveNetworks(pool);
         for (size_t i = 0; i < pool.size(); i++) {
@@ -143,7 +176,7 @@ size_t getRandomOpponentIndex(size_t i, size_t size) {
 }
 
 
-int playGame(Network4 & red_net, Network4 & black_net) {
+int playGame(const Network4 & red_net, const Network4 & black_net) {
     AIPlayer p1(RED_PLAYER, red_net);
     AIPlayer p2(BLACK_PLAYER, black_net);
 
@@ -171,9 +204,17 @@ void adjustScore(int winner, std::vector<ScoredNetwork> & pool, size_t i, size_t
 void evolveNetworks(std::vector<ScoredNetwork> & pool) {
     std::sort(pool.begin(), pool.end(),
         [&](const ScoredNetwork & a, const ScoredNetwork & b) {
-            return a.score < b.score;
+            return ((float) b.score / (float) b.games_played) <
+                   ((float) a.score / (float) a.games_played);
         }
     );
+
+    pool[0].net.writeToFile("best_network.txt");
+
+    // Use this for checking that the weights are actually changing
+    // for (size_t i = 0; i < pool.size(); i++) {
+    //     pool[i].net.printWeights();
+    // }
 
     std::vector<ScoredNetwork> survivors;
     survivors.reserve(SURVIVAL_CUTTOFF);
@@ -192,5 +233,4 @@ void evolveNetworks(std::vector<ScoredNetwork> & pool) {
             pool.emplace_back(child, 0, 0);
         }
     }
-    std::cout << "done" << '\n';
 }

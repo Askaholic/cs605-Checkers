@@ -162,16 +162,16 @@ std::vector<std::vector<std::vector<float>>> JNet::getWeights() {
     size_t i = 0;
     while (layerStart < dataEnd) {
         if (! (i < weights.size())) {
-            throw std::out_of_range("Wrong number of layers (" + std::to_string(weights.size()) + ") passed to setWeights" );
+            throw std::out_of_range("Wrong number of layers (" + std::to_string(weights.size()) + ") passed to getWeights" );
         }
         auto header = _readLayerHeader(layerStart);
         if (weights[i].size() != header.num_nodes) {
-            throw std::out_of_range("Wrong number of nodes (" + std::to_string(weights[i].size()) + ") passed to setWeights. Layer (" + std::to_string(i) + ")" );
+            throw std::out_of_range("Wrong number of nodes (" + std::to_string(weights[i].size()) + ") passed to getWeights. Layer (" + std::to_string(i) + ")" );
         }
         std::vector<std::vector<float>> layer;
         for (size_t j = 0; j < header.num_nodes; j++) {
             if (weights[i][j].size() != header.num_node_weights) {
-                throw std::out_of_range("Wrong number of weights (" + std::to_string(weights[i][j].size()) + ") passed to setWeights. Layer (" + std::to_string(i) + "), Node (" + std::to_string(j) + ")" );
+                throw std::out_of_range("Wrong number of weights (" + std::to_string(weights[i][j].size()) + ") passed to getWeights. Layer (" + std::to_string(i) + "), Node (" + std::to_string(j) + ")" );
             }
             std::vector<float> node;
             for (size_t k = 0; k < header.num_node_weights; k++) {
@@ -397,7 +397,7 @@ void JNet::randomizeWeights() {
         layerStart += header.layer_size;
         i++;
     }
-    
+
 }
 
 float JNet::computeTau(){

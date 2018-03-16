@@ -10,8 +10,9 @@
 #define ASK_NET4_h
 
 #include "aligned_array.h"
-#include <vector>
 #include <cstddef>
+#include <string>
+#include <vector>
 
 
 /* Size of the header block for each Layer (in bytes) */
@@ -53,7 +54,7 @@ private:
     NetworkHeader _readNetworkHeader(float * start);
     void _evaluateLayer(float * start, LayerHeader & header, const float * inputs, float * outputs);
     float _applySigmoid(float);
-
+    void _initSigmas();
 
 public:
     Network4 (const std::vector<size_t> & topology);
@@ -65,15 +66,18 @@ public:
     const AlignedArray<float, 32> & getData() { return _data; }
     size_t getNumNodes();
     size_t getNumWeights();
+    float getKingValue() { return _kingVal; }
 
-
-    void writeNNToFile();
-    void readFileToNN();
+    void writeToFile(std::string filename);
+    void readFromFile(std::string filename);
     float computeTau();
     void evolveKing();
     void evolveSigmas();
     void evolveWeights();
     void evolve();
+
+    // DEBUG
+    void printWeights();
 };
 
 #endif

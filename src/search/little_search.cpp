@@ -127,20 +127,16 @@ public:
         }
     }
 
-    float evaluateLeaf(const BoardState & board, int player) {
-        return piece_count(board, player);
-    }
-
-    void evaluateLeaves(size_t * moves_size, int player) {
+    void evaluateLeaves(size_t * moves_size, int player, std::function<float(const BoardState &, int)> evaluate) {
         for (size_t i = 0; i < moves_size[curr_depth]; i++) {
             tree_nodes++;
             auto index = ((curr_depth) *  branch_factor) + i;
-            auto score = evaluateLeaf(search_mem[index].board, player);
+            auto score = evaluate(search_mem[index].board, player);
             search_mem[index].score = score;
         }
     }
 
-    std::pair<BoardState, float> search(const BoardState & board, int player, int depth) {
+    std::pair<BoardState, float> search(const BoardState & board, int player, int depth, std::function<float(const BoardState &, int)> evaluate) {
         initData(depth);
 
         size_t indecies[depth] = {0};
@@ -154,7 +150,7 @@ public:
                 throw std::out_of_range("Index at current depth exceeded number of moves! " + std::to_string(indecies[curr_depth]));
             }
             if (curr_depth == depth) {
-                evaluateLeaves(moves_size, player);
+                evaluateLeaves(moves_size, player, evaluate);
             }
             else {
                 expandChildren(indecies, moves_size, player);
@@ -217,7 +213,7 @@ public:
     }
 };
 
-std::pair<BoardState, float> min_max_search_inplace(const BoardState & board, int player, int depth) {
+std::pair<BoardState, float> min_max_search_inplace(const BoardState & board, int player, int depth, std::function<float(const BoardState &, int)> evaluate) {
     if (depth < 1) {
         return std::make_pair<BoardState, float>(
             BoardState(board),
@@ -226,5 +222,5 @@ std::pair<BoardState, float> min_max_search_inplace(const BoardState & board, in
     }
 
     MinMaxSearch s_helper;
-    return s_helper.search(board, player, depth);
+    return s_helper.search(board, player, depth, evaluate);
 }
