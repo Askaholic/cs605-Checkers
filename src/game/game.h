@@ -22,7 +22,8 @@ private:
     Player &_blackPlayer;
     int _current_turn_player;
 
-    int _turn_count;
+    size_t _turn_count;
+    size_t _max_turn_count = 200;
     bool _has_winner;
 
     void _setupStartingBoard();
@@ -40,6 +41,13 @@ public:
      * The winner is the current player
      */
     bool hasWinner() const { return _has_winner; }
+
+    /* getWinner()
+     *
+     * Returns the player who won, or -1 if there was a draw.
+     * Either RED_PLAYER, BLACK_PLAYER or -1
+     */
+    int getWinner() const;
 
     /* getCurrentPlayer
      *

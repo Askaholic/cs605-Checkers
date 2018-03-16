@@ -123,14 +123,14 @@ public:
     }
 
     const T & operator[](int index) const {
-        if(index >= _size) {
+        if(index < 0 || (size_t) index >= _size) {
             throw std::out_of_range("Index out of bounds" + std::to_string(index));
         }
         return _data[index];
     }
 
     T & operator[](int index) {
-        if(index >= _size) {
+        if(index < 0 || (size_t) index >= _size) {
             throw std::out_of_range("Index out of bounds" + std::to_string(index));
         }
         return _data[index];

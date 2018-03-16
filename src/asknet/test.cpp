@@ -2,46 +2,65 @@
 
 #include "aligned_array.h"
 #include "asknet.h"
-#include "asknet3.h"
-#include "asknet4.h"
+// #include "asknet3.h"
+// #include "asknet4.h"
+#include "jnet.h"
 #include <vector>
 #include <iostream>
 #include <chrono>
 #include <string>
 
-long time_network(Network & net, const std::string & name, const std::vector<float> & inputs, size_t iterations) {
-    std::cout << "Evaluating " << name << " ..." << '\n';
-    std::cout << "Network " << name << " size: " << net.getNumNodes() << " nodes" << '\n';
+// long time_network(Network & net, const std::string & name, const std::vector<float> & inputs, size_t iterations) {
+//     std::cout << "Evaluating " << name << " ..." << '\n';
+//     std::cout << "Network " << name << " size: " << net.getNumNodes() << " nodes" << '\n';
 
-    float result;
-    auto start = std::chrono::high_resolution_clock::now();
-    for (size_t i = 0; i < iterations; i++) {
-        result = net.evaluate(inputs);
-    }
-    auto end = std::chrono::high_resolution_clock::now();
-    auto elapsed = ((std::chrono::nanoseconds)(end - start)).count();
+//     float result;
+//     auto start = std::chrono::high_resolution_clock::now();
+//     for (size_t i = 0; i < iterations; i++) {
+//         result = net.evaluate(inputs);
+//     }
+//     auto end = std::chrono::high_resolution_clock::now();
+//     auto elapsed = ((std::chrono::nanoseconds)(end - start)).count();
 
-    std::cout << "Network " << name << " output: " << result << " in " << elapsed / iterations << "ns / evaluation\n";
-    return elapsed;
-}
+//     std::cout << "Network " << name << " output: " << result << " in " << elapsed / iterations << "ns / evaluation\n";
+//     return elapsed;
+// }
 
-long time_network(Network3 & net, const std::string & name, const std::vector<float> & inputs, size_t iterations) {
-    std::cout << "Evaluating " << name << " ..." << '\n';
-    std::cout << "Network " << name << " size: " << net.getNumNodes() << " nodes" << '\n';
+// long time_network(Network3 & net, const std::string & name, const std::vector<float> & inputs, size_t iterations) {
+//     std::cout << "Evaluating " << name << " ..." << '\n';
+//     std::cout << "Network " << name << " size: " << net.getNumNodes() << " nodes" << '\n';
 
-    float result;
-    auto start = std::chrono::high_resolution_clock::now();
-    for (size_t i = 0; i < iterations; i++) {
-        result = net.evaluate(inputs);
-    }
-    auto end = std::chrono::high_resolution_clock::now();
-    auto elapsed = ((std::chrono::nanoseconds)(end - start)).count();
+//     float result;
+//     auto start = std::chrono::high_resolution_clock::now();
+//     for (size_t i = 0; i < iterations; i++) {
+//         result = net.evaluate(inputs);
+//     }
+//     auto end = std::chrono::high_resolution_clock::now();
+//     auto elapsed = ((std::chrono::nanoseconds)(end - start)).count();
 
-    std::cout << "Network " << name << " output: " << result << " in " << elapsed / iterations << "ns / evaluation\n";
-    return elapsed;
-}
+//     std::cout << "Network " << name << " output: " << result << " in " << elapsed / iterations << "ns / evaluation\n";
+//     return elapsed;
+// }
 
-long time_network(Network4 & net, const std::string & name, const std::vector<float> & inputs, size_t iterations) {
+// long time_network(Network4 & net, const std::string & name, const std::vector<float> & inputs, size_t iterations) {
+//     std::cout << "Evaluating " << name << " ..." << '\n';
+//     std::cout << "Network " << name << " size: " << net.getNumNodes() << " nodes" << '\n';
+
+//     float result;
+//     net.setInputs(inputs);
+
+//     auto start = std::chrono::high_resolution_clock::now();
+//     for (size_t i = 0; i < iterations; i++) {
+//         result = net.evaluate();
+//     }
+//     auto end = std::chrono::high_resolution_clock::now();
+//     auto elapsed = ((std::chrono::nanoseconds)(end - start)).count();
+
+//     std::cout << "Network " << name << " output: " << result << " in " << elapsed / iterations << "ns / evaluation\n";
+//     return elapsed;
+// }
+
+long time_network(JNet & net, const std::string & name, const std::vector<float> & inputs, size_t iterations) {
     std::cout << "Evaluating " << name << " ..." << '\n';
     std::cout << "Network " << name << " size: " << net.getNumNodes() << " nodes" << '\n';
 
@@ -59,6 +78,7 @@ long time_network(Network4 & net, const std::string & name, const std::vector<fl
     return elapsed;
 }
 
+
 void test_topology(const std::vector<size_t> & topology, size_t NUM_TESTS) {
     std::string topoStr = "";
     for (size_t i = 0; i < topology.size(); i++) {
@@ -69,24 +89,39 @@ void test_topology(const std::vector<size_t> & topology, size_t NUM_TESTS) {
     net1.randomizeWeights();
     auto weights = net1.getWeights();
 
-    Network3 net3(topology);
-    net3.setWeights(weights);
+    // Network3 net3(topology);
+    // net3.setWeights(weights);
 
 
-    Network4 net4(topology);
-    net4.setWeights(weights);
+    // Network4 net4(topology);
+    // net4.setWeights(weights);
+
+    JNet jnet(topology);
+    jnet.setWeights(weights);
+    // jnet.randomizeWeights();
+
 
     std::vector<float> inputs(topology[0], 0.1f);
-    auto elapsed = time_network(net3, "(3)", inputs, NUM_TESTS);
+    long elapsed;
+    // auto elapsed = time_network(net3, "(3)", inputs, NUM_TESTS);
+    // std::cout << 1000000000.0 * NUM_TESTS / (double) elapsed << " eval / second\n" << '\n';
+
+    // elapsed = time_network(net1, "(2)", inputs, NUM_TESTS);
+    // std::cout << 1000000000.0 * NUM_TESTS / (double) elapsed << " eval / second\n" << '\n';
+
+    // elapsed = time_network(net4, "(4)", inputs, NUM_TESTS);
+    // std::cout << 1000000000.0 * NUM_TESTS / (double) elapsed << " eval / second\n" << '\n';
+
+    elapsed = time_network(jnet, "(jnet)", inputs, NUM_TESTS);
     std::cout << 1000000000.0 * NUM_TESTS / (double) elapsed << " eval / second\n" << '\n';
 
-    elapsed = time_network(net1, "(2)", inputs, NUM_TESTS);
-    std::cout << 1000000000.0 * NUM_TESTS / (double) elapsed << " eval / second\n" << '\n';
+    jnet.writeNNToFile();
 
-    elapsed = time_network(net4, "(4)", inputs, NUM_TESTS);
-    std::cout << 1000000000.0 * NUM_TESTS / (double) elapsed << " eval / second\n" << '\n';
 
-    net4.writeNNToFile();
+    for(int ii = 0; ii < 5; ii++){
+        std::cin.ignore();
+        jnet.evolve();
+    }
 
 }
 

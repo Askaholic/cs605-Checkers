@@ -288,7 +288,7 @@ class Board(object):
             board_string += c
         print("Using board_funcs")
         print(self.current_turn_player)
-        board, score = bf.min_max_search_inplace(board_string, self.current_turn_player, 2)
+        board, score = bf.min_max_search_inplace(board_string, self.current_turn_player, 4)
         for i in range(len(board)):
             if (board[i] == ''):
                 self.board[i] = '1'

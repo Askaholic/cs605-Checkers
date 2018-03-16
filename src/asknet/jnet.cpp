@@ -4,7 +4,7 @@
 
 // Implementation for AskNet v4. Check the header file for documentation
 
-#include "asknet4.h"
+#include "jnet.h"
 #include "aligned_array.h"
 #include "immintrin.h"
 #include <algorithm>
@@ -16,6 +16,8 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <random>
+
 
 size_t padSizeToAlignment(size_t size, size_t alignment) {
     auto overflow = size % alignment;
@@ -26,17 +28,19 @@ size_t padSizeToAlignment(size_t size, size_t alignment) {
 }
 
 
-Network4::Network4(const std::vector<size_t> & topology) {
+JNet::JNet(const std::vector<size_t> & topology) {
     size_t required_space = _getRequiredSpace(topology);
-
+    std::cout << "required space " << required_space << '\n';
     _num_layers = topology.size();
 
     if (_num_layers == 0) {
         return;
     }
 
+
     _data = AlignedArray<float, 32>(required_space);
     auto layer_start = _writeNetworkHeader(&_data[0], topology[0]);
+
 
     size_t num_node_inputs = 1;
     size_t numSigmas = 0;
@@ -47,11 +51,13 @@ Network4::Network4(const std::vector<size_t> & topology) {
         num_node_inputs = num_nodes_in_layer;
         numSigmas += (topology[i] * num_node_inputs);
     }
-    _sigmas = std::vector<float>(numSigmas);
-    _initSigmas();
+
+    _sigmas = AlignedArray<float, 32>(numSigmas);
+        std::cout << "sigmas size" << _sigmas.size()<<std::endl;
+
 }
 
-float * Network4::_writeLayerHeader(float * start, size_t num_nodes, size_t num_node_weights) {
+float * JNet::_writeLayerHeader(float * start, size_t num_nodes, size_t num_node_weights) {
     size_t node_size = _getNodeRequiredSpace(num_node_weights);
     size_t total_size = _getLayerRequiredSpace(num_nodes, num_node_weights);
 
@@ -66,8 +72,8 @@ float * Network4::_writeLayerHeader(float * start, size_t num_nodes, size_t num_
     return end;
 }
 
-float * Network4::_writeNetworkHeader(float * start, size_t num_inputs) {
-    size_t inputs_size = padSizeToAlignment(num_inputs, 8);
+float * JNet::_writeNetworkHeader(float * start, size_t num_inputs) {
+    size_t inputs_size = padSizeToAlignment(num_inputs, 32);
 
     start[0] = NETWORK_HEADER_SIZE;
     start[1] = num_inputs;
@@ -77,11 +83,11 @@ float * Network4::_writeNetworkHeader(float * start, size_t num_inputs) {
     return start + NETWORK_HEADER_SIZE + inputs_size;
 }
 
-size_t Network4::_getRequiredSpace(const std::vector<size_t> & topology) {
+size_t JNet::_getRequiredSpace(const std::vector<size_t> & topology) {
     size_t required_space = 0;
     if (topology.size() > 0) {
-        required_space += topology[0];
     }
+         required_space += topology[0];
 
     size_t num_node_inputs = 1;
     for (size_t i = 0; i < topology.size(); i++) {
@@ -95,27 +101,27 @@ size_t Network4::_getRequiredSpace(const std::vector<size_t> & topology) {
     return required_space;
 }
 
-size_t Network4::_getLayerRequiredSpace(size_t num_nodes, size_t num_node_weights) {
+size_t JNet::_getLayerRequiredSpace(size_t num_nodes, size_t num_node_weights) {
     size_t node_size = _getNodeRequiredSpace(num_node_weights);
     size_t layer_header_size = LAYER_HEADER_SIZE;
-    return padSizeToAlignment(layer_header_size + (num_nodes * node_size) + num_nodes, 8);
+    return padSizeToAlignment(layer_header_size + (num_nodes * node_size) + num_nodes, 32);
 }
 
-size_t Network4::_getNodeRequiredSpace(size_t num_weights) {
+size_t JNet::_getNodeRequiredSpace(size_t num_weights) {
     size_t node_size = num_weights + 1;
 
-    return padSizeToAlignment(node_size, 8);
+    return padSizeToAlignment(node_size, 32);
 }
 
-inline LayerHeader Network4::_readLayerHeader(float * start) {
+inline LayerHeader JNet::_readLayerHeader(float * start) {
     return { (size_t) start[0], (size_t) start[1], (size_t) start[2], (size_t) start[3] , (size_t) start[4] , (size_t) start[5]};
 }
 
-inline NetworkHeader Network4::_readNetworkHeader(float * start) {
+inline NetworkHeader JNet::_readNetworkHeader(float * start) {
     return { (size_t) start[0], (size_t) start[1], (size_t) start[2], (size_t) start[3] };
 }
 
-void Network4::setWeights(const std::vector<std::vector<std::vector<float>>> & weights) {
+void JNet::setWeights(const std::vector<std::vector<std::vector<float>>> & weights) {
     float * layerStart = &_data[0];
     float * dataEnd = &_data[_data.size() - 1];
 
@@ -137,6 +143,7 @@ void Network4::setWeights(const std::vector<std::vector<std::vector<float>>> & w
             }
             for (size_t k = 0; k < header.num_node_weights; k++) {
                 layerStart[header.size + (header.node_size * j) + k] = weights[i][j][k];
+                _sigmas[header.size + (header.node_size * j) + k] = 0.05;
             }
         }
         layerStart += header.layer_size;
@@ -144,29 +151,7 @@ void Network4::setWeights(const std::vector<std::vector<std::vector<float>>> & w
     }
 }
 
-void Network4::_initSigmas() {
-    float * layerStart = &_data[0];
-    float * dataEnd = &_data[_data.size() - 1];
-
-    auto net_header = _readNetworkHeader(layerStart);
-    layerStart += net_header.size + net_header.input_block_size;
-
-    size_t i = 0;
-    size_t iter = 0;
-    while (layerStart < dataEnd) {
-        auto header = _readLayerHeader(layerStart);
-        for (size_t j = 0; j < header.num_nodes; j++) {
-            for (size_t k = 0; k < header.num_node_weights; k++) {
-                iter = header.size + (header.node_size * j) + k;
-                _sigmas[iter] = 0.5;
-            }
-        }
-        layerStart += header.layer_size;
-        i++;
-    }
-}
-
-std::vector<std::vector<std::vector<float>>> Network4::getWeights() {
+std::vector<std::vector<std::vector<float>>> JNet::getWeights() {
     std::vector<std::vector<std::vector<float>>> weights;
     float * layerStart = &_data[0];
     float * dataEnd = &_data[_data.size() - 1];
@@ -202,7 +187,7 @@ std::vector<std::vector<std::vector<float>>> Network4::getWeights() {
 }
 
 
-size_t Network4::getNumNodes() {
+size_t JNet::getNumNodes() {
     size_t total = 0;
     float * layerStart = &_data[0];
     float * dataEnd = &_data[_data.size() - 1];
@@ -218,7 +203,7 @@ size_t Network4::getNumNodes() {
     return total;
 }
 
-size_t Network4::getNumWeights() {
+size_t JNet::getNumWeights() {
     size_t total = 0;
 
     float * layerStart = &_data[0];
@@ -235,11 +220,11 @@ size_t Network4::getNumWeights() {
     return total;
 }
 
-void Network4::setInputs(const std::vector<float> inputs) {
+void JNet::setInputs(const std::vector<float> inputs) {
     auto net_header = _readNetworkHeader(&_data[0]);
 
     if (net_header.num_inputs != inputs.size()) {
-        throw std::out_of_range("Wrong number of inputs (" + std::to_string(inputs.size()) + ") passed to setInputs. Expecting " + std::to_string( net_header.num_inputs ));
+        throw std::out_of_range("Wrong number of inputs (" + std::to_string(inputs.size()) + ") passed to evaluate. Expecting " + std::to_string( net_header.num_inputs ));
     }
 
     float * net_inputs = &_data[0] + net_header.input_offset;
@@ -247,7 +232,7 @@ void Network4::setInputs(const std::vector<float> inputs) {
 }
 
 // TODO: Refactor this......
-float Network4::evaluate() {
+float JNet::evaluate() {
     float * layerStart = &_data[0];
     float * dataEnd = &_data[_data.size() - 1];
 
@@ -302,7 +287,7 @@ inline __m256 remove_overflow(__m256 a, int amount) {
     return _mm256_and_ps(a, mask_);
 }
 
-inline void Network4::_evaluateLayer(float * layer_start, LayerHeader & header, const float * inputs, float * outputs) {
+inline void JNet::_evaluateLayer(float * layer_start, LayerHeader & header, const float * inputs, float * outputs) {
     size_t node_size = header.node_size;
     size_t num_weights = header.num_node_weights;
 
@@ -325,18 +310,16 @@ inline void Network4::_evaluateLayer(float * layer_start, LayerHeader & header, 
 }
 
 
-
-inline float Network4::_applySigmoid(float num) {
+inline float JNet::_applySigmoid(float num) {
     return tanh(num);
 }
 
 
 
-
-void Network4::writeToFile(std::string filename) {
+void JNet::writeNNToFile(){
 
     std::ofstream nnf;
-    nnf.open(filename);
+    nnf.open("nnfile.txt");
 
 
     for(size_t ii = 0; ii < _data.size(); ii++){
@@ -353,36 +336,45 @@ void Network4::writeToFile(std::string filename) {
 
 
 
-void Network4::readFromFile(std::string filename) {
+void JNet::readFileToNN(){
 
     std::fstream nnf;
     std::string line;
-    nnf.open(filename);
+    nnf.open("nnfile.txt");
     float readFloat;
+
+
 
     for(int ii = 0; ii < _data.size(); ii++){
         std::getline(nnf, line, ' ');
         std::istringstream iss(line);
         iss >> readFloat;
         _data[ii] = readFloat;
+        std::cout << "READING data" << std::endl;
+        // std::cout << _data[ii] << std::endl;
     }
 
+    std::cout << "sigmas size" << _sigmas.size() << std::endl;
     for(int ii = 0; ii < _sigmas.size(); ii++){
         std::getline(nnf, line, ' ');
         std::istringstream iss(line);
         iss >> readFloat;
         _sigmas[ii] = readFloat;
+        std::cout << "READING sigmas" << std::endl;
+        // std::cout << _sigmas[ii] << std::endl;
     }
 
     std::getline(nnf, line, ' ');
     std::istringstream is(line);
     is >> readFloat;
     _kingVal = readFloat;
+    // std::cout << _kingVal << std::endl;
     nnf.close();
+
 }
 
 
-void Network4::randomizeWeights() {
+void JNet::randomizeWeights() {
 
     std::random_device rd;
     std::mt19937 engine(rd());
@@ -408,28 +400,18 @@ void Network4::randomizeWeights() {
 
 }
 
-float Network4::computeTau(){
-    return 1 / (sqrt( 2 * sqrt( _sigmas.size() ) ) );
+float JNet::computeTau(){
+    return (1)/(sqrt(2*sqrt(_sigmas.size())));
 }
 
 
-void Network4::printWeights() {
-    float * layerStart = &_data[0];
-    std::cout << "Weights: " << '\n';
-    for (float * i = layerStart; i < layerStart + 100; i++) {
-        std::cout << i[0] << " ";
-    }
-    std::cout << "..." << '\n';
-}
-
-void Network4::evolveSigmas() {
+void JNet::evolveSigmas(){
 
     std::random_device rd;
     std::mt19937 engine(rd());
     std::normal_distribution<float> dist(0.0, 1.0);
 
     float * layerStart = &_data[0];
-    float * sigmaLayerStart = &_sigmas[0];
     float * dataEnd = &_data[_data.size() - 1];
 
     auto net_header = _readNetworkHeader(layerStart);
@@ -443,20 +425,16 @@ void Network4::evolveSigmas() {
         for (size_t j = 0; j < header.num_nodes; j++) {
             for (size_t k = 0; k < header.num_node_weights; k++) {
                 iter = header.size + (header.node_size * j) + k;
-                sigmaLayerStart[iter] = _sigmas[iter] * exp(tau * dist(engine));
+                _sigmas[iter] = _sigmas[iter] * exp(tau * dist(engine));
             }
         }
         layerStart += header.layer_size;
-        sigmaLayerStart += header.layer_size;
-        // TODO: Maybe delete this
-        if (header.layer_size < 1) {
-            throw std::out_of_range("Layer size: " + std::to_string(header.layer_size));
-        }
         i++;
     }
 }
 
-void Network4::evolveWeights() {
+void JNet::evolveWeights(){
+
     std::random_device rd;
     std::mt19937 engine(rd());
     std::normal_distribution<float> dist(0.0, 1.0);
@@ -474,7 +452,7 @@ void Network4::evolveWeights() {
         for (size_t j = 0; j < header.num_nodes; j++) {
             for (size_t k = 0; k < header.num_node_weights; k++) {
                 iter = header.size + (header.node_size * j) + k;
-                layerStart[iter] += _sigmas[iter] * dist(engine);
+                _data[iter] = _data[iter] + _sigmas[iter] * dist(engine);
             }
         }
         layerStart += header.layer_size;
@@ -483,15 +461,19 @@ void Network4::evolveWeights() {
 }
 
 
-void Network4::evolveKing(){
+void JNet::evolveKing(){
+
     std::random_device rd;
     std::mt19937 engine(rd());
     std::uniform_real_distribution<float> dist(-0.1, 0.1);
     _kingVal = _kingVal + dist(engine);
+
 }
 
-void Network4::evolve() {
+void JNet::evolve(){
+    readFileToNN();
     evolveKing();
     evolveSigmas();
     evolveWeights();
+    writeNNToFile();
 }

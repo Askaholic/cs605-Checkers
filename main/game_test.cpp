@@ -90,7 +90,13 @@ int main(int argc, char const *argv[]) {
     else {
         game.playGame();
     }
-    std::cout << "Winner is: " << (game.getCurrentPlayer() == RED_PLAYER ? "red" : "black") << '\n';
+    auto winner = game.getWinner();
+    if (winner == -1) {
+        std::cout << "Game was a draw" << '\n';
+    }
+    else {
+        std::cout << "Winner is: " << (winner == RED_PLAYER ? "red" : "black") << '\n';
+    }
     print_board(game.getBoard());
     return 0;
 }
