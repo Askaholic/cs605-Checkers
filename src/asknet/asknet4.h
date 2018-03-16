@@ -54,7 +54,7 @@ private:
     NetworkHeader _readNetworkHeader(float * start);
     void _evaluateLayer(float * start, LayerHeader & header, const float * inputs, float * outputs);
     float _applySigmoid(float);
-
+    void _initSigmas();
 
 public:
     Network4 (const std::vector<size_t> & topology);

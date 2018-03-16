@@ -8,7 +8,6 @@
 
 #include "game.h"
 
-
 Game::Game(Player & red, Player & black):
     _redPlayer(red),
     _blackPlayer(black) {
