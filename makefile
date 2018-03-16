@@ -1,6 +1,6 @@
 # Compiler options
 CC=g++
-CFLAGS=-c -Wall --std=c++14 -mavx -O2 \
+CFLAGS= -c -Wall --std=c++14 -mavx -O2 \
 		-Isrc/board_funcs -Isrc/asknet \
  		-Isrc/board -I src/board/moves -Isrc/search \
 		-Isrc/game
