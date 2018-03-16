@@ -28,7 +28,7 @@ size_t padSizeToAlignment(size_t size, size_t alignment) {
 
 Network4::Network4(const std::vector<size_t> & topology) {
     size_t required_space = _getRequiredSpace(topology);
-    // std::cout << "required space " << required_space << '\n';
+
     _num_layers = topology.size();
 
     if (_num_layers == 0) {
@@ -273,9 +273,7 @@ float Network4::evaluate() {
         layer_inputs = layer_outputs;
         layer_outputs = layerStart + header.output_offset;
 
-        // std::cout << "eval layer" << '\n';
         _evaluateLayer(layerStart, header, layer_inputs, layer_outputs);
-        // std::cout << "eval layer done" << '\n';
         layerStart += header.layer_size;
     }
     return layer_outputs[0];
@@ -312,12 +310,6 @@ inline void Network4::_evaluateLayer(float * layer_start, LayerHeader & header, 
         float node_output = 0.0f;
 
         for (size_t k = 0; k < num_weights; k += 8) {
-            if (node_size % 8 != 0) {
-                std::cout << "node_size: " << node_size << '\n';
-            }
-            if (header.size % 8 != 0) {
-                std::cout << "header.size: " << header.size << '\n';
-            }
             auto layer_start_index = header.size + (node_size * j) + k;
             __m256 sse_in = _mm256_load_ps(&inputs[k]);
             __m256 sse_wt = _mm256_load_ps(&layer_start[layer_start_index]);
