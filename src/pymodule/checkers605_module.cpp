@@ -8,6 +8,7 @@
 #include "search.h"
 #include <Python.h>
 #include <chrono>
+#include <functional>
 #include <iostream>
 #include <string>
 #include <stdexcept>
@@ -229,12 +230,12 @@ static PyObject * min_max_search_inplace_wrapper(PyObject * self, PyObject * arg
     BoardState board;
     string_to_board_state(board_string, board);
 
-    auto start = std::chrono::high_resolution_clock::now();
-    auto search_result = min_max_search_inplace(board, player, depth);
-    auto end = std::chrono::high_resolution_clock::now();
+    // auto start = std::chrono::high_resolution_clock::now();
+    auto search_result = min_max_search_inplace(board, player, depth, &evaluate_board_with_player);
+    // auto end = std::chrono::high_resolution_clock::now();
 
-    auto time = ((std::chrono::nanoseconds)(end - start)).count();
-    std::cout << "min_max_search_inplace time: " << ((double)time) << " ns / call\n";
+    // auto time = ((std::chrono::nanoseconds)(end - start)).count();
+    // std::cout << "min_max_search_inplace time: " << ((double)time) << " ns / call\n";
 
     auto tuple = PyTuple_New(2);
     auto list = PyList_New(BOARD_ELEMENTS);
