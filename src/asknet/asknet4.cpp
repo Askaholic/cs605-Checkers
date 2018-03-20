@@ -158,7 +158,7 @@ void Network4::_initSigmas() {
         for (size_t j = 0; j < header.num_nodes; j++) {
             for (size_t k = 0; k < header.num_node_weights; k++) {
                 iter = header.size + (header.node_size * j) + k;
-                _sigmas[iter] = 0.5;
+                _sigmas[iter] = 0.05;
             }
         }
         layerStart += header.layer_size;
