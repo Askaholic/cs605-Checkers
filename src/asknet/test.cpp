@@ -12,10 +12,18 @@
 int main() {
     size_t NUM_TESTS = 100000;
 
-    Network4 test( {1, 1, 1} );
+    Network4 test( {1, 2, 1} );
     test.setInputs({0.5});
     test.printWeights();
-    test.randomizeWeights();
+    test.setWeights({
+        {
+            {.5},
+            {.5}
+        },
+        {
+            {1, 1}
+        }
+    });
     std::cout << "value: " << test.evaluate() << '\n';
 
     // test_topology({3, 1 }, NUM_TESTS);

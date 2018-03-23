@@ -38,7 +38,7 @@ Network4::Network4(const std::vector<size_t> & topology) {
     }
 
     _data = AlignedArray<float, 32>(required_space);
-    auto layer_start = _writeNetworkHeader(&_data[0], topology[1]);
+    auto layer_start = _writeNetworkHeader(&_data[0], topology[0]);
 
     size_t num_node_inputs = 1;
     size_t numSigmas = 0;
@@ -128,7 +128,7 @@ void Network4::setWeights(const std::vector<std::vector<std::vector<float>>> & w
 
     size_t i = 0;
     while (layerStart < dataEnd) {
-        if (! (i < weights.size())) {
+        if ( i >= weights.size() ) {
             throw std::out_of_range("Wrong number of layers (" + std::to_string(weights.size()) + ") passed to setWeights" );
         }
         auto header = _readLayerHeader(layerStart);
