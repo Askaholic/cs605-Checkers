@@ -12,6 +12,7 @@
 #include <vector>
 #include <cstddef>
 #include <iostream>
+#include <random>
 #include <stdexcept>
 #include <fstream>
 #include <sstream>
@@ -28,8 +29,9 @@ size_t padSizeToAlignment(size_t size, size_t alignment) {
 
 Network4::Network4(const std::vector<size_t> & topology) {
     size_t required_space = _getRequiredSpace(topology);
-
+    std::cout << "req space: " << required_space << '\n';
     _num_layers = topology.size();
+    std::cout << "num_layers: " << _num_layers << '\n';
 
     if (_num_layers == 0) {
         return;
@@ -40,7 +42,7 @@ Network4::Network4(const std::vector<size_t> & topology) {
 
     size_t num_node_inputs = 1;
     size_t numSigmas = 0;
-    for (size_t i = 0; i < _num_layers; i++) {
+    for (size_t i = 1; i < _num_layers; i++) {
         auto num_nodes_in_layer = topology[i];
 
         layer_start = _writeLayerHeader(layer_start, num_nodes_in_layer, num_node_inputs);
@@ -48,7 +50,9 @@ Network4::Network4(const std::vector<size_t> & topology) {
         numSigmas += (topology[i] * num_node_inputs);
     }
     _sigmas = std::vector<float>(numSigmas);
+    std::cout << "init sigmas " << '\n';
     _initSigmas();
+    printWeights();
 }
 
 float * Network4::_writeLayerHeader(float * start, size_t num_nodes, size_t num_node_weights) {
@@ -83,8 +87,8 @@ size_t Network4::_getRequiredSpace(const std::vector<size_t> & topology) {
         required_space += topology[0];
     }
 
-    size_t num_node_inputs = 1;
-    for (size_t i = 0; i < topology.size(); i++) {
+    size_t num_node_inputs = topology[0];
+    for (size_t i = 1; i < topology.size(); i++) {
         auto num_nodes_in_layer = topology[i];
         auto space = _getLayerRequiredSpace(num_nodes_in_layer, num_node_inputs);
         required_space += space;
@@ -124,7 +128,7 @@ void Network4::setWeights(const std::vector<std::vector<std::vector<float>>> & w
 
     size_t i = 0;
     while (layerStart < dataEnd) {
-        if (! (i < weights.size())) {
+        if ( i >= weights.size() ) {
             throw std::out_of_range("Wrong number of layers (" + std::to_string(weights.size()) + ") passed to setWeights" );
         }
         auto header = _readLayerHeader(layerStart);
@@ -158,7 +162,7 @@ void Network4::_initSigmas() {
         for (size_t j = 0; j < header.num_nodes; j++) {
             for (size_t k = 0; k < header.num_node_weights; k++) {
                 iter = header.size + (header.node_size * j) + k;
-                _sigmas[iter] = 0.5;
+                _sigmas[iter] = 0.05;
             }
         }
         layerStart += header.layer_size;
@@ -252,29 +256,19 @@ float Network4::evaluate() {
     float * dataEnd = &_data[_data.size() - 1];
 
     auto net_header = _readNetworkHeader(layerStart);
-
     float * layer_inputs = layerStart + net_header.input_offset;
-
     layerStart += net_header.size + net_header.input_block_size;
 
-    // TODO: Refactor first time special case
-    auto header = _readLayerHeader(layerStart);
-    float * layer_outputs = layerStart + header.output_offset;
-
-    for (size_t i = 0; i < net_header.num_inputs; i++) {
-        float output = layerStart[header.size + (header.node_size * i)] * layer_inputs[i];
-        output = _applySigmoid(output);
-        layer_outputs[i] = output;
-    }
-    layerStart += header.layer_size;
+    LayerHeader header;
+    float * layer_outputs;
 
     while (layerStart < dataEnd) {
-        header = _readLayerHeader(layerStart);
-        layer_inputs = layer_outputs;
+        auto header = _readLayerHeader(layerStart);
         layer_outputs = layerStart + header.output_offset;
 
         _evaluateLayer(layerStart, header, layer_inputs, layer_outputs);
         layerStart += header.layer_size;
+        layer_inputs = layer_outputs;
     }
     return layer_outputs[0];
 }

@@ -58,7 +58,7 @@ std::vector<std::vector<int>> moveTable = {
 
 
 BoardState the_board = {};
-Network the_network({0, 0});
+Network4 the_network({0, 0});
 
 
 void setup_board() {
@@ -69,14 +69,24 @@ void setup_board() {
 }
 
 void setup_network() {
-    the_network = Network({32, 1024, 512, 256, 8, 1});
-    the_network.randomizeWeights();
+    // the_network = Network({32, 1024, 512, 256, 8, 1});
+    // the_network.randomizeWeights();
+    the_network = Network4({32, 40, 10, 1});
+    the_network.readFromFile("best_network.txt");
     std::cout << "Initialized network with " << the_network.getNumNodes() << " nodes" << '\n';
 }
 
 
 BoardState get_board() {
-  return the_board;
+    return the_board;
+}
+
+float evaluate_board_with_player(const BoardState& board, int player) {
+    auto result = evaluate_board(board);
+    if (player == BLACK_PLAYER) {
+        result *= -1;
+    }
+    return result;
 }
 
 float evaluate_board(const BoardState &board) {
@@ -86,15 +96,16 @@ float evaluate_board(const BoardState &board) {
         auto piece = board[i];
         float node_value = 0.0f;
         switch (piece) {
-            case RED_CHECKER: node_value = 0.5f; break;
-            case RED_KING: node_value = 1.0f; break;
-            case BLACK_CHECKER: node_value = -0.5f; break;
-            case BLACK_KING: node_value = -1.0f; break;
+            case RED_CHECKER: node_value = 1; break;
+            case RED_KING: node_value = the_network.getKingValue(); break;
+            case BLACK_CHECKER: node_value = -1; break;
+            case BLACK_KING: node_value = - the_network.getKingValue(); break;
         }
         inputs[i] = node_value;
     }
 
-    return the_network.evaluate(inputs);
+    the_network.setInputs(inputs);
+    return the_network.evaluate();
 }
 
 void _set_targets(char * targets, int player) {
@@ -139,10 +150,10 @@ std::vector<Move> get_possible_moves(const BoardState &board, int player) {
         for (size_t c = start; c < end; c++) {
             auto move = possible_moves[c];
 
-            if (move == -1) { continue; }
+            if (move < 0) { continue; }
 
             if (board[move] == BLANK) {
-                moves.push_back({b_loc, move});
+                moves.push_back({b_loc, (size_t) move});
             }
         }
     }
@@ -184,9 +195,9 @@ void get_possible_jumps_for_piece(std::vector<Jump> & jumps, const BoardState & 
 
     for (auto ii = start; ii < end; ii++) {
         auto jump = possible_jump[ii];
-        if (jump[0] == -1) { continue; }
+        if (jump[0] < 0) { continue; }
 
-        Jump poss_jump = {index, jump[0], jump[1]};
+        Jump poss_jump = {index, (size_t) jump[0], (size_t) jump[1]};
 
         if (is_valid_jump(board, poss_jump, player)) {
             jumps.push_back(poss_jump);

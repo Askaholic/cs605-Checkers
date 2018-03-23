@@ -7,6 +7,7 @@
 from board import Board, RED_PLAYER, BLACK_PLAYER
 from time import time
 
+
 class Game(object):
     def __init__(self):
         self.board = Board()
@@ -78,5 +79,3 @@ class Game(object):
             self.winner = not self.board.current_turn_player
         else:
             self.set_draw()
-
-
