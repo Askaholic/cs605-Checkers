@@ -21,9 +21,9 @@
  * Describes the number of networks that survive to the next generation.
  */
 #define SURVIVAL_CUTTOFF 25
-#define NUM_OFFSPRING 2
+#define NUM_OFFSPRING 1
 #define GENERATION_TARGET 300
-#define NUM_GAMES 5
+#define NUM_GAMES 1
 #define WIN_POINTS 1
 #define LOSS_POINTS -2
 #define DRAW_POINTS 0
@@ -143,6 +143,7 @@ int main(int argc, char const *argv[]) {
 
         std::cout << "Evolving..." << '\n';
         evolveNetworks(pool, generation);
+        std::cout << "Clearing old scores" << '\n';
         for (size_t i = 0; i < pool.size(); i++) {
             pool[i].score = 0;
             pool[i].games_played = 0;
@@ -203,6 +204,7 @@ void adjustScore(int winner, std::vector<ScoredNetwork> & pool, size_t i, size_t
 }
 
 void evolveNetworks(std::vector<ScoredNetwork> & pool, size_t generation) {
+    std::cout << "sorting" << '\n';
     std::sort(pool.begin(), pool.end(),
         [&](const ScoredNetwork & a, const ScoredNetwork & b) {
             return ((float) b.score / (float) b.games_played) <
@@ -210,6 +212,7 @@ void evolveNetworks(std::vector<ScoredNetwork> & pool, size_t generation) {
         }
     );
 
+    std::cout << "writing best to file" << '\n';
     pool[0].net.writeToFile("best_network" + std::to_string(generation) + ".txt");
     // for (size_t i = 0; i < pool.size(); i++) {
     //     std::cout << "best score " << i <<": " << pool[i].score << '\n';
@@ -225,16 +228,20 @@ void evolveNetworks(std::vector<ScoredNetwork> & pool, size_t generation) {
     for (size_t i = 0; i < SURVIVAL_CUTTOFF; i++) {
         survivors.emplace_back(pool[i]);
     }
-    pool.clear();
-    pool.reserve(NUM_OFFSPRING * survivors.size());
-    // std::copy(survivors.begin(), survivors.begin() + SURVIVAL_CUTTOFF, pool.begin());
+    std::vector<ScoredNetwork> newPool;
+    for (size_t i = 0; i < survivors.size(); i++) {
+        newPool.emplace_back(survivors[i]);
+    }
 
     std::cout << "creating children" << '\n';
     for (size_t i = 0; i < survivors.size(); i++) {
         for (size_t c = 0; c < NUM_OFFSPRING; c++) {
             Network4 child = survivors[i].net;
             child.evolve();
-            pool.emplace_back(child, 0, 0);
+            newPool.emplace_back(child, 0, 0);
         }
+    }
+    for (size_t i = 0; i < pool.size(); i++) {
+        pool[i] = newPool[i];
     }
 }
