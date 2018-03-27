@@ -164,7 +164,7 @@ public:
             else {
                 do {
                     // Find the max value of this level
-                    float best;
+                    float best = 0;
                     size_t best_index = 0;
 
                     for (size_t i = 0; i < moves_size[curr_depth]; i++) {

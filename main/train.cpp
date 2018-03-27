@@ -53,7 +53,7 @@ public:
 
 
 void adjustScore(int winner, std::vector<ScoredNetwork> & pool, size_t i, size_t j);
-void evolveNetworks(std::vector<ScoredNetwork> & pool);
+void evolveNetworks(std::vector<ScoredNetwork> & pool, size_t generation);
 size_t getRandomOpponentIndex(size_t i, size_t size);
 void loadPoolFrom(const char * filename, std::vector<ScoredNetwork> & pool);
 int playGame(const Network4 & red_net, const Network4 & black_net);
@@ -129,6 +129,7 @@ int main(int argc, char const *argv[]) {
             for (size_t c = pool[i].games_played; c < NUM_GAMES; c++) {
                 auto j = getRandomOpponentIndex(i, pool.size());
                 auto net_opponent = pool[j].net;
+
                 auto winner = playGame(net, net_opponent);
 
                 adjustScore(winner, pool, i, j);
@@ -141,7 +142,7 @@ int main(int argc, char const *argv[]) {
         std::cout << "Took " << elapsed.count() << " seconds\n";
 
         std::cout << "Evolving..." << '\n';
-        evolveNetworks(pool);
+        evolveNetworks(pool, generation);
         for (size_t i = 0; i < pool.size(); i++) {
             pool[i].score = 0;
             pool[i].games_played = 0;
@@ -167,9 +168,9 @@ void randomizePool(std::vector<ScoredNetwork> & pool) {
 
 size_t getRandomOpponentIndex(size_t i, size_t size) {
     size_t result = i;
-    std::uniform_int_distribution<int> distribution(0, size);
+    std::uniform_int_distribution<int> distribution(0, size - 1);
 
-    while (result != i) {
+    while (result == i) {
         result = distribution(generator);
     }
     return result;
@@ -201,7 +202,7 @@ void adjustScore(int winner, std::vector<ScoredNetwork> & pool, size_t i, size_t
     }
 }
 
-void evolveNetworks(std::vector<ScoredNetwork> & pool) {
+void evolveNetworks(std::vector<ScoredNetwork> & pool, size_t generation) {
     std::sort(pool.begin(), pool.end(),
         [&](const ScoredNetwork & a, const ScoredNetwork & b) {
             return ((float) b.score / (float) b.games_played) <
@@ -209,8 +210,10 @@ void evolveNetworks(std::vector<ScoredNetwork> & pool) {
         }
     );
 
-    pool[0].net.writeToFile("best_network.txt");
-
+    pool[0].net.writeToFile("best_network" + std::to_string(generation) + ".txt");
+    // for (size_t i = 0; i < pool.size(); i++) {
+    //     std::cout << "best score " << i <<": " << pool[i].score << '\n';
+    // }
     // Use this for checking that the weights are actually changing
     // for (size_t i = 0; i < pool.size(); i++) {
     //     pool[i].net.printWeights();
@@ -224,6 +227,7 @@ void evolveNetworks(std::vector<ScoredNetwork> & pool) {
     }
     pool.clear();
     pool.reserve(NUM_OFFSPRING * survivors.size());
+    // std::copy(survivors.begin(), survivors.begin() + SURVIVAL_CUTTOFF, pool.begin());
 
     std::cout << "creating children" << '\n';
     for (size_t i = 0; i < survivors.size(); i++) {
