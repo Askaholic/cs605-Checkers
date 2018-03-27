@@ -23,7 +23,7 @@
 #define SURVIVAL_CUTTOFF 25
 #define NUM_OFFSPRING 1
 #define GENERATION_TARGET 300
-#define NUM_GAMES 1
+#define NUM_GAMES 5
 #define WIN_POINTS 1
 #define LOSS_POINTS -2
 #define DRAW_POINTS 0
