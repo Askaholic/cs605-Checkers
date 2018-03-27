@@ -53,7 +53,7 @@ public:
 
 
 void adjustScore(int winner, std::vector<ScoredNetwork> & pool, size_t i, size_t j);
-void evolveNetworks(std::vector<ScoredNetwork> & pool);
+void evolveNetworks(std::vector<ScoredNetwork> & pool, size_t generation);
 size_t getRandomOpponentIndex(size_t i, size_t size);
 void loadPoolFrom(const char * filename, std::vector<ScoredNetwork> & pool);
 int playGame(const Network4 & red_net, const Network4 & black_net);
@@ -141,7 +141,7 @@ int main(int argc, char const *argv[]) {
         std::cout << "Took " << elapsed.count() << " seconds\n";
 
         std::cout << "Evolving..." << '\n';
-        evolveNetworks(pool);
+        evolveNetworks(pool, generation);
         for (size_t i = 0; i < pool.size(); i++) {
             pool[i].score = 0;
             pool[i].games_played = 0;
@@ -201,7 +201,7 @@ void adjustScore(int winner, std::vector<ScoredNetwork> & pool, size_t i, size_t
     }
 }
 
-void evolveNetworks(std::vector<ScoredNetwork> & pool) {
+void evolveNetworks(std::vector<ScoredNetwork> & pool, size_t generation) {
     std::sort(pool.begin(), pool.end(),
         [&](const ScoredNetwork & a, const ScoredNetwork & b) {
             return ((float) b.score / (float) b.games_played) <
@@ -209,7 +209,7 @@ void evolveNetworks(std::vector<ScoredNetwork> & pool) {
         }
     );
 
-    pool[0].net.writeToFile("best_network.txt");
+    pool[0].net.writeToFile("best_network" + std::to_string(generation) + ".txt");
 
     // Use this for checking that the weights are actually changing
     // for (size_t i = 0; i < pool.size(); i++) {
