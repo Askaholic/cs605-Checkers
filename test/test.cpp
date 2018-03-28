@@ -226,3 +226,332 @@ TEST_CASE( "Generate Jumps", "[jump gen]") {
         REQUIRE( moves == correct_jumps );
     }
 }
+
+TEST_CASE( "Generate Moves", "[move gen]") {
+    JumpGenerator gen;
+
+
+    const auto board_1 = make_board(
+        {
+              ' ',' ',' ',' ',    //0 - 3
+            ' ','r',' ',' ',    //4 - 7
+              ' ','b',' ',' ',    //8 - 11
+            ' ',' ',' ',' ',    //12 - 15
+              ' ',' ',' ',' ',    //16 - 19
+            ' ',' ',' ',' ',    //20 - 23
+              ' ',' ',' ',' ',    //24 - 27
+            ' ',' ',' ',' ',    //28 - 31
+        }
+    );
+
+    const auto board_2 = make_board(
+        {
+              ' ',' ',' ',' ',
+            ' ',' ',' ',' ',
+              ' ','r',' ',' ',
+            ' ',' ',' ',' ',
+              ' ',' ',' ',' ',
+            ' ',' ','b',' ',
+              ' ',' ',' ',' ',
+            ' ',' ',' ',' ',
+        }
+    );
+
+    const auto board_3 = make_board(
+        {
+              ' ',' ',' ',' ',
+            ' ',' ',' ',' ',
+              ' ','r','r',' ',
+            ' ',' ',' ',' ',
+              ' ',' ',' ',' ',
+            ' ','b','b',' ',
+              ' ',' ',' ',' ',
+            ' ',' ',' ',' ',
+        }
+    );
+
+    const auto board_4 = make_board(
+        {
+              'r','r','r','r',
+            'r','r','r','r',
+              'r','r','r','r',
+            ' ',' ',' ',' ',
+              ' ',' ',' ',' ',
+            'b','b','b','b',
+              'b','b','b','b',
+            'b','b','b','b',
+        }
+    );
+
+    SECTION( "Single move - Red player" ) {
+        std::vector<BoardState> correct_jumps = {
+            *(make_board({
+                  ' ',' ',' ',' ',
+                ' ',' ',' ',' ',
+                  'r','b',' ',' ',
+                ' ',' ',' ',' ',
+                  ' ',' ',' ',' ',
+                ' ',' ',' ',' ',
+                  ' ',' ',' ',' ',
+                ' ',' ',' ',' ',
+            }))
+        };
+
+        auto moves = gen.get_possible_moves(*board_1, RED_PLAYER);
+        REQUIRE( moves == correct_jumps );
+    }
+
+    SECTION( "Single move - Black player" ) {
+        std::vector<BoardState> correct_jumps = {
+            *(make_board({
+                  ' ',' ',' ',' ',
+                ' ','r','b',' ',
+                  ' ',' ',' ',' ',
+                ' ',' ',' ',' ',
+                  ' ',' ',' ',' ',
+                ' ',' ',' ',' ',
+                  ' ',' ',' ',' ',
+                ' ',' ',' ',' ',
+            }))
+        };
+
+        auto moves = gen.get_possible_moves(*board_1, BLACK_PLAYER);
+
+        REQUIRE( moves == correct_jumps );
+    }
+
+    SECTION( "Two moves - Red player" ) {
+        std::vector<BoardState> correct_jumps = {
+            *(make_board({
+                  ' ',' ',' ',' ',
+                ' ',' ',' ',' ',
+                  ' ',' ',' ',' ',
+                ' ','r',' ',' ',
+                  ' ',' ',' ',' ',
+                ' ',' ','b',' ',
+                  ' ',' ',' ',' ',
+                ' ',' ',' ',' ',
+            })),
+            *(make_board({
+                  ' ',' ',' ',' ',
+                ' ',' ',' ',' ',
+                  ' ',' ',' ',' ',
+                ' ',' ','r',' ',
+                  ' ',' ',' ',' ',
+                ' ',' ','b',' ',
+                  ' ',' ',' ',' ',
+                ' ',' ',' ',' ',
+            }))
+        };
+
+        auto moves = gen.get_possible_moves(*board_2, RED_PLAYER);
+
+        REQUIRE( moves == correct_jumps );
+    }
+
+    SECTION( "Two moves - Black player" ) {
+        std::vector<BoardState> correct_jumps = {
+            *(make_board({
+                  ' ',' ',' ',' ',
+                ' ',' ',' ',' ',
+                  ' ','r',' ',' ',
+                ' ',' ',' ',' ',
+                  ' ','b',' ',' ',
+                ' ',' ',' ',' ',
+                  ' ',' ',' ',' ',
+                ' ',' ',' ',' ',
+            })),
+            *(make_board({
+                  ' ',' ',' ',' ',
+                ' ',' ',' ',' ',
+                  ' ','r',' ',' ',
+                ' ',' ',' ',' ',
+                  ' ',' ','b',' ',
+                ' ',' ',' ',' ',
+                  ' ',' ',' ',' ',
+                ' ',' ',' ',' ',
+            }))
+        };
+
+        auto moves = gen.get_possible_moves(*board_2, BLACK_PLAYER);
+
+        REQUIRE( moves == correct_jumps );
+    }
+
+    SECTION( "Multiple moves - Red player" ) {
+        std::vector<BoardState> correct_jumps = {
+            *(make_board({
+                  ' ',' ',' ',' ',
+                ' ',' ',' ',' ',
+                  ' ',' ','r',' ',
+                ' ','r',' ',' ',
+                  ' ',' ',' ',' ',
+                ' ','b','b',' ',
+                  ' ',' ',' ',' ',
+                ' ',' ',' ',' ',
+            })),
+            *(make_board({
+                  ' ',' ',' ',' ',
+                ' ',' ',' ',' ',
+                  ' ',' ','r',' ',
+                ' ',' ','r',' ',
+                  ' ',' ',' ',' ',
+                ' ','b','b',' ',
+                  ' ',' ',' ',' ',
+                ' ',' ',' ',' ',
+            })),
+            *(make_board({
+                  ' ',' ',' ',' ',
+                ' ',' ',' ',' ',
+                  ' ','r',' ',' ',
+                ' ',' ','r',' ',
+                  ' ',' ',' ',' ',
+                ' ','b','b',' ',
+                  ' ',' ',' ',' ',
+                ' ',' ',' ',' ',
+            })),
+            *(make_board({
+                  ' ',' ',' ',' ',
+                ' ',' ',' ',' ',
+                  ' ','r',' ',' ',
+                ' ',' ',' ','r',
+                  ' ',' ',' ',' ',
+                ' ','b','b',' ',
+                  ' ',' ',' ',' ',
+                ' ',' ',' ',' ',
+            }))
+        };
+
+        auto moves = gen.get_possible_moves(*board_3, RED_PLAYER);
+
+        REQUIRE( moves == correct_jumps );
+    }
+
+    SECTION( "Multiple moves - Black player" ) {
+        std::vector<BoardState> correct_jumps = {
+            *(make_board({
+                  ' ',' ',' ',' ',
+                ' ',' ',' ',' ',
+                  ' ','r','r',' ',
+                ' ',' ',' ',' ',
+                  'b',' ',' ',' ',
+                ' ',' ','b',' ',
+                  ' ',' ',' ',' ',
+                ' ',' ',' ',' ',
+            })),
+            *(make_board({
+                  ' ',' ',' ',' ',
+                ' ',' ',' ',' ',
+                  ' ','r','r',' ',
+                ' ',' ',' ',' ',
+                  ' ','b',' ',' ',
+                ' ',' ','b',' ',
+                  ' ',' ',' ',' ',
+                ' ',' ',' ',' ',
+            })),
+            *(make_board({
+                  ' ',' ',' ',' ',
+                ' ',' ',' ',' ',
+                  ' ','r','r',' ',
+                ' ',' ',' ',' ',
+                  ' ','b',' ',' ',
+                ' ','b',' ',' ',
+                  ' ',' ',' ',' ',
+                ' ',' ',' ',' ',
+            })),
+            *(make_board({
+                  ' ',' ',' ',' ',
+                ' ',' ',' ',' ',
+                  ' ','r','r',' ',
+                ' ',' ',' ',' ',
+                  ' ',' ','b',' ',
+                ' ','b',' ',' ',
+                  ' ',' ',' ',' ',
+                ' ',' ',' ',' ',
+            }))
+        };
+
+        auto moves = gen.get_possible_moves(*board_3, BLACK_PLAYER);
+
+        REQUIRE( moves == correct_jumps );
+    }
+
+    SECTION( "Starting board - Red player" ) {
+        std::vector<BoardState> correct_jumps = {
+            *(make_board({
+                  'r','r','r','r',
+                'r','r','r','r',
+                  ' ','r','r','r',
+                'r',' ',' ',' ',
+                  ' ',' ',' ',' ',
+                'b','b','b','b',
+                  'b','b','b','b',
+                'b','b','b','b',
+            })),
+            *(make_board({
+                  'r','r','r','r',
+                'r','r','r','r',
+                  ' ','r','r','r',
+                ' ','r',' ',' ',
+                  ' ',' ',' ',' ',
+                'b','b','b','b',
+                  'b','b','b','b',
+                'b','b','b','b',
+            })),
+            *(make_board({
+                  'r','r','r','r',
+                'r','r','r','r',
+                  'r',' ','r','r',
+                ' ','r',' ',' ',
+                  ' ',' ',' ',' ',
+                'b','b','b','b',
+                  'b','b','b','b',
+                'b','b','b','b',
+            })),
+            *(make_board({
+                  'r','r','r','r',
+                'r','r','r','r',
+                  'r',' ','r','r',
+                ' ',' ','r',' ',
+                  ' ',' ',' ',' ',
+                'b','b','b','b',
+                  'b','b','b','b',
+                'b','b','b','b',
+            })),
+            *(make_board({
+                  'r','r','r','r',
+                'r','r','r','r',
+                  'r','r',' ','r',
+                ' ',' ','r',' ',
+                  ' ',' ',' ',' ',
+                'b','b','b','b',
+                  'b','b','b','b',
+                'b','b','b','b',
+            })),
+            *(make_board({
+                  'r','r','r','r',
+                'r','r','r','r',
+                  'r','r',' ','r',
+                ' ',' ',' ','r',
+                  ' ',' ',' ',' ',
+                'b','b','b','b',
+                  'b','b','b','b',
+                'b','b','b','b',
+            })),
+            *(make_board({
+                  'r','r','r','r',
+                'r','r','r','r',
+                  'r','r','r',' ',
+                ' ',' ',' ','r',
+                  ' ',' ',' ',' ',
+                'b','b','b','b',
+                  'b','b','b','b',
+                'b','b','b','b',
+            }))
+        };
+
+        auto moves = gen.get_possible_moves(*board_4, RED_PLAYER);
+
+        REQUIRE( moves == correct_jumps );
+    }
+}
