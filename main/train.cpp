@@ -5,7 +5,7 @@
 // Plays AI against eachother and evolves them.
 
 #include "game.h"
-#include "asknet4.cpp"
+#include "asknet4.h"
 #include "search.h"
 #include "board_funcs.h"
 #include <algorithm>
@@ -23,7 +23,7 @@
 #define SURVIVAL_CUTTOFF 25
 #define NUM_OFFSPRING 1
 #define GENERATION_TARGET 300
-#define NUM_GAMES 5
+#define NUM_GAMES 10
 #define WIN_POINTS 1
 #define LOSS_POINTS -2
 #define DRAW_POINTS 0
@@ -35,6 +35,7 @@ public:
     Network4 net;
     int score;
     size_t games_played;
+    std::string id = "_";
 
 public:
     ScoredNetwork(std::vector<size_t> topology, int score, size_t games_played)
@@ -207,6 +208,11 @@ void adjustScore(int winner, std::vector<ScoredNetwork> & pool, size_t i, size_t
 }
 
 void evolveNetworks(std::vector<ScoredNetwork> & pool, size_t generation) {
+    for (size_t i = 0; i < pool.size(); i++) {
+        if (pool[i].id == "_") {
+            pool[i].id = std::to_string(generation) + "_" + std::to_string(i);
+        }
+    }
     std::cout << "sorting" << '\n';
     std::sort(pool.begin(), pool.end(),
         [&](const ScoredNetwork & a, const ScoredNetwork & b) {
@@ -238,6 +244,7 @@ void evolveNetworks(std::vector<ScoredNetwork> & pool, size_t generation) {
         survivors.emplace_back(pool[i]);
     }
     std::vector<ScoredNetwork> newPool;
+    newPool.reserve(SURVIVAL_CUTTOFF + NUM_OFFSPRING * SURVIVAL_CUTTOFF);
     for (size_t i = 0; i < survivors.size(); i++) {
         newPool.emplace_back(survivors[i]);
     }
@@ -253,4 +260,10 @@ void evolveNetworks(std::vector<ScoredNetwork> & pool, size_t generation) {
     for (size_t i = 0; i < pool.size(); i++) {
         pool[i] = newPool[i];
     }
+
+    std::cout << "ids: " << '\n';
+    for (size_t i = 0; i < pool.size(); i++) {
+        std::cout << pool[i].id << " ";
+    }
+    std::cout << '\n';
 }
