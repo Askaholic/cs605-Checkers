@@ -11,16 +11,6 @@
 
 
 BoardState::BoardState(const BoardState & board) {
-    // if (&board == nullptr || &board == 0) {
-    //     std::cout << "trying to copy nullptr...." << '\n';
-    //     return;
-    // }
-    // if ((unsigned long)this >= 0x7fffffffcc00) {
-        // std::cout << "board: " << &board << '\n';
-    // }
-    // for (size_t i = 0; i < 16; i++) {
-    //     _tiles[i] = board._tiles[i];
-    // }
     std::copy(board._tiles, board._tiles + (BOARD_ELEMENTS / 2), _tiles);
 }
 
@@ -69,6 +59,12 @@ bool BoardState::operator==(const BoardState & other) const {
     return true;
 }
 
+std::ostream & operator<<(std::ostream & os, const BoardState & board) {
+    os << board.toStdString();
+    return os;
+}
+
+
 std::string BoardState::toStdString() const {
     std::string str = "";
     for (size_t i = 0; i < BOARD_ELEMENTS; i++) {
@@ -113,7 +109,7 @@ void BoardState::make_king(const int to) {
     }
 }
 
-bool BoardState::is_empty() {
+bool BoardState::is_empty() const {
     for (size_t i = 0; i < BOARD_ELEMENTS; i++) {
         auto piece = (*this)[i];
         if (piece != BLANK) return false;
