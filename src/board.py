@@ -295,27 +295,9 @@ class Board(object):
             else:
                 self.board[i] = board[i]
 
-
         print(''.join(self.board))
         self.printBoard(self.board)
         print('RESULTS:', score)
-
-    # def simple_search_for_best_move(self, moves):
-    #     best_score = 0
-    #     best_move = moves[0]
-    #     for move in moves:
-    #         board_string = self.board_to_string(self.expand_move(move))
-    #         try:
-    #             score = bf.evaluate_board(board_string)
-    #         except:
-    #             print('No evaluate Board')
-    #             score = 0
-    #         # TODO: check which player's turn it is
-    #         if score > best_score:
-    #             best_score = score
-    #             best_move = move
-
-    #     return best_move
 
     def expand_move(self, move):
         board_copy = list(self.board)
