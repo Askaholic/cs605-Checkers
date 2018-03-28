@@ -44,7 +44,9 @@ void Game::playTurn() {
         _has_winner = true;
     }
 
-    _board = newBoard;
+    if (!newBoard.is_empty()) {
+        _board = newBoard;
+    }
     _endTurn();
 }
 
