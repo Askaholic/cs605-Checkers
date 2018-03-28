@@ -118,13 +118,12 @@ int main(int argc, char const *argv[]) {
 
     std::cout << "Starting game..." << '\n';
     if (pause_between_moves) {
-        char s[1];
         while (!game.hasWinner()) {
             game.playTurn();
             print_board(game.getBoard());
 
             std::cout << "/* press to continue... */" << '\n';
-            std::cin.getline(s, 1);
+            std::cin.get();
         }
     }
     else {
@@ -138,7 +137,6 @@ int main(int argc, char const *argv[]) {
             else if (winner == BLACK_PLAYER) {
                 scores[1]++;
             }
-            game.reset();
         }
         std::cout << "Red won: " << scores[0] << " times" << '\n';
         std::cout << "Black won: " << scores[1] << " times" << '\n';
