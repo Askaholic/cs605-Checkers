@@ -24,6 +24,7 @@
 #define NUM_OFFSPRING 1
 #define GENERATION_TARGET 300
 #define NUM_GAMES 10
+#define NUM_OPENING_MOVES 3
 #define WIN_POINTS 1
 #define LOSS_POINTS -2
 #define DRAW_POINTS 0
@@ -186,6 +187,7 @@ int playGame(const Network4 & red_net, const Network4 & black_net) {
     AIPlayer p2(BLACK_PLAYER, black_net);
 
     Game game(p1, p2);
+    game.randomizeOpeningMoves(NUM_OPENING_MOVES);
     game.playGame();
     // print_board(game.getBoard());
     return game.getWinner();
