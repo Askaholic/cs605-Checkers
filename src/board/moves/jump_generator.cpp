@@ -36,7 +36,7 @@ std::vector<BoardState> JumpGenerator::get_possible_jumps(const BoardState & boa
 
 std::vector<BoardState> JumpGenerator::get_possible_moves(const BoardState &board, int player) {
     std::vector<BoardState> moves;
-
+    _player = player;
     set_pieces_for_player(_checker, _king, _player);
 
     for (size_t b_loc = 0; b_loc < BOARD_ELEMENTS; b_loc++) {
