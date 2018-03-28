@@ -40,7 +40,7 @@ void Game::playTurn() {
 
     BoardState newBoard = player.takeMove(_board);
 
-    if (_board == newBoard) {
+    if (newBoard.is_empty() || _board == newBoard) {
         _has_winner = true;
     }
 

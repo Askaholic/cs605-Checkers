@@ -13,13 +13,14 @@
 #include <utility>
 #include <vector>
 
+
 template <typename T, size_t A>
 class AlignedArray {
 private:
-    T * _data_unaligned;
-    T * _data;
-    size_t _size;
-    size_t _size_unaligned;
+    T * _data_unaligned = nullptr;
+    T * _data = nullptr;
+    size_t _size_unaligned = 0;
+    size_t _size = 0;
 
     void * _aligned_alloc(size_t size, T*& unaligned_storage) {
         const size_t align_size = A;
@@ -48,19 +49,24 @@ private:
 
 
     void _del() {
-        if (_data_unaligned != nullptr) {
-            delete[] _data_unaligned;
+        if (_data_unaligned == nullptr) {
+            return;
         }
+
+        delete[] _data_unaligned;
+        _reset_members();
+    }
+
+    inline T* _reset_members() {
+        _data_unaligned = nullptr;
+        _data = nullptr;
+        _size_unaligned = 0;
+        _size = 0;
+        return _data_unaligned;
     }
 
 public:
-    AlignedArray() {
-        _data = nullptr;
-        _data_unaligned = nullptr;
-        _size = 0;
-        _size_unaligned = 0;
-
-    }
+    AlignedArray() {}
 
     AlignedArray(size_t size) {
         _size = size;
@@ -76,15 +82,12 @@ public:
 
 
     AlignedArray(const AlignedArray & other) {
-        _size = other._size;
-        _allocate(_size);
-
-        std::copy(other._data, other._data + _size, _data);
+        *this = other;
     }
 
 
     AlignedArray(AlignedArray && other) {
-        *this = std::move(other);
+        *this = other;
     }
 
 
@@ -95,10 +98,9 @@ public:
         _del();
 
         _size = other._size;
-        _size_unaligned = other._size_unaligned;
         _allocate(_size);
 
-        std::copy(other._data_unaligned, other._data_unaligned + _size_unaligned, _data_unaligned);
+        std::copy(other._data, other._data + _size, _data);
 
         return *this;
     }

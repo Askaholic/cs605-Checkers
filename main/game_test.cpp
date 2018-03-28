@@ -4,10 +4,12 @@
 
 // Main file for testing the game play simulator
 
+#include "asknet4.h"
 #include "game.h"
 #include "board_funcs.h"
 #include "jump_generator.h"
 #include "search.h"
+#include "piece_count.h"
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
@@ -60,8 +62,44 @@ public:
     PieceCountPlayer (int color):Player(color) {}
 
     BoardState takeMove(const BoardState & board) override {
-        auto result = min_max_search_inplace(board, _color_id, 4);
+        auto result = min_max_search_inplace(board, _color_id, 4, &piece_count);
         return result.first;
+    }
+};
+
+class AIPlayer : public Player {
+private:
+    Network4 _net;
+
+public:
+    AIPlayer (int color, const Network4 & net):Player(color), _net(net) {}
+
+    BoardState takeMove(const BoardState & board) override {
+        auto result = min_max_search_inplace(board, _color_id, 4, std::bind(&AIPlayer::evaluate, this, std::placeholders::_1, std::placeholders::_2));
+        return result.first;
+    }
+
+    float evaluate(const BoardState & board, int player) {
+        std::vector<float> inputs(BOARD_ELEMENTS);
+        for (size_t i = 0; i < BOARD_ELEMENTS; i++) {
+            auto piece = board[i];
+            float score = 0;
+            switch (piece) {
+                case RED_CHECKER: score=1; break;
+                case BLACK_CHECKER: score=-1; break;
+                case RED_KING: score = _net.getKingValue(); break;
+                case BLACK_KING: score = _net.getKingValue() * -1; break;
+                default: score=0; break;
+            }
+            inputs[i] = score;
+        }
+        _net.setInputs(inputs);
+        // _net.printWeights();
+        auto result = _net.evaluate();
+        if (player == BLACK_PLAYER) {
+            result *= -1;
+        }
+        return result;
     }
 };
 
@@ -72,7 +110,9 @@ int main(int argc, char const *argv[]) {
     }
 
     RandomPlayer p1(RED_PLAYER);
-    PieceCountPlayer p2(BLACK_PLAYER);
+    Network4 net({32, 40, 10, 1});
+    net.readFromFile("best_network.txt");
+    AIPlayer p2(BLACK_PLAYER, net);
 
     Game game(p1, p2);
 
