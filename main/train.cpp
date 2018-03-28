@@ -130,7 +130,9 @@ int main(int argc, char const *argv[]) {
                 auto j = getRandomOpponentIndex(i, pool.size());
                 auto net_opponent = pool[j].net;
 
+                // std::cout << i << " vs " << j << '\n';
                 auto winner = playGame(net, net_opponent);
+                // std::cout << "winner: " << winner << '\n';
 
                 adjustScore(winner, pool, i, j);
                 pool[i].games_played++;
@@ -184,6 +186,7 @@ int playGame(const Network4 & red_net, const Network4 & black_net) {
 
     Game game(p1, p2);
     game.playGame();
+    // print_board(game.getBoard());
     return game.getWinner();
 }
 
@@ -211,6 +214,12 @@ void evolveNetworks(std::vector<ScoredNetwork> & pool, size_t generation) {
                    ((float) a.score / (float) a.games_played);
         }
     );
+
+    std::cout << "top 10: " << '\n';
+    for (size_t i = 0; i < 10 && i < pool.size(); i++) {
+        std::cout << (float) pool[i].score / (float) pool[i].games_played << ' ';
+    }
+    std::cout << '\n';
 
     std::cout << "writing best to file" << '\n';
     pool[0].net.writeToFile("best_network" + std::to_string(generation) + ".txt");

@@ -128,7 +128,20 @@ int main(int argc, char const *argv[]) {
         }
     }
     else {
-        game.playGame();
+        float scores[2] = {0,0};
+        for (size_t i = 0; i < 100; i++) {
+            game.playGame();
+            auto winner = game.getWinner();
+            if (winner == RED_PLAYER) {
+                scores[0]++;
+            }
+            else if (winner == BLACK_PLAYER) {
+                scores[1]++;
+            }
+            game.reset();
+        }
+        std::cout << "Red won: " << scores[0] << " times" << '\n';
+        std::cout << "Black won: " << scores[1] << " times" << '\n';
     }
     auto winner = game.getWinner();
     if (winner == -1) {
