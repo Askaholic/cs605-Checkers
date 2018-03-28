@@ -39,14 +39,8 @@ void Game::playTurn() {
     Player & player = _current_turn_player == RED_PLAYER ? _redPlayer : _blackPlayer;
 
     BoardState newBoard = player.takeMove(_board);
+    _takeMove(newBoard);
 
-    if (newBoard.is_empty() || _board == newBoard) {
-        _has_winner = true;
-    }
-
-    if (!newBoard.is_empty()) {
-        _board = newBoard;
-    }
     _endTurn();
 }
 
@@ -56,6 +50,22 @@ void Game::reset() {
     _current_turn_player = RED_PLAYER;
     _has_winner = false;
     _setupStartingBoard();
+}
+
+
+void Game::randomizeOpeningMoves(int numMoves) {
+    if (numMoves < 0) return;
+
+    std::mt19937 engine(_rd());
+
+    for (size_t i = 0; i < (size_t) numMoves; i++) {
+        auto moves = _moveGen.get_possible_moves(_board, _current_turn_player);
+        std::uniform_int_distribution<> dist(0, moves.size() - 1);
+        size_t index = (size_t) dist(engine);
+
+        _takeMove(moves[index]);
+        _endTurn();
+    }
 }
 
 
@@ -73,4 +83,15 @@ void Game::_endTurn() {
 
     // Swap the current player
     _current_turn_player = _current_turn_player == RED_PLAYER ? BLACK_PLAYER : RED_PLAYER;
+}
+
+
+void Game::_takeMove(const BoardState & board) {
+    if (board.is_empty() || _board == board) {
+        _has_winner = true;
+    }
+
+    if (!board.is_empty()) {
+        _board = board;
+    }
 }
