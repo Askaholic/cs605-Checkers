@@ -12,11 +12,15 @@
 #define CHECKERS_GAME_H
 
 #include "board_state.h"
+#include "jump_generator.h"
 #include "player.h"
-
+#include <random>
 
 class Game {
 private:
+    std::random_device _rd;
+    JumpGenerator _moveGen;
+
     BoardState _board;
     Player &_redPlayer;
     Player &_blackPlayer;
@@ -28,6 +32,7 @@ private:
 
     void _setupStartingBoard();
     void _endTurn();
+    void _takeMove(const BoardState & board);
 
 public:
     Game(Player & red, Player & black);
@@ -78,6 +83,13 @@ public:
      * Sets the game to a clean starting position.
      */
     void reset();
+
+    /* randomizeOpeningMoves
+     *
+     * Starts the game off by making the first few moves randomly. Does not
+     * consider jumps, so it should only be called at the beginning of a game.
+     */
+    void randomizeOpeningMoves(int numMoves);
 };
 
 

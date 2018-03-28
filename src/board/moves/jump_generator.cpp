@@ -8,6 +8,7 @@
 #include "board_state.h"
 #include "jump_generator.h"
 #include "jump_table.h"
+#include "move_table.h"
 #include <stdexcept>
 #include <vector>
 
@@ -30,6 +31,45 @@ std::vector<BoardState> JumpGenerator::get_possible_jumps(const BoardState & boa
         _do_multi_jump(jumps, board, b_loc, table_jumps);
     }
     return jumps;
+}
+
+
+std::vector<BoardState> JumpGenerator::get_possible_moves(const BoardState &board, int player) {
+    std::vector<BoardState> moves;
+    _player = player;
+    set_pieces_for_player(_checker, _king, _player);
+
+    for (size_t b_loc = 0; b_loc < BOARD_ELEMENTS; b_loc++) {
+        auto piece = board[b_loc];
+
+        if ( !_is_players_piece(piece) ) { continue; }
+
+        auto destinations = moveTable[b_loc];
+        size_t start = 0;
+        size_t end = destinations.size();
+
+        // Grab only the north direction
+        if (piece == BLACK_CHECKER) {
+            end -= 2;
+        }
+        // grab only the south direction
+        else if (piece == RED_CHECKER) {
+            start += 2;
+        }
+
+        for (size_t c = start; c < end; c++) {
+            auto move = destinations[c];
+
+            if (move < 0 || board[move] != BLANK) { continue; }
+
+            BoardState new_board = board;
+            new_board.apply_move((Move) {b_loc, (size_t) move});
+
+            moves.emplace_back(new_board);
+        }
+    }
+
+    return moves;
 }
 
 
@@ -115,7 +155,7 @@ std::vector<Jump> get_jumps_from_table(size_t index, const BoardState & board, i
     for (size_t i = start; i < end; i++) {
         if (jump_locations[i][0] == -1) { continue; }
 
-        Jump possible_jump = {index, jump_locations[i][0], jump_locations[i][1]};
+        Jump possible_jump = {index, (size_t) jump_locations[i][0], (size_t) jump_locations[i][1]};
         if (is_valid_jump(board, possible_jump, player)) {
             jumps.push_back(possible_jump);
         }

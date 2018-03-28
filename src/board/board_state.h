@@ -62,8 +62,11 @@ public:
     void apply_move(const Move);
     void apply_jump(const Jump);
     void make_king(const int to);
+    bool is_empty() const;
 
 };
+
+std::ostream & operator<<(std::ostream & os, const BoardState & board);
 
 
 class BoardStateFast {

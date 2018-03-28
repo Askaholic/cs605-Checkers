@@ -5,7 +5,7 @@
 // Plays AI against eachother and evolves them.
 
 #include "game.h"
-#include "asknet4.cpp"
+#include "asknet4.h"
 #include "search.h"
 #include "board_funcs.h"
 #include <algorithm>
@@ -21,9 +21,10 @@
  * Describes the number of networks that survive to the next generation.
  */
 #define SURVIVAL_CUTTOFF 25
-#define NUM_OFFSPRING 2
+#define NUM_OFFSPRING 1
 #define GENERATION_TARGET 300
-#define NUM_GAMES 5
+#define NUM_GAMES 10
+#define NUM_OPENING_MOVES 3
 #define WIN_POINTS 1
 #define LOSS_POINTS -2
 #define DRAW_POINTS 0
@@ -35,6 +36,7 @@ public:
     Network4 net;
     int score;
     size_t games_played;
+    std::string id = "_";
 
 public:
     ScoredNetwork(std::vector<size_t> topology, int score, size_t games_played)
@@ -130,7 +132,9 @@ int main(int argc, char const *argv[]) {
                 auto j = getRandomOpponentIndex(i, pool.size());
                 auto net_opponent = pool[j].net;
 
+                // std::cout << i << " vs " << j << '\n';
                 auto winner = playGame(net, net_opponent);
+                // std::cout << "winner: " << winner << '\n';
 
                 adjustScore(winner, pool, i, j);
                 pool[i].games_played++;
@@ -143,6 +147,7 @@ int main(int argc, char const *argv[]) {
 
         std::cout << "Evolving..." << '\n';
         evolveNetworks(pool, generation);
+        std::cout << "Clearing old scores" << '\n';
         for (size_t i = 0; i < pool.size(); i++) {
             pool[i].score = 0;
             pool[i].games_played = 0;
@@ -182,7 +187,9 @@ int playGame(const Network4 & red_net, const Network4 & black_net) {
     AIPlayer p2(BLACK_PLAYER, black_net);
 
     Game game(p1, p2);
+    game.randomizeOpeningMoves(NUM_OPENING_MOVES);
     game.playGame();
+    // print_board(game.getBoard());
     return game.getWinner();
 }
 
@@ -203,6 +210,12 @@ void adjustScore(int winner, std::vector<ScoredNetwork> & pool, size_t i, size_t
 }
 
 void evolveNetworks(std::vector<ScoredNetwork> & pool, size_t generation) {
+    for (size_t i = 0; i < pool.size(); i++) {
+        if (pool[i].id == "_") {
+            pool[i].id = std::to_string(generation) + "_" + std::to_string(i);
+        }
+    }
+    std::cout << "sorting" << '\n';
     std::sort(pool.begin(), pool.end(),
         [&](const ScoredNetwork & a, const ScoredNetwork & b) {
             return ((float) b.score / (float) b.games_played) <
@@ -210,6 +223,13 @@ void evolveNetworks(std::vector<ScoredNetwork> & pool, size_t generation) {
         }
     );
 
+    std::cout << "top 10: " << '\n';
+    for (size_t i = 0; i < 10 && i < pool.size(); i++) {
+        std::cout << (float) pool[i].score / (float) pool[i].games_played << ' ';
+    }
+    std::cout << '\n';
+
+    std::cout << "writing best to file" << '\n';
     pool[0].net.writeToFile("best_network" + std::to_string(generation) + ".txt");
     // for (size_t i = 0; i < pool.size(); i++) {
     //     std::cout << "best score " << i <<": " << pool[i].score << '\n';
@@ -225,16 +245,27 @@ void evolveNetworks(std::vector<ScoredNetwork> & pool, size_t generation) {
     for (size_t i = 0; i < SURVIVAL_CUTTOFF; i++) {
         survivors.emplace_back(pool[i]);
     }
-    pool.clear();
-    pool.reserve(NUM_OFFSPRING * survivors.size());
-    // std::copy(survivors.begin(), survivors.begin() + SURVIVAL_CUTTOFF, pool.begin());
+    std::vector<ScoredNetwork> newPool;
+    newPool.reserve(SURVIVAL_CUTTOFF + NUM_OFFSPRING * SURVIVAL_CUTTOFF);
+    for (size_t i = 0; i < survivors.size(); i++) {
+        newPool.emplace_back(survivors[i]);
+    }
 
     std::cout << "creating children" << '\n';
     for (size_t i = 0; i < survivors.size(); i++) {
         for (size_t c = 0; c < NUM_OFFSPRING; c++) {
             Network4 child = survivors[i].net;
             child.evolve();
-            pool.emplace_back(child, 0, 0);
+            newPool.emplace_back(child, 0, 0);
         }
     }
+    for (size_t i = 0; i < pool.size(); i++) {
+        pool[i] = newPool[i];
+    }
+
+    std::cout << "ids: " << '\n';
+    for (size_t i = 0; i < pool.size(); i++) {
+        std::cout << pool[i].id << " ";
+    }
+    std::cout << '\n';
 }

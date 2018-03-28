@@ -16,7 +16,6 @@
 
 class JumpGenerator {
 private:
-    /* data */
     char _checker;
     char _king;
     int _player;
@@ -28,7 +27,13 @@ private:
 public:
     JumpGenerator () {}
 
+    /* get_possible_jumps
+     * Finds all the available jumps for the given player and given board state.
+     * Jumps are represented as a new board state after the jump has been taken
+     */
     std::vector<BoardState> get_possible_jumps(const BoardState & board, int player);
+
+    std::vector<BoardState> get_possible_moves(const BoardState & board, int player);
 
     virtual ~JumpGenerator () {}
 };

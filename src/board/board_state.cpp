@@ -11,16 +11,6 @@
 
 
 BoardState::BoardState(const BoardState & board) {
-    // if (&board == nullptr || &board == 0) {
-    //     std::cout << "trying to copy nullptr...." << '\n';
-    //     return;
-    // }
-    // if ((unsigned long)this >= 0x7fffffffcc00) {
-        // std::cout << "board: " << &board << '\n';
-    // }
-    // for (size_t i = 0; i < 16; i++) {
-    //     _tiles[i] = board._tiles[i];
-    // }
     std::copy(board._tiles, board._tiles + (BOARD_ELEMENTS / 2), _tiles);
 }
 
@@ -69,6 +59,12 @@ bool BoardState::operator==(const BoardState & other) const {
     return true;
 }
 
+std::ostream & operator<<(std::ostream & os, const BoardState & board) {
+    os << board.toStdString();
+    return os;
+}
+
+
 std::string BoardState::toStdString() const {
     std::string str = "";
     for (size_t i = 0; i < BOARD_ELEMENTS; i++) {
@@ -79,7 +75,8 @@ std::string BoardState::toStdString() const {
             case BLACK_CHECKER: next='b'; break;
             case RED_KING: next='R'; break;
             case BLACK_KING: next='B'; break;
-            default: next='.'; break;
+            case BLANK: next='.'; break;
+            default: next='?'; break;
         }
         str += next;
     }
@@ -94,7 +91,7 @@ void BoardState::apply_move(const Move move) {
     make_king(move._to);
 }
 
-void BoardState::apply_jump(const Jump jump){
+void BoardState::apply_jump(const Jump jump) {
     auto piece = (*this)[jump._from];
     set(jump._from, BLANK);
     set(jump._to, piece);
@@ -102,15 +99,24 @@ void BoardState::apply_jump(const Jump jump){
     make_king(jump._to);
 }
 
-void BoardState::make_king(const int to){
+void BoardState::make_king(const int to) {
     auto piece = (*this)[to];
-    if (in_<int>(red_king_end, 4, to) && piece == RED_CHECKER){
+    if (in_<int>(red_king_end, 4, to) && piece == RED_CHECKER) {
         set(to, RED_KING);
     }
-    if (in_<int>(black_king_end, 4, to) && piece == BLACK_CHECKER){
+    if (in_<int>(black_king_end, 4, to) && piece == BLACK_CHECKER) {
         set(to, BLACK_KING);
     }
 }
+
+bool BoardState::is_empty() const {
+    for (size_t i = 0; i < BOARD_ELEMENTS; i++) {
+        auto piece = (*this)[i];
+        if (piece != BLANK) return false;
+    }
+    return true;
+}
+
 
 char BoardStateFast::operator[](size_t i) {
   if (i < 0 || i > BOARD_ELEMENTS - 1) { throw std::out_of_range("Board index out of range " + std::to_string(i)); }

@@ -259,7 +259,6 @@ float Network4::evaluate() {
     float * layer_inputs = layerStart + net_header.input_offset;
     layerStart += net_header.size + net_header.input_block_size;
 
-    LayerHeader header;
     float * layer_outputs;
 
     while (layerStart < dataEnd) {

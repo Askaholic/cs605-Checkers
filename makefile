@@ -15,12 +15,14 @@ SOURCE_FILES=\
 	src/board_funcs/board_funcs.cpp \
 	src/board/board_state.cpp \
 	src/board/piece_count.cpp \
+	src/board/moves/move_table.cpp \
 	src/board/moves/jump_table.cpp \
 	src/board/moves/jump_generator.cpp \
 	src/game/game.cpp \
 	src/board_funcs/helpers.cpp \
 	src/search/little_search.cpp \
-	src/asknet/asknet.cpp
+	src/asknet/asknet.cpp \
+	src/asknet/asknet4.cpp
 
 MAIN_FILES=\
 	test/test.cpp \
@@ -56,7 +58,7 @@ $(BIN)/$(GAME_EXECUTABLE): $(OBJ)/main/game_test.o $(OBJECT_FILES)
 	@echo "Build Successful"
 
 
-$(BIN)/$(TRAIN_EXECUTABLE): $(OBJ)/main/train.o $(OBJECT_FILES)
+$(BIN)/$(TRAIN_EXECUTABLE): $(OBJECT_FILES) $(OBJ)/main/train.o
 	@echo Building $^
 	@$(CC) $(LDFLAGS) -o $@ $^
 	@echo "Build Successful"
