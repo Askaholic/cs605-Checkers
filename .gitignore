@@ -16,3 +16,5 @@ build/
 src/board_funcs/.board_funcs.h.swp
 src/board_funcs/asknet/nnfile.txt
 **catch.hpp
+**network*.txt
+train_test
