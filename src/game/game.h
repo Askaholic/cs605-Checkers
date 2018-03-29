@@ -38,6 +38,9 @@ public:
     Game(Player & red, Player & black);
 
     const BoardState & getBoard() const { return _board; }
+
+    void setBoard(const BoardState & board) { _board = board; }
+
     int getTurnCount() const { return _turn_count; }
 
     /* hasWinner
