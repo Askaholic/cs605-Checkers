@@ -25,6 +25,18 @@ int main(int argc, char const *argv[]) {
 
     Game game(p1, p2);
 
+    BoardState testBoard;
+    for (size_t i = 0; i < BOARD_ELEMENTS; i++) {
+        testBoard.set(i, BLANK);
+    }
+
+    testBoard.set(3, RED_CHECKER);
+    testBoard.set(0, RED_CHECKER);
+    testBoard.set(28, BLACK_CHECKER);
+    testBoard.set(31, BLACK_CHECKER);
+
+    // game.setBoard(testBoard);
+
     std::cout << "Starting game..." << '\n';
     if (pause_between_moves) {
         while (!game.hasWinner()) {
@@ -39,6 +51,8 @@ int main(int argc, char const *argv[]) {
     else {
         float scores[2] = {0,0};
         for (size_t i = 0; i < 100; i++) {
+            game.reset();
+            // game.setBoard(testBoard);
             game.playGame();
             auto winner = game.getWinner();
             if (winner == RED_PLAYER) {
