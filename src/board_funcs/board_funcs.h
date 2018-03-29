@@ -33,6 +33,7 @@ float evaluate_board_with_player(const BoardState &board, int player);
 
 
 void print_board(const BoardState & board);
+void print_board(const BoardState & board, std::string linePrefix);
 
 
 
