@@ -186,6 +186,84 @@ public:
     }
 };
 
+class MinMaxSearchRecurse {
+private:
+    JumpGenerator jump_gen;
+
+public:
+    std::vector<BoardState> get_children(const BoardState & board, int player) {
+        std::vector<BoardState> jumps = jump_gen.get_possible_jumps(board, player);
+
+        if (jumps.size() > 0) {
+            return jumps;
+        }
+        return jump_gen.get_possible_moves(board, player);
+    }
+
+
+    std::pair<BoardState, float> search(const BoardState & board, int maximizing_player, int player, int depth, int max_depth, std::function<float(const BoardState &, int)> evaluate) {
+
+        if (depth == max_depth + 1) {
+            return std::make_pair<BoardState, float>(
+                BoardState(board),
+                evaluate(board, player)
+            );
+        }
+
+        if (player == maximizing_player) {
+            float best = -100;
+            int best_index = -1;
+            auto children = get_children(board, player);
+            for (size_t i = 0; i < children.size(); i++) {
+                auto result = search(children[i], maximizing_player, swapPlayer(player), depth + 1, max_depth, evaluate);
+                if (result.second > best) {
+                    best = result.second;
+                    best_index = i;
+                }
+            }
+            return std::make_pair<BoardState, float>(
+                (BoardState)(best_index == -1 ? board : children[best_index]),
+                float(best)
+            );
+        }
+        else {
+            float best = 100;
+            int best_index = -1;
+            auto children = get_children(board, player);
+            for (size_t i = 0; i < children.size(); i++) {
+                auto result = search(children[i], maximizing_player, swapPlayer(player), depth + 1, max_depth, evaluate);
+                if (result.second < best) {
+                    best = result.second;
+                    best_index = i;
+                }
+            }
+            return std::make_pair<BoardState, float>(
+                (BoardState)(best_index == -1 ? board : children[best_index]),
+                float(best)
+            );
+        }
+    }
+
+    int swapPlayer(int player) {
+        return player == RED_PLAYER ? BLACK_PLAYER : RED_PLAYER;
+    }
+
+};
+
+
+std::pair<BoardState, float> min_max_search(const BoardState & board, int player, int depth, std::function<float(const BoardState &, int)> evaluate) {
+    if (depth < 1) {
+        return std::make_pair<BoardState, float>(
+            BoardState(board),
+            evaluate(board, player)
+        );
+    }
+
+    MinMaxSearchRecurse helper;
+    return helper.search(board, player, player, 1, depth, evaluate);
+}
+
+
 std::pair<BoardState, float> min_max_search_inplace(const BoardState & board, int player, int depth, std::function<float(const BoardState &, int)> evaluate) {
     if (depth < 1) {
         return std::make_pair<BoardState, float>(
