@@ -21,7 +21,7 @@ SOURCE_FILES=\
 	src/game/game.cpp \
 	src/game/player.cpp \
 	src/board_funcs/helpers.cpp \
-	src/search/little_search.cpp \
+	src/search/search.cpp \
 	src/asknet/asknet.cpp \
 	src/asknet/asknet4.cpp
 
