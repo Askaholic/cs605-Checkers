@@ -68,7 +68,7 @@ public:
             }
             return;
         }
-        auto moves = get_possible_moves(board, player);
+        auto moves = jump_gen.get_possible_moves(board, player);
 
         moves_size[curr_depth + 1] = moves.size();
         if (moves.size() > max_branch_factor) {
@@ -85,12 +85,12 @@ public:
         for (size_t i = 0; i < moves_size[curr_depth + 1]; i++) {
             auto index = ((curr_depth + 1) *  BRANCH_FACTOR) + i;
             search_mem[index] = {};
-            search_mem[index].board = board;
+            search_mem[index].board = moves[i];
             search_mem[index].score = 0.0f;
             search_mem[index].best_score_index = 0;
 
-            search_mem[index].board.apply_move(moves[i]);
             // print_board(search_mem[index].board);
+            // std::cout << '\n';
         }
     }
 
