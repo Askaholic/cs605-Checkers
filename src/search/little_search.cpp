@@ -34,39 +34,6 @@ public:
         curr_depth = 0;
     }
 
-    void printBoard(const BoardState & board) {
-        std::string tab = "";
-        for (size_t i = 0; i < curr_depth; i++) {
-            tab += "  ";
-        }
-
-        std::cout << tab;
-
-        bool odd = false;
-        for (size_t i = 0; i < 32; i++) {
-            auto piece = board[i];
-            char next = '.';
-            switch (piece) {
-                case RED_CHECKER: next='r'; break;
-                case BLACK_CHECKER: next='b'; break;
-                case RED_KING: next='R'; break;
-                case BLACK_KING: next='B'; break;
-                default: next='.'; break;
-            }
-            if (i % 4 == 0 and i != 0) {
-                odd = !odd;
-                std::cout << '\n' << tab;
-            }
-            if (!odd) {
-                std::cout << " " << next;
-            }
-            else {
-                std::cout << next << " ";
-            }
-        }
-        std::cout << '\n';
-    }
-
     int getCurrentTurnPlayer(int player) {
         if(curr_depth & 0x1) {
             // Odd depth
@@ -109,7 +76,7 @@ public:
         }
         if (moves_size[curr_depth + 1] > BRANCH_FACTOR) {
             std::cout << "Caused by board: " << indecies[curr_depth] << '\n';
-            printBoard(board);
+            print_board(board);
             std::cout << "Tree nodes: " << tree_nodes << '\n';
             throw std::out_of_range("Max branch factor exceeded: " + std::to_string(moves_size[curr_depth + 1]));
         }
@@ -123,7 +90,7 @@ public:
             search_mem[index].best_score_index = 0;
 
             search_mem[index].board.apply_move(moves[i]);
-            // printBoard(search_mem[index].board);
+            // print_board(search_mem[index].board);
         }
     }
 
@@ -149,7 +116,7 @@ public:
             if (indecies[curr_depth] > moves_size[curr_depth]) {
                 throw std::out_of_range("Index at current depth exceeded number of moves! " + std::to_string(indecies[curr_depth]));
             }
-            if (curr_depth == depth) {
+            if (curr_depth == (unsigned int) depth) {
                 evaluateLeaves(moves_size, player, evaluate);
             }
             else {
@@ -157,7 +124,7 @@ public:
             }
 
             // If we're not at a leaf, evaluate at the next depth
-            if (curr_depth < depth) {
+            if (curr_depth < (unsigned int) depth) {
                 curr_depth++;
                 indecies[curr_depth] = 0;
             }
@@ -188,6 +155,12 @@ public:
                                 best_index = i;
                             }
                         }
+                        // if (curr_depth == 1 || curr_depth == 2) {
+                        //     if (curr_depth == 2) {
+                        //         std::cout << "\t";
+                        //     }
+                        //     std::cout << "Score at " << i << ": " << score << '\n';
+                        // }
                     }
 
                     curr_depth--;
@@ -217,7 +190,7 @@ std::pair<BoardState, float> min_max_search_inplace(const BoardState & board, in
     if (depth < 1) {
         return std::make_pair<BoardState, float>(
             BoardState(board),
-            piece_count(board, player)
+            evaluate(board, player)
         );
     }
 
