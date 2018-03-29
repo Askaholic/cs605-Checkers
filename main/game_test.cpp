@@ -28,6 +28,7 @@ int main(int argc, char const *argv[]) {
     std::cout << "Starting game..." << '\n';
     if (pause_between_moves) {
         while (!game.hasWinner()) {
+            std::cout << "Player: " << (game.getCurrentPlayer() == RED_PLAYER ? "Red" : "Black") << '\n';
             print_board(game.getBoard());
             game.playTurn();
 
