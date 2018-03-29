@@ -39,7 +39,7 @@ BoardState PieceCountPlayer::takeMove(const BoardState & board) {
 
 
 BoardState AIPlayer::takeMove(const BoardState & board) {
-    auto result = min_max_search(board, _color_id, 4, std::bind(&AIPlayer::evaluate, this, std::placeholders::_1, std::placeholders::_2));
+    auto result = min_max_search(board, _color_id, 6, std::bind(&AIPlayer::evaluate, this, std::placeholders::_1, std::placeholders::_2));
     // std::cout << "Score: " << result.second << '\n';
     return result.first;
 }
