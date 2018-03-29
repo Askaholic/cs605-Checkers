@@ -24,7 +24,6 @@ int Game::getWinner() const {
 
 
 void Game::playGame() {
-    reset();
     while (!_has_winner && _turn_count < _max_turn_count) {
         playTurn();
     }
