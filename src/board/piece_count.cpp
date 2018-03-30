@@ -10,8 +10,6 @@
 
 
 float piece_count(const BoardState &board, int player) {
-    char targets[2];
-
     float piece_val = 1;
     float king_val = 1.5;
 
