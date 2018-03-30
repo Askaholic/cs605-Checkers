@@ -248,6 +248,7 @@ void Network4::setInputs(const std::vector<float> inputs) {
 
     float * net_inputs = &_data[0] + net_header.input_offset;
     std::copy(&inputs[0], &inputs[0] + inputs.size(), net_inputs);
+    // _piece_count_input = piece_count;
 }
 
 // TODO: Refactor this......
@@ -269,7 +270,9 @@ float Network4::evaluate() {
         layerStart += header.layer_size;
         layer_inputs = layer_outputs;
     }
-    return layer_outputs[0];
+    float result = layer_outputs[0];
+    // result = _applySigmoid(result * _result_weight + _piece_count_weight * _piece_count_input);
+    return result;
 }
 
 inline float horizontal_add (__m256 a) {

@@ -18,7 +18,7 @@ Network::Network(const std::vector<size_t> &topology){
     auto num_layers = topology.size();
     _layers = std::vector<Layer>();
 
-    size_t prev_num_nodes = 1;
+    size_t prev_num_nodes = 0;
     for (size_t i = 0; i < num_layers; i++) {
         auto num_nodes = topology[i];
         std::vector<float> weights(prev_num_nodes, 0.0f);
@@ -31,14 +31,10 @@ Network::Network(const std::vector<size_t> &topology){
 
 float Network::evaluate(const std::vector<float> &inputs) {
     if (_layers.size() == 0) { return 0.0; }
-    // Special case for first layer
-    auto layer_outputs = std::make_shared<std::vector<float>>(
-        std::vector<float>(_layers[0].evaluateFirst(inputs))
-    );
 
-    if (_layers.size() == 1) {
-        (*layer_outputs)[0];
-    }
+    auto layer_outputs = std::make_shared<std::vector<float>>(
+        inputs
+    );
 
     for (size_t i = 1; i < _layers.size(); i++) {
         layer_outputs = std::make_shared<std::vector<float>>(
@@ -64,7 +60,7 @@ void Network::randomizeWeights() {
             }
         }
     }
-    
+
 }
 
 void Network::setWeights(const std::vector<std::vector<std::vector<float>>> & weights) {
@@ -92,7 +88,7 @@ void Network::setWeights(const std::vector<std::vector<std::vector<float>>> & we
 
 std::vector<std::vector<std::vector<float>>> Network::getWeights() {
     std::vector<std::vector<std::vector<float>>> out;
-    for (size_t i = 0; i < _layers.size(); i++) {
+    for (size_t i = 1; i < _layers.size(); i++) {
         std::vector<std::vector<float>> layer_weights;
         for (size_t j = 0; j < _layers[i].size(); j++) {
             auto node = &_layers[i].getNodes()[j];

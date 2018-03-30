@@ -15,12 +15,18 @@
 
 #define BRANCH_FACTOR 32
 
+std::pair<BoardState, float> min_max_search(
+    const BoardState & board,
+    int player,
+    int depth,
+    std::function<float(const BoardState &, int)> evaluate
+);
 
 std::pair<BoardState, float> min_max_search_inplace(
     const BoardState & board,
     int player,
     int depth,
-    std::function<float(const BoardState &, int)>
+    std::function<float(const BoardState &, int)> evaluate
 );
 
 

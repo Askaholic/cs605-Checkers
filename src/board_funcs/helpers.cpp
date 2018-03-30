@@ -44,6 +44,12 @@ bool is_valid_index(const int index) {
 }
 
 void print_board(const BoardState & board) {
+    print_board(board, "");
+}
+
+void print_board(const BoardState & board, std::string linePrefix) {
+
+    std::cout << linePrefix;
 
     bool odd = false;
     for (size_t i = 0; i < 32; i++) {
@@ -58,7 +64,7 @@ void print_board(const BoardState & board) {
         }
         if (i % 4 == 0 and i != 0) {
             odd = !odd;
-            std::cout << '\n';
+            std::cout << '\n' << linePrefix;
         }
         if (!odd) {
             std::cout << " " << next;

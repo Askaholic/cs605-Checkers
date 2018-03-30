@@ -26,45 +26,13 @@ private:
     size_t max_branch_factor = 0;
     size_t tree_nodes = 0;
     size_t curr_depth;
+    int maximizing_player;
     JumpGenerator jump_gen;
 
 public:
     void initData(int depth) {
         search_mem = std::vector<SearchNode>((depth + 1) * branch_factor);
         curr_depth = 0;
-    }
-
-    void printBoard(const BoardState & board) {
-        std::string tab = "";
-        for (size_t i = 0; i < curr_depth; i++) {
-            tab += "  ";
-        }
-
-        std::cout << tab;
-
-        bool odd = false;
-        for (size_t i = 0; i < 32; i++) {
-            auto piece = board[i];
-            char next = '.';
-            switch (piece) {
-                case RED_CHECKER: next='r'; break;
-                case BLACK_CHECKER: next='b'; break;
-                case RED_KING: next='R'; break;
-                case BLACK_KING: next='B'; break;
-                default: next='.'; break;
-            }
-            if (i % 4 == 0 and i != 0) {
-                odd = !odd;
-                std::cout << '\n' << tab;
-            }
-            if (!odd) {
-                std::cout << " " << next;
-            }
-            else {
-                std::cout << next << " ";
-            }
-        }
-        std::cout << '\n';
     }
 
     int getCurrentTurnPlayer(int player) {
@@ -101,7 +69,7 @@ public:
             }
             return;
         }
-        auto moves = get_possible_moves(board, player);
+        auto moves = jump_gen.get_possible_moves(board, player);
 
         moves_size[curr_depth + 1] = moves.size();
         if (moves.size() > max_branch_factor) {
@@ -109,7 +77,7 @@ public:
         }
         if (moves_size[curr_depth + 1] > BRANCH_FACTOR) {
             std::cout << "Caused by board: " << indecies[curr_depth] << '\n';
-            printBoard(board);
+            print_board(board);
             std::cout << "Tree nodes: " << tree_nodes << '\n';
             throw std::out_of_range("Max branch factor exceeded: " + std::to_string(moves_size[curr_depth + 1]));
         }
@@ -118,26 +86,27 @@ public:
         for (size_t i = 0; i < moves_size[curr_depth + 1]; i++) {
             auto index = ((curr_depth + 1) *  BRANCH_FACTOR) + i;
             search_mem[index] = {};
-            search_mem[index].board = board;
+            search_mem[index].board = moves[i];
             search_mem[index].score = 0.0f;
             search_mem[index].best_score_index = 0;
 
-            search_mem[index].board.apply_move(moves[i]);
-            // printBoard(search_mem[index].board);
+            // print_board(search_mem[index].board);
+            // std::cout << '\n';
         }
     }
 
-    void evaluateLeaves(size_t * moves_size, int player, std::function<float(const BoardState &, int)> evaluate) {
+    void evaluateLeaves(size_t * moves_size, std::function<float(const BoardState &, int)> evaluate) {
         for (size_t i = 0; i < moves_size[curr_depth]; i++) {
             tree_nodes++;
             auto index = ((curr_depth) *  branch_factor) + i;
-            auto score = evaluate(search_mem[index].board, player);
+            auto score = evaluate(search_mem[index].board, maximizing_player);
             search_mem[index].score = score;
         }
     }
 
     std::pair<BoardState, float> search(const BoardState & board, int player, int depth, std::function<float(const BoardState &, int)> evaluate) {
         initData(depth);
+        maximizing_player = player;
 
         size_t indecies[depth] = {0};
         size_t moves_size[depth] = {0};
@@ -149,22 +118,28 @@ public:
             if (indecies[curr_depth] > moves_size[curr_depth]) {
                 throw std::out_of_range("Index at current depth exceeded number of moves! " + std::to_string(indecies[curr_depth]));
             }
-            if (curr_depth == depth) {
-                evaluateLeaves(moves_size, player, evaluate);
+            if (curr_depth == (unsigned int) depth) {
+                evaluateLeaves(moves_size, evaluate);
             }
             else {
                 expandChildren(indecies, moves_size, player);
             }
 
             // If we're not at a leaf, evaluate at the next depth
-            if (curr_depth < depth) {
+            if (curr_depth < (unsigned int) depth) {
                 curr_depth++;
                 indecies[curr_depth] = 0;
             }
             else {
                 do {
                     // Find the max value of this level
-                    float best = 0;
+                    float best;
+                    if (player == getCurrentTurnPlayer(player)) {
+                        best = -100;
+                    }
+                    else {
+                        best = 100;
+                    }
                     size_t best_index = 0;
 
                     for (size_t i = 0; i < moves_size[curr_depth]; i++) {
@@ -188,6 +163,12 @@ public:
                                 best_index = i;
                             }
                         }
+                        // if (curr_depth == 1 || curr_depth == 2) {
+                        //     if (curr_depth == 2) {
+                        //         std::cout << "\t";
+                        //     }
+                        //     std::cout << "Score at " << i << ": " << score << '\n';
+                        // }
                     }
 
                     curr_depth--;
@@ -213,11 +194,124 @@ public:
     }
 };
 
+class MinMaxSearchRecurse {
+private:
+    JumpGenerator jump_gen;
+
+public:
+    bool usePrune = false;
+
+    std::vector<BoardState> get_children(const BoardState & board, int player) {
+        std::vector<BoardState> jumps = jump_gen.get_possible_jumps(board, player);
+
+        if (jumps.size() > 0) {
+            return jumps;
+        }
+        return jump_gen.get_possible_moves(board, player);
+    }
+
+
+    std::pair<BoardState, float> search(const BoardState & board, int maximizing_player, int player, int depth, int max_depth, float alpha, float beta, std::function<float(const BoardState &, int)> evaluate) {
+
+        if (depth == max_depth + 1) {
+            return std::make_pair<BoardState, float>(
+                BoardState(board),
+                evaluate(board, maximizing_player)
+            );
+        }
+
+        if (player == maximizing_player) {
+            float best = -100;
+            int best_index = -1;
+            auto children = get_children(board, player);
+            // std::cout << "num children: " << children.size() << '\n';
+            for (size_t i = 0; i < children.size(); i++) {
+                auto result = search(children[i], maximizing_player, swapPlayer(player), depth + 1, max_depth, alpha, beta, evaluate);
+
+                // std::string prefix = "";
+                // for (size_t j = 0; j < depth; j++) {
+                //     prefix += "\t";
+                // }
+                // print_board(children[i], prefix);
+                // std::cout << prefix << "score: " << result.second << '\n';
+                // std::cout << '\n';
+
+                if (result.second > best) {
+                    best = result.second;
+                    best_index = i;
+                }
+                if (best > alpha) {
+                    alpha = best;
+                }
+                if (usePrune && beta <= alpha) {
+                    break;
+                }
+            }
+            return std::make_pair<BoardState, float>(
+                (BoardState)(best_index == -1 ? board : children[best_index]),
+                float(best)
+            );
+        }
+        else {
+            float best = 100;
+            int best_index = -1;
+            auto children = get_children(board, player);
+            for (size_t i = 0; i < children.size(); i++) {
+                auto result = search(children[i], maximizing_player, swapPlayer(player), depth + 1, max_depth, alpha, beta, evaluate);
+
+                // std::string prefix = "";
+                // for (size_t j = 0; j < depth; j++) {
+                //     prefix += "\t";
+                // }
+                // print_board(children[i], prefix);
+                // std::cout << prefix << "score: " << result.second << '\n';
+                // std::cout << '\n';
+
+                if (result.second < best) {
+                    best = result.second;
+                    best_index = i;
+                }
+                if (best < beta) {
+                    beta = best;
+                }
+                if (usePrune && beta <= alpha) {
+                    break;
+                }
+            }
+            return std::make_pair<BoardState, float>(
+                (BoardState)(best_index == -1 ? board : children[best_index]),
+                float(best)
+            );
+        }
+    }
+
+    int swapPlayer(int player) {
+        return player == RED_PLAYER ? BLACK_PLAYER : RED_PLAYER;
+    }
+
+};
+
+
+std::pair<BoardState, float> min_max_search(const BoardState & board, int player, int depth, std::function<float(const BoardState &, int)> evaluate) {
+    if (depth < 1) {
+        return std::make_pair<BoardState, float>(
+            BoardState(board),
+            evaluate(board, player)
+        );
+    }
+
+    MinMaxSearchRecurse helper;
+    helper.usePrune = true;
+    auto result = helper.search(board, player, player, 1, depth, -100, 100, evaluate);
+    return result;
+}
+
+
 std::pair<BoardState, float> min_max_search_inplace(const BoardState & board, int player, int depth, std::function<float(const BoardState &, int)> evaluate) {
     if (depth < 1) {
         return std::make_pair<BoardState, float>(
             BoardState(board),
-            piece_count(board, player)
+            evaluate(board, player)
         );
     }
 
