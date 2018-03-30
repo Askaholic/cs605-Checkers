@@ -75,6 +75,28 @@ public:
 };
 
 
+/* class RandomSearchPlayer
+ *
+ * Player implementation which does a minimax search but uses a random number
+ * generator as a board evaluation function.
+ */
+class RandomSearchPlayer : public Player {
+private:
+    size_t _depth = 4;
+
+public:
+    RandomSearchPlayer (int color):Player(color) {
+        std::srand(std::time(nullptr));
+    }
+
+    RandomSearchPlayer (int color, size_t depth):Player(color), _depth(depth) {}
+
+    BoardState takeMove(const BoardState & board) override;
+    
+    float evaluate(const BoardState & board, int player);
+};
+
+
 /* class PieceCountPlayer
  *
  * Player implementation which does a minimax search with piece count evaluation
