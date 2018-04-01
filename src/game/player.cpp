@@ -78,3 +78,51 @@ float AIPlayer::evaluate(const BoardState & board, int player) {
     auto result = _net.evaluate();
     return result;
 }
+
+
+BoardState AIPlayer3Net::takeMove(const BoardState & board) {
+    auto result = min_max_search(board, _color_id, _depth,
+        std::bind(&AIPlayer3Net::evaluate, this, std::placeholders::_1, std::placeholders::_2));
+    return result.first;
+}
+
+
+float AIPlayer3Net::evaluate(const BoardState & board, int player) {
+    int numPieces = 0;
+    for (size_t i = 0; i < BOARD_ELEMENTS; i++) {
+        if (board[i] != BLANK) {
+            numPieces++;
+        }
+    }
+    Network4 & net = _beg;
+    if (numPieces < 9) {
+        net = _end;
+    }
+    else if (numPieces < 17) {
+        net = _mid;
+    }
+    return _evaluateWithNetwork(board, player, net);
+}
+
+float AIPlayer3Net::_evaluateWithNetwork(const BoardState & board, int player, Network4 & net) {
+    std::vector<float> inputs(BOARD_ELEMENTS);
+    for (size_t i = 0; i < BOARD_ELEMENTS; i++) {
+        auto piece = board[i];
+        float score = 0;
+        switch (piece) {
+            case RED_CHECKER: score=1; break;
+            case BLACK_CHECKER: score=-1; break;
+            case RED_KING: score = net.getKingValue(); break;
+            case BLACK_KING: score = net.getKingValue() * -1; break;
+            default: score=0; break;
+        }
+        if (player == BLACK_PLAYER) {
+            score *= -1;
+        }
+        inputs[i] = score;
+    }
+    net.setInputs(inputs);
+    // _net.printWeights();
+    auto result = net.evaluate();
+    return result;
+}
