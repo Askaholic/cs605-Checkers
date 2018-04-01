@@ -260,7 +260,7 @@ float Network4::evaluate() {
     float * layer_inputs = layerStart + net_header.input_offset;
     layerStart += net_header.size + net_header.input_block_size;
 
-    float * layer_outputs;
+    float * layer_outputs = layer_inputs;
 
     while (layerStart < dataEnd) {
         auto header = _readLayerHeader(layerStart);
@@ -356,14 +356,14 @@ void Network4::readFromFile(std::string filename) {
     nnf.open(filename);
     float readFloat;
 
-    for(int ii = 0; ii < _data.size(); ii++){
+    for(size_t ii = 0; ii < _data.size(); ii++){
         std::getline(nnf, line, ' ');
         std::istringstream iss(line);
         iss >> readFloat;
         _data[ii] = readFloat;
     }
 
-    for(int ii = 0; ii < _sigmas.size(); ii++){
+    for(size_t ii = 0; ii < _sigmas.size(); ii++){
         std::getline(nnf, line, ' ');
         std::istringstream iss(line);
         iss >> readFloat;
