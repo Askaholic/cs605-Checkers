@@ -329,11 +329,9 @@ inline float Network4::_applySigmoid(float num) {
 
 
 
-void Network4::writeToFile(std::string filename) {
-
+void Network4::writeToFile(std::string filename) const {
     std::ofstream nnf;
     nnf.open(filename);
-
 
     for(size_t ii = 0; ii < _data.size(); ii++){
         nnf << _data[ii] << " ";

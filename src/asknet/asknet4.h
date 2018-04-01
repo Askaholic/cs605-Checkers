@@ -75,7 +75,7 @@ public:
     size_t getNumWeights();
     float getKingValue() { return _kingVal; }
 
-    void writeToFile(std::string filename);
+    void writeToFile(std::string filename) const;
     void readFromFile(std::string filename);
     float computeTau();
     void evolveKing();
