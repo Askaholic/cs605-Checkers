@@ -23,7 +23,8 @@
 #define SURVIVAL_CUTTOFF 25
 #define NUM_OFFSPRING 1
 #define GENERATION_TARGET 300
-#define NUM_GAMES 10
+#define NUM_GAMES 5
+#define SEARCH_DEPTH 6
 #define NUM_OPENING_MOVES 3
 #define WIN_POINTS 1
 #define LOSS_POINTS -2
@@ -152,8 +153,8 @@ size_t getRandomOpponentIndex(size_t i, size_t size) {
 
 
 int playGame(const ScoredNetworkGroup & red, const ScoredNetworkGroup & black) {
-    AIPlayer3Net p1(RED_PLAYER, red.beg, red.mid, red.end);
-    AIPlayer3Net p2(BLACK_PLAYER, black.beg, black.mid, black.end);
+    AIPlayer3Net p1(RED_PLAYER, red.beg, red.mid, red.end, SEARCH_DEPTH);
+    AIPlayer3Net p2(BLACK_PLAYER, black.beg, black.mid, black.end, SEARCH_DEPTH);
 
     Game game(p1, p2);
     game.randomizeOpeningMoves(NUM_OPENING_MOVES);
