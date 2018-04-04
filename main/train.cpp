@@ -22,14 +22,14 @@
  */
 #define SURVIVAL_CUTTOFF 25
 #define NUM_OFFSPRING 1
-#define GENERATION_TARGET 300
+#define GENERATION_TARGET 1000
 #define NUM_GAMES 5
 #define SEARCH_DEPTH 6
 #define NUM_OPENING_MOVES 3
 #define WIN_POINTS 1
 #define LOSS_POINTS -2
 #define DRAW_POINTS 0
-#define TOPOLOGY (std::initializer_list<size_t>){32, 40, 10, 1}
+#define TOPOLOGY (std::initializer_list<size_t>){32, 1000, 40, 10, 1}
 
 
 class ScoredNetworkGroup {
@@ -65,6 +65,7 @@ size_t getRandomOpponentIndex(size_t i, size_t size);
 void loadPoolFrom(const char * filename, std::vector<ScoredNetworkGroup> & pool);
 int playGame(const ScoredNetworkGroup & red_nets, const ScoredNetworkGroup & black_nets);
 void randomizePool(std::vector<ScoredNetworkGroup> & pool);
+void writeToFiles(const ScoredNetworkGroup & networks, int generation, int place);
 
 
 class NotImplementedException : public std::exception {
@@ -199,11 +200,10 @@ void evolveNetworks(std::vector<ScoredNetworkGroup> & pool, size_t generation) {
     }
     std::cout << '\n';
 
-    std::cout << "writing best to file" << '\n';
-
-    pool[0].beg.writeToFile("best_network_beg" + std::to_string(generation) + ".txt");
-    pool[0].mid.writeToFile("best_network_mid" + std::to_string(generation) + ".txt");
-    pool[0].end.writeToFile("best_network_end" + std::to_string(generation) + ".txt");
+    std::cout << "writing networks to files" << '\n';
+    for (size_t i = 0; i < pool.size(); i++) {
+        writeToFiles(pool[i], generation, i + 1);
+    }
     // for (size_t i = 0; i < pool.size(); i++) {
     //     std::cout << "best score " << i <<": " << pool[i].score << '\n';
     // }
@@ -245,4 +245,11 @@ void evolveNetworks(std::vector<ScoredNetworkGroup> & pool, size_t generation) {
         std::cout << pool[i].id << " ";
     }
     std::cout << '\n';
+}
+
+
+void writeToFiles(const ScoredNetworkGroup & networks, int generation, int place) {
+    networks.beg.writeToFile("net_beg_" + std::to_string(generation) + "_" + std::to_string(place) + ".txt");
+    networks.mid.writeToFile("net_mid_" + std::to_string(generation) + "_" + std::to_string(place) + ".txt");
+    networks.end.writeToFile("net_end_" + std::to_string(generation) + "_" + std::to_string(place) + ".txt");
 }
