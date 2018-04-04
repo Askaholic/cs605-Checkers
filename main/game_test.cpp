@@ -19,9 +19,13 @@ int main(int argc, char const *argv[]) {
     }
 
     PieceCountPlayer p1(RED_PLAYER);
-    Network4 net({32, 40, 10, 1});
-    net.readFromFile("best_network.txt");
-    AIPlayer p2(BLACK_PLAYER, net, 6);
+    Network4 beg({32, 40, 10, 1});
+    Network4 mid({32, 40, 10, 1});
+    Network4 end({32, 40, 10, 1});
+    beg.readFromFile("beg_300_1.txt");
+    mid.readFromFile("beg_300_1.txt");
+    end.readFromFile("beg_300_1.txt");
+    AIPlayer3Net p2(BLACK_PLAYER, beg, mid, end, 6);
 
     Game game(p1, p2);
 
