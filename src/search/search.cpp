@@ -200,10 +200,6 @@ private:
 
 public:
     bool usePrune = false;
-    long evaluationsCalled = 0;
-    double avgBranchFactor = 0;
-    std::vector<size_t> branch_factor_histogram = std::vector<size_t>(32, 0);
-    size_t nonLeafNodes = 0;
 
     std::vector<BoardState> get_children(const BoardState & board, int player) {
         std::vector<BoardState> jumps = jump_gen.get_possible_jumps(board, player);
@@ -218,20 +214,16 @@ public:
     std::pair<BoardState, float> search(const BoardState & board, int maximizing_player, int player, int depth, int max_depth, float alpha, float beta, std::function<float(const BoardState &, int)> evaluate) {
 
         if (depth == max_depth + 1) {
-            evaluationsCalled++;
             return std::make_pair<BoardState, float>(
                 BoardState(board),
                 evaluate(board, maximizing_player)
             );
         }
 
-        nonLeafNodes++;
         if (player == maximizing_player) {
             float best = -100;
             int best_index = -1;
             auto children = get_children(board, player);
-            avgBranchFactor = (avgBranchFactor + children.size()) / 2;
-            branch_factor_histogram[children.size()]++;
             // std::cout << "num children: " << children.size() << '\n';
             for (size_t i = 0; i < children.size(); i++) {
                 auto result = search(children[i], maximizing_player, swapPlayer(player), depth + 1, max_depth, alpha, beta, evaluate);
@@ -264,8 +256,6 @@ public:
             float best = 100;
             int best_index = -1;
             auto children = get_children(board, player);
-            avgBranchFactor = (avgBranchFactor + children.size()) / 2;
-            branch_factor_histogram[children.size()]++;
 
             for (size_t i = 0; i < children.size(); i++) {
                 auto result = search(children[i], maximizing_player, swapPlayer(player), depth + 1, max_depth, alpha, beta, evaluate);
@@ -312,16 +302,8 @@ std::pair<BoardState, float> min_max_search(const BoardState & board, int player
     }
 
     MinMaxSearchRecurse helper;
-    helper.usePrune = false;
+    helper.usePrune = true;
     auto result = helper.search(board, player, player, 1, depth, -100, 100, evaluate);
-    std::cout << "Average branch factor: " << helper.avgBranchFactor << '\n';
-    for (size_t i = 0; i < helper.branch_factor_histogram.size(); i++) {
-        if (helper.branch_factor_histogram[i] > 0) {
-            std::cout << i << ": " << helper.branch_factor_histogram[i] << '\n';
-        }
-    }
-    std::cout << "Board evaluations called: " << helper.evaluationsCalled << '\n';
-    std::cout << "Non Leaf Nodes: " << helper.nonLeafNodes << '\n';
     return result;
 }
 
