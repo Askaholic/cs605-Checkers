@@ -81,9 +81,11 @@ static std::default_random_engine generator;
 int main(int argc, char const *argv[]) {
     std::vector<ScoredNetworkGroup> pool;
     pool.reserve(STARTING_POOL_SIZE);
+    size_t prev_gen = 1;
 
     if (argc > 1) {
         const char * filename = argv[1];
+        prev_gen = std::stoi(filename);
         std::cout << "Resuming training from file..." << '\n';
         loadPoolFrom(filename, pool);
     }
@@ -91,7 +93,7 @@ int main(int argc, char const *argv[]) {
         randomizePool(pool);
     }
 
-    for (size_t generation = 1; generation < GENERATION_TARGET + 1; generation++) {
+    for (size_t generation = prev_gen; generation < GENERATION_TARGET + 1; generation++) {
         std::cout << "Starting generation " << generation << '\n';
         std::cout << "Playing games..." << '\n';
 
@@ -126,8 +128,22 @@ int main(int argc, char const *argv[]) {
 }
 
 
-void loadPoolFrom(const char * filename, std::vector<ScoredNetworkGroup> & pool) {
-    throw NotImplementedException();
+void loadPoolFrom(const char * generation, std::vector<ScoredNetworkGroup> & pool) {
+
+    for (size_t i = 0; i < STARTING_POOL_SIZE; i++) {
+        Network4 beg(TOPOLOGY);
+        Network4 mid(TOPOLOGY);
+        Network4 end(TOPOLOGY);
+
+        std::string net_id = std::string(generation) + "_" + std::to_string(i+1);
+
+        std::cout << "Loading networks: " << net_id << '\n';
+        beg.readFromFile("net_beg_" + net_id + ".txt");
+        mid.readFromFile("net_mid_" + net_id + ".txt");
+        end.readFromFile("net_end_" + net_id + ".txt");
+
+        pool.emplace_back(beg, mid, end, 0, 0);
+    }
 }
 
 
