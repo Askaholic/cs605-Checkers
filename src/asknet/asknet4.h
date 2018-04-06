@@ -44,12 +44,6 @@ private:
     float _kingVal = 1.4;
     AlignedArray<float, 32> _data;
     std::vector<float> _sigmas;
-    float _piece_count_input;
-    float _piece_count_weight;
-    float _piece_count_sigma;
-
-    float _result_weight;
-    float _result_sigma;
 
     size_t _num_layers;
     size_t _getRequiredSpace(const std::vector<size_t> & topology);
@@ -65,6 +59,10 @@ private:
 
 public:
     Network4 (const std::vector<size_t> & topology);
+    virtual ~Network4() {
+        // Somehow the AlignedArray destructor is getting called even though this
+        // function is empty...
+    };
     void setWeights(const std::vector<std::vector<std::vector<float>>> & weights);
     std::vector<std::vector<std::vector<float>>> getWeights();
     void randomizeWeights();

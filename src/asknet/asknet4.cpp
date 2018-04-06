@@ -270,9 +270,7 @@ float Network4::evaluate() {
         layerStart += header.layer_size;
         layer_inputs = layer_outputs;
     }
-    float result = layer_outputs[0];
-    // result = _applySigmoid(result * _result_weight + _piece_count_weight * _piece_count_input);
-    return result;
+    return layer_outputs[0];
 }
 
 inline float horizontal_add (__m256 a) {
