@@ -13,24 +13,25 @@
 #include <utility>
 #include <vector>
 
+#include <iostream>
 
 template <typename T, size_t A>
 class AlignedArray {
 private:
-    T * _data_unaligned = nullptr;
+    std::unique_ptr<T[]> _data_unaligned;
     T * _data = nullptr;
     size_t _size_unaligned = 0;
     size_t _size = 0;
 
-    void * _aligned_alloc(size_t size, T*& unaligned_storage) {
+    void * _aligned_alloc(size_t size) {
         const size_t align_size = A;
         size_t request_size = size + align_size;
         const size_t needed = request_size;
         _size_unaligned = needed;
 
-        T * alloc = new T[needed];
-        void * alloc_void = (void *) alloc;
-        unaligned_storage = alloc;
+        auto alloc = std::make_unique<T[]>(needed);
+        void * alloc_void = (void *) &alloc.get()[0];
+        _data_unaligned = std::move(alloc);
         void * ptr = std::align(
             align_size,
             size,
@@ -42,27 +43,23 @@ private:
 
 
     void _allocate(size_t size) {
-        T * data_unaligned;
-        _data = (T *) _aligned_alloc(size, data_unaligned);
-        _data_unaligned = data_unaligned;
+        _data = (T *) _aligned_alloc(size);
     }
 
 
     void _del() {
-        if (_data_unaligned == nullptr) {
-            return;
-        }
+        // if (_data_unaligned == nullptr) {
+        //     return;
+        // }
 
-        delete[] _data_unaligned;
         _reset_members();
     }
 
-    inline T* _reset_members() {
-        _data_unaligned = nullptr;
+    inline void _reset_members() {
+        _data_unaligned.reset();
         _data = nullptr;
         _size_unaligned = 0;
         _size = 0;
-        return _data_unaligned;
     }
 
 public:
@@ -113,7 +110,7 @@ public:
 
         _data = other._data;
         other._data = nullptr;
-        _data_unaligned = other._data_unaligned;
+        _data_unaligned = std::move(other._data_unaligned);
         other._data_unaligned = nullptr;
 
         _size = other._size;
@@ -156,14 +153,17 @@ public:
 
     void setOverflow(T & val) {
         T * start = _data + _size;
-        while (start < _data_unaligned + _size + A) {
+        T* end = &_data_unaligned.get()[0] + _size + A;
+        while (start < end) {
             start[0] = val;
             start++;
         }
     }
     void setOverflow(T && val) {
         T * start = _data + _size;
-        while (start < _data_unaligned + _size + A) {
+        T* end = &_data_unaligned.get()[0] + _size + A;
+        std::cout << "end: "<< end << '\n';
+        while (start < end) {
             start[0] = val;
             start++;
         }
@@ -171,13 +171,13 @@ public:
 
     void fill(T & val) {
         for (size_t i = 0; i < _size_unaligned; i++) {
-            _data_unaligned[i] = val;
+            _data_unaligned.get()[i] = val;
         }
     }
 
     void fill(T && val) {
         for (size_t i = 0; i < _size_unaligned; i++) {
-            _data_unaligned[i] = val;
+            _data_unaligned.get()[i] = val;
         }
     }
 };

@@ -30,26 +30,34 @@ MAIN_FILES=\
 	test/catch_main.cpp \
 	main/game_test.cpp \
 	main/network_test.cpp \
+	main/search_benchmark.cpp \
 	main/train.cpp
 
 TEST_EXECUTABLE=test
 NET_TEST_EXECUTABLE=nettest
 GAME_EXECUTABLE=game
 TRAIN_EXECUTABLE=train
+SEARCH_EXECUTABLE=searchtest
 
 EXECUTABLE_FILES  = $(EXECUTABLE_NAME:%=$(BIN)/%)
 OBJECT_FILES      = $(SOURCE_FILES:%.cpp=$(OBJ)/%.o)
 OBJECT_FILES_MAIN = $(MAIN_FILES:%.cpp=$(OBJ)/%.o)
 
-all: $(TEST_EXECUTABLE) $(NET_TEST_EXECUTABLE) $(GAME_EXECUTABLE) $(TRAIN_EXECUTABLE)
+all: $(TEST_EXECUTABLE) $(NET_TEST_EXECUTABLE) $(GAME_EXECUTABLE) $(TRAIN_EXECUTABLE) $(SEARCH_EXECUTABLE)
 
 # Make executables
 $(TEST_EXECUTABLE): $(BIN)/$(TEST_EXECUTABLE)
 $(NET_TEST_EXECUTABLE): $(BIN)/$(NET_TEST_EXECUTABLE)
 $(GAME_EXECUTABLE): $(BIN)/$(GAME_EXECUTABLE)
 $(TRAIN_EXECUTABLE): $(BIN)/$(TRAIN_EXECUTABLE)
+$(SEARCH_EXECUTABLE): $(BIN)/$(SEARCH_EXECUTABLE)
 
 # Link object files
+$(BIN)/$(SEARCH_EXECUTABLE): $(OBJ)/main/search_benchmark.o $(OBJECT_FILES)
+	@echo Building $^
+	@$(CC) $(LDFLAGS) -o $@ $^
+	@echo "Build Successful"
+
 $(BIN)/$(TEST_EXECUTABLE): $(OBJ)/test/catch_main.o $(OBJECT_FILES) $(OBJ)/test/test.o
 	@echo Building $^
 	@$(CC) $(LDFLAGS) -o $@ $^

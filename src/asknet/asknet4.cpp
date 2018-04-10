@@ -260,7 +260,7 @@ float Network4::evaluate() {
     float * layer_inputs = layerStart + net_header.input_offset;
     layerStart += net_header.size + net_header.input_block_size;
 
-    float * layer_outputs;
+    float * layer_outputs = layer_inputs;
 
     while (layerStart < dataEnd) {
         auto header = _readLayerHeader(layerStart);
@@ -270,9 +270,7 @@ float Network4::evaluate() {
         layerStart += header.layer_size;
         layer_inputs = layer_outputs;
     }
-    float result = layer_outputs[0];
-    // result = _applySigmoid(result * _result_weight + _piece_count_weight * _piece_count_input);
-    return result;
+    return layer_outputs[0];
 }
 
 inline float horizontal_add (__m256 a) {
@@ -329,11 +327,9 @@ inline float Network4::_applySigmoid(float num) {
 
 
 
-void Network4::writeToFile(std::string filename) {
-
+void Network4::writeToFile(std::string filename) const {
     std::ofstream nnf;
     nnf.open(filename);
-
 
     for(size_t ii = 0; ii < _data.size(); ii++){
         nnf << _data[ii] << " ";
@@ -356,14 +352,14 @@ void Network4::readFromFile(std::string filename) {
     nnf.open(filename);
     float readFloat;
 
-    for(int ii = 0; ii < _data.size(); ii++){
+    for(size_t ii = 0; ii < _data.size(); ii++){
         std::getline(nnf, line, ' ');
         std::istringstream iss(line);
         iss >> readFloat;
         _data[ii] = readFloat;
     }
 
-    for(int ii = 0; ii < _sigmas.size(); ii++){
+    for(size_t ii = 0; ii < _sigmas.size(); ii++){
         std::getline(nnf, line, ' ');
         std::istringstream iss(line);
         iss >> readFloat;

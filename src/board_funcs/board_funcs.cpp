@@ -133,3 +133,23 @@ bool is_valid_jump(const BoardState & board, const Jump & jump, int player) {
 
     return true;
 }
+
+
+BoardState make_board(const std::vector<char> & board) {
+    if (board.size() != BOARD_ELEMENTS) {
+        throw std::out_of_range("Wrong number of board elements");
+    }
+    BoardState board_state;
+
+    for (size_t i = 0; i < board.size(); i++) {
+        char value = BLANK;
+        switch (board[i]) {
+            case 'r': value = RED_CHECKER; break;
+            case 'b': value = BLACK_CHECKER; break;
+            case 'R': value = RED_KING; break;
+            case 'B': value = BLACK_KING; break;
+        }
+        board_state.set(i, value);
+    }
+    return board_state;
+}

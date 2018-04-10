@@ -22,44 +22,50 @@
  */
 #define SURVIVAL_CUTTOFF 25
 #define NUM_OFFSPRING 1
-#define GENERATION_TARGET 300
-#define NUM_GAMES 10
+#define GENERATION_TARGET 1000
+#define NUM_GAMES 5
+#define SEARCH_DEPTH 6
 #define NUM_OPENING_MOVES 3
 #define WIN_POINTS 1
 #define LOSS_POINTS -2
 #define DRAW_POINTS 0
-#define TOPOLOGY (std::initializer_list<size_t>){32, 40, 10, 1}
+#define TOPOLOGY (std::initializer_list<size_t>){32, 1000, 40, 10, 1}
 
 
-class ScoredNetwork {
+class ScoredNetworkGroup {
 public:
-    Network4 net;
+    Network4 beg;
+    Network4 mid;
+    Network4 end;
+
     int score;
     size_t games_played;
     std::string id = "_";
 
 public:
-    ScoredNetwork(std::vector<size_t> topology, int score, size_t games_played)
-        :net(topology), score(score), games_played(games_played) { }
+    ScoredNetworkGroup(std::vector<size_t> topology, int score, size_t games_played)
+        :beg(topology), mid(topology), end(topology), score(score),
+        games_played(games_played) { }
 
-    ScoredNetwork(const Network4 & net, int score, size_t games_played)
-        :net(net), score(score), games_played(games_played) { }
+    ScoredNetworkGroup(const Network4 & beg, const Network4 & mid,
+                       const Network4 & end, int score, size_t games_played)
+        :beg(beg), mid(mid), end(end), score(score), games_played(games_played) { }
 
-    ScoredNetwork() = delete;
-    ScoredNetwork(const ScoredNetwork & other) = default;
-    ScoredNetwork(ScoredNetwork && other) = default;
-    ScoredNetwork & operator=(const ScoredNetwork & other) = default;
-    ScoredNetwork & operator=(ScoredNetwork && other) = default;
-    virtual ~ScoredNetwork() = default;
+    ScoredNetworkGroup() = delete;
+    ScoredNetworkGroup(const ScoredNetworkGroup & other) = default;
+    ScoredNetworkGroup(ScoredNetworkGroup && other) = default;
+    ScoredNetworkGroup & operator=(const ScoredNetworkGroup & other) = default;
+    ScoredNetworkGroup & operator=(ScoredNetworkGroup && other) = default;
+    virtual ~ScoredNetworkGroup() = default;
 };
 
-
-void adjustScore(int winner, std::vector<ScoredNetwork> & pool, size_t i, size_t j);
-void evolveNetworks(std::vector<ScoredNetwork> & pool, size_t generation);
+void adjustScore(int winner, std::vector<ScoredNetworkGroup> & pool, size_t i, size_t j);
+void evolveNetworks(std::vector<ScoredNetworkGroup> & pool, size_t generation);
 size_t getRandomOpponentIndex(size_t i, size_t size);
-void loadPoolFrom(const char * filename, std::vector<ScoredNetwork> & pool);
-int playGame(const Network4 & red_net, const Network4 & black_net);
-void randomizePool(std::vector<ScoredNetwork> & pool);
+void loadPoolFrom(const char * filename, std::vector<ScoredNetworkGroup> & pool);
+int playGame(const ScoredNetworkGroup & red_nets, const ScoredNetworkGroup & black_nets);
+void randomizePool(std::vector<ScoredNetworkGroup> & pool);
+void writeToFiles(const ScoredNetworkGroup & networks, int generation, int place);
 
 
 class NotImplementedException : public std::exception {
@@ -73,11 +79,13 @@ public:
 static std::default_random_engine generator;
 
 int main(int argc, char const *argv[]) {
-    std::vector<ScoredNetwork> pool;
+    std::vector<ScoredNetworkGroup> pool;
     pool.reserve(STARTING_POOL_SIZE);
+    size_t prev_gen = 1;
 
     if (argc > 1) {
         const char * filename = argv[1];
+        prev_gen = std::stoi(filename);
         std::cout << "Resuming training from file..." << '\n';
         loadPoolFrom(filename, pool);
     }
@@ -85,19 +93,17 @@ int main(int argc, char const *argv[]) {
         randomizePool(pool);
     }
 
-    for (size_t generation = 1; generation < GENERATION_TARGET + 1; generation++) {
+    for (size_t generation = prev_gen; generation < GENERATION_TARGET + 1; generation++) {
         std::cout << "Starting generation " << generation << '\n';
         std::cout << "Playing games..." << '\n';
 
         auto start = std::chrono::high_resolution_clock::now();
         for (size_t i = 0; i < pool.size(); i++) {
-            auto net = pool[i].net;
             for (size_t c = pool[i].games_played; c < NUM_GAMES; c++) {
                 auto j = getRandomOpponentIndex(i, pool.size());
-                auto net_opponent = pool[j].net;
 
                 // std::cout << i << " vs " << j << '\n';
-                auto winner = playGame(net, net_opponent);
+                auto winner = playGame(pool[i], pool[j]);
                 // std::cout << "winner: " << winner << '\n';
 
                 adjustScore(winner, pool, i, j);
@@ -122,15 +128,32 @@ int main(int argc, char const *argv[]) {
 }
 
 
-void loadPoolFrom(const char * filename, std::vector<ScoredNetwork> & pool) {
-    throw NotImplementedException();
+void loadPoolFrom(const char * generation, std::vector<ScoredNetworkGroup> & pool) {
+
+    for (size_t i = 0; i < STARTING_POOL_SIZE; i++) {
+        Network4 beg(TOPOLOGY);
+        Network4 mid(TOPOLOGY);
+        Network4 end(TOPOLOGY);
+
+        std::string net_id = std::string(generation) + "_" + std::to_string(i+1);
+
+        std::cout << "Loading networks: " << net_id << '\n';
+        beg.readFromFile("net_beg_" + net_id + ".txt");
+        mid.readFromFile("net_mid_" + net_id + ".txt");
+        end.readFromFile("net_end_" + net_id + ".txt");
+
+        pool.emplace_back(beg, mid, end, 0, 0);
+    }
 }
 
 
-void randomizePool(std::vector<ScoredNetwork> & pool) {
+void randomizePool(std::vector<ScoredNetworkGroup> & pool) {
     for (size_t i = 0; i < STARTING_POOL_SIZE; i++) {
         pool.emplace_back(TOPOLOGY, 0, 0);
-        pool[pool.size() - 1].net.randomizeWeights();
+        ScoredNetworkGroup * netGroup = &pool[pool.size() - 1];
+        netGroup->beg.randomizeWeights();
+        netGroup->mid.randomizeWeights();
+        netGroup->end.randomizeWeights();
     }
 }
 
@@ -146,9 +169,9 @@ size_t getRandomOpponentIndex(size_t i, size_t size) {
 }
 
 
-int playGame(const Network4 & red_net, const Network4 & black_net) {
-    AIPlayer p1(RED_PLAYER, red_net);
-    AIPlayer p2(BLACK_PLAYER, black_net);
+int playGame(const ScoredNetworkGroup & red, const ScoredNetworkGroup & black) {
+    AIPlayer3Net p1(RED_PLAYER, red.beg, red.mid, red.end, SEARCH_DEPTH);
+    AIPlayer3Net p2(BLACK_PLAYER, black.beg, black.mid, black.end, SEARCH_DEPTH);
 
     Game game(p1, p2);
     game.randomizeOpeningMoves(NUM_OPENING_MOVES);
@@ -158,7 +181,7 @@ int playGame(const Network4 & red_net, const Network4 & black_net) {
 }
 
 
-void adjustScore(int winner, std::vector<ScoredNetwork> & pool, size_t i, size_t j) {
+void adjustScore(int winner, std::vector<ScoredNetworkGroup> & pool, size_t i, size_t j) {
     if (winner == RED_PLAYER) {
         pool[i].score += WIN_POINTS;
         pool[j].score += LOSS_POINTS;
@@ -173,7 +196,7 @@ void adjustScore(int winner, std::vector<ScoredNetwork> & pool, size_t i, size_t
     }
 }
 
-void evolveNetworks(std::vector<ScoredNetwork> & pool, size_t generation) {
+void evolveNetworks(std::vector<ScoredNetworkGroup> & pool, size_t generation) {
     for (size_t i = 0; i < pool.size(); i++) {
         if (pool[i].id == "_") {
             pool[i].id = std::to_string(generation) + "_" + std::to_string(i);
@@ -181,7 +204,7 @@ void evolveNetworks(std::vector<ScoredNetwork> & pool, size_t generation) {
     }
     std::cout << "sorting" << '\n';
     std::sort(pool.begin(), pool.end(),
-        [&](const ScoredNetwork & a, const ScoredNetwork & b) {
+        [&](const ScoredNetworkGroup & a, const ScoredNetworkGroup & b) {
             return ((float) b.score / (float) b.games_played) <
                    ((float) a.score / (float) a.games_played);
         }
@@ -193,8 +216,10 @@ void evolveNetworks(std::vector<ScoredNetwork> & pool, size_t generation) {
     }
     std::cout << '\n';
 
-    std::cout << "writing best to file" << '\n';
-    pool[0].net.writeToFile("best_network" + std::to_string(generation) + ".txt");
+    std::cout << "writing networks to files" << '\n';
+    for (size_t i = 0; i < pool.size(); i++) {
+        writeToFiles(pool[i], generation, i + 1);
+    }
     // for (size_t i = 0; i < pool.size(); i++) {
     //     std::cout << "best score " << i <<": " << pool[i].score << '\n';
     // }
@@ -203,13 +228,13 @@ void evolveNetworks(std::vector<ScoredNetwork> & pool, size_t generation) {
     //     pool[i].net.printWeights();
     // }
 
-    std::vector<ScoredNetwork> survivors;
+    std::vector<ScoredNetworkGroup> survivors;
     survivors.reserve(SURVIVAL_CUTTOFF);
 
     for (size_t i = 0; i < SURVIVAL_CUTTOFF; i++) {
         survivors.emplace_back(pool[i]);
     }
-    std::vector<ScoredNetwork> newPool;
+    std::vector<ScoredNetworkGroup> newPool;
     newPool.reserve(SURVIVAL_CUTTOFF + NUM_OFFSPRING * SURVIVAL_CUTTOFF);
     for (size_t i = 0; i < survivors.size(); i++) {
         newPool.emplace_back(survivors[i]);
@@ -218,9 +243,13 @@ void evolveNetworks(std::vector<ScoredNetwork> & pool, size_t generation) {
     std::cout << "creating children" << '\n';
     for (size_t i = 0; i < survivors.size(); i++) {
         for (size_t c = 0; c < NUM_OFFSPRING; c++) {
-            Network4 child = survivors[i].net;
-            child.evolve();
-            newPool.emplace_back(child, 0, 0);
+            Network4 child_beg = survivors[i].beg;
+            Network4 child_mid = survivors[i].mid;
+            Network4 child_end = survivors[i].end;
+            child_beg.evolve();
+            child_mid.evolve();
+            child_end.evolve();
+            newPool.emplace_back(child_beg, child_mid, child_end, 0, 0);
         }
     }
     for (size_t i = 0; i < pool.size(); i++) {
@@ -232,4 +261,11 @@ void evolveNetworks(std::vector<ScoredNetwork> & pool, size_t generation) {
         std::cout << pool[i].id << " ";
     }
     std::cout << '\n';
+}
+
+
+void writeToFiles(const ScoredNetworkGroup & networks, int generation, int place) {
+    networks.beg.writeToFile("net_beg_" + std::to_string(generation) + "_" + std::to_string(place) + ".txt");
+    networks.mid.writeToFile("net_mid_" + std::to_string(generation) + "_" + std::to_string(place) + ".txt");
+    networks.end.writeToFile("net_end_" + std::to_string(generation) + "_" + std::to_string(place) + ".txt");
 }

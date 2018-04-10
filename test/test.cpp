@@ -22,7 +22,7 @@ std::unique_ptr<BoardState> make_empty_board() {
     return ptr;
 }
 
-std::unique_ptr<BoardState> make_board(const std::vector<char> & board) {
+std::unique_ptr<BoardState> make_board_ptr(const std::vector<char> & board) {
     if (board.size() != BOARD_ELEMENTS) {
         throw std::out_of_range("Wrong number of board elements");
     }
@@ -58,7 +58,7 @@ TEST_CASE( "Generate Jumps", "[jump gen]") {
     JumpGenerator gen;
 
 
-    const auto board_1 = make_board(
+    const auto board_1 = make_board_ptr(
         {
               'r',' ',' ',' ',    //0 - 3
             ' ','b',' ',' ',    //4 - 7
@@ -71,7 +71,7 @@ TEST_CASE( "Generate Jumps", "[jump gen]") {
         }
     );
 
-    const auto board_2 = make_board(
+    const auto board_2 = make_board_ptr(
         {
               ' ',' ',' ',' ',
             ' ',' ',' ',' ',
@@ -84,7 +84,7 @@ TEST_CASE( "Generate Jumps", "[jump gen]") {
         }
     );
 
-    const auto board_3 = make_board(
+    const auto board_3 = make_board_ptr(
         {
               ' ',' ',' ',' ',
             ' ','b','b',' ',
@@ -97,7 +97,7 @@ TEST_CASE( "Generate Jumps", "[jump gen]") {
         }
     );
 
-    const auto board_4 = make_board(
+    const auto board_4 = make_board_ptr(
         {
               ' ',' ',' ',' ',
             ' ',' ',' ',' ',
@@ -110,7 +110,7 @@ TEST_CASE( "Generate Jumps", "[jump gen]") {
         }
     );
 
-    const auto board_5 = make_board(
+    const auto board_5 = make_board_ptr(
         {
               ' ',' ',' ',' ',
             ' ',' ',' ',' ',
@@ -123,9 +123,22 @@ TEST_CASE( "Generate Jumps", "[jump gen]") {
         }
     );
 
+    const auto board_6 = make_board_ptr(
+        {
+              ' ',' ',' ',' ',
+            ' ',' ',' ',' ',
+              ' ',' ',' ',' ',
+            ' ',' ',' ','r',
+              ' ',' ',' ','r',
+            ' ',' ',' ',' ',
+              'r',' ','r','R',
+            'B','R','R',' ',
+        }
+    );
+
     SECTION( "Single jump - Red player" ) {
         std::vector<BoardState> correct_jumps = {
-            *(make_board({
+            *(make_board_ptr({
                   ' ',' ',' ',' ',
                 ' ',' ',' ',' ',
                   ' ','r',' ',' ',
@@ -148,7 +161,7 @@ TEST_CASE( "Generate Jumps", "[jump gen]") {
     }
     SECTION( "Single jump 2 - Red player" ) {
         std::vector<BoardState> correct_jumps = {
-            *(make_board({
+            *(make_board_ptr({
                   ' ',' ',' ',' ',
                 ' ','b','b',' ',
                   ' ',' ',' ',' ',
@@ -166,7 +179,7 @@ TEST_CASE( "Generate Jumps", "[jump gen]") {
 
     SECTION( "Single jump king - Red player" ) {
         std::vector<BoardState> correct_jumps = {
-            *(make_board({
+            *(make_board_ptr({
                   ' ',' ',' ',' ',
                 ' ',' ',' ',' ',
                   ' ',' ',' ',' ',
@@ -183,7 +196,7 @@ TEST_CASE( "Generate Jumps", "[jump gen]") {
     }
     SECTION( "Double jump - Red player" ) {
         std::vector<BoardState> correct_jumps = {
-            *(make_board({
+            *(make_board_ptr({
                   ' ',' ',' ',' ',
                 ' ',' ',' ',' ',
                   ' ',' ',' ',' ',
@@ -200,7 +213,7 @@ TEST_CASE( "Generate Jumps", "[jump gen]") {
     }
     SECTION( "Two jumps - Red player" ) {
         std::vector<BoardState> correct_jumps = {
-            *(make_board({
+            *(make_board_ptr({
                   ' ',' ',' ',' ',
                 ' ',' ',' ',' ',
                   ' ',' ',' ',' ',
@@ -210,7 +223,7 @@ TEST_CASE( "Generate Jumps", "[jump gen]") {
                   ' ',' ',' ',' ',
                 ' ',' ',' ',' ',
             })),
-            *(make_board({
+            *(make_board_ptr({
                   ' ',' ',' ',' ',
                 ' ',' ',' ',' ',
                   ' ',' ',' ',' ',
@@ -225,13 +238,36 @@ TEST_CASE( "Generate Jumps", "[jump gen]") {
         auto moves = gen.get_possible_jumps(*board_5, RED_PLAYER);
         REQUIRE( moves == correct_jumps );
     }
+    SECTION( "End Game - Red player" ) {
+        std::vector<BoardState> correct_jumps = {};
+
+        auto moves = gen.get_possible_jumps(*board_6, RED_PLAYER);
+        REQUIRE( moves == correct_jumps );
+    }
+    SECTION( "End Game - Black player" ) {
+        std::vector<BoardState> correct_jumps = {
+            *(make_board_ptr({
+                  ' ',' ',' ',' ',
+                ' ',' ',' ',' ',
+                  ' ',' ',' ',' ',
+                ' ',' ',' ','r',
+                  ' ',' ',' ','r',
+                ' ','B',' ',' ',
+                  ' ',' ','r','R',
+                ' ','R','R',' ',
+            }))
+        };
+
+        auto moves = gen.get_possible_jumps(*board_6, BLACK_PLAYER);
+        REQUIRE( moves == correct_jumps );
+    }
 }
 
 TEST_CASE( "Generate Moves", "[move gen]") {
     JumpGenerator gen;
 
 
-    const auto board_1 = make_board(
+    const auto board_1 = make_board_ptr(
         {
               ' ',' ',' ',' ',    //0 - 3
             ' ','r',' ',' ',    //4 - 7
@@ -244,7 +280,7 @@ TEST_CASE( "Generate Moves", "[move gen]") {
         }
     );
 
-    const auto board_2 = make_board(
+    const auto board_2 = make_board_ptr(
         {
               ' ',' ',' ',' ',
             ' ',' ',' ',' ',
@@ -257,7 +293,7 @@ TEST_CASE( "Generate Moves", "[move gen]") {
         }
     );
 
-    const auto board_3 = make_board(
+    const auto board_3 = make_board_ptr(
         {
               ' ',' ',' ',' ',
             ' ',' ',' ',' ',
@@ -270,7 +306,7 @@ TEST_CASE( "Generate Moves", "[move gen]") {
         }
     );
 
-    const auto board_4 = make_board(
+    const auto board_4 = make_board_ptr(
         {
               'r','r','r','r',
             'r','r','r','r',
@@ -285,7 +321,7 @@ TEST_CASE( "Generate Moves", "[move gen]") {
 
     SECTION( "Single move - Red player" ) {
         std::vector<BoardState> correct_jumps = {
-            *(make_board({
+            *(make_board_ptr({
                   ' ',' ',' ',' ',
                 ' ',' ',' ',' ',
                   'r','b',' ',' ',
@@ -303,7 +339,7 @@ TEST_CASE( "Generate Moves", "[move gen]") {
 
     SECTION( "Single move - Black player" ) {
         std::vector<BoardState> correct_jumps = {
-            *(make_board({
+            *(make_board_ptr({
                   ' ',' ',' ',' ',
                 ' ','r','b',' ',
                   ' ',' ',' ',' ',
@@ -322,7 +358,7 @@ TEST_CASE( "Generate Moves", "[move gen]") {
 
     SECTION( "Two moves - Red player" ) {
         std::vector<BoardState> correct_jumps = {
-            *(make_board({
+            *(make_board_ptr({
                   ' ',' ',' ',' ',
                 ' ',' ',' ',' ',
                   ' ',' ',' ',' ',
@@ -332,7 +368,7 @@ TEST_CASE( "Generate Moves", "[move gen]") {
                   ' ',' ',' ',' ',
                 ' ',' ',' ',' ',
             })),
-            *(make_board({
+            *(make_board_ptr({
                   ' ',' ',' ',' ',
                 ' ',' ',' ',' ',
                   ' ',' ',' ',' ',
@@ -351,7 +387,7 @@ TEST_CASE( "Generate Moves", "[move gen]") {
 
     SECTION( "Two moves - Black player" ) {
         std::vector<BoardState> correct_jumps = {
-            *(make_board({
+            *(make_board_ptr({
                   ' ',' ',' ',' ',
                 ' ',' ',' ',' ',
                   ' ','r',' ',' ',
@@ -361,7 +397,7 @@ TEST_CASE( "Generate Moves", "[move gen]") {
                   ' ',' ',' ',' ',
                 ' ',' ',' ',' ',
             })),
-            *(make_board({
+            *(make_board_ptr({
                   ' ',' ',' ',' ',
                 ' ',' ',' ',' ',
                   ' ','r',' ',' ',
@@ -380,7 +416,7 @@ TEST_CASE( "Generate Moves", "[move gen]") {
 
     SECTION( "Multiple moves - Red player" ) {
         std::vector<BoardState> correct_jumps = {
-            *(make_board({
+            *(make_board_ptr({
                   ' ',' ',' ',' ',
                 ' ',' ',' ',' ',
                   ' ',' ','r',' ',
@@ -390,7 +426,7 @@ TEST_CASE( "Generate Moves", "[move gen]") {
                   ' ',' ',' ',' ',
                 ' ',' ',' ',' ',
             })),
-            *(make_board({
+            *(make_board_ptr({
                   ' ',' ',' ',' ',
                 ' ',' ',' ',' ',
                   ' ',' ','r',' ',
@@ -400,7 +436,7 @@ TEST_CASE( "Generate Moves", "[move gen]") {
                   ' ',' ',' ',' ',
                 ' ',' ',' ',' ',
             })),
-            *(make_board({
+            *(make_board_ptr({
                   ' ',' ',' ',' ',
                 ' ',' ',' ',' ',
                   ' ','r',' ',' ',
@@ -410,7 +446,7 @@ TEST_CASE( "Generate Moves", "[move gen]") {
                   ' ',' ',' ',' ',
                 ' ',' ',' ',' ',
             })),
-            *(make_board({
+            *(make_board_ptr({
                   ' ',' ',' ',' ',
                 ' ',' ',' ',' ',
                   ' ','r',' ',' ',
@@ -429,7 +465,7 @@ TEST_CASE( "Generate Moves", "[move gen]") {
 
     SECTION( "Multiple moves - Black player" ) {
         std::vector<BoardState> correct_jumps = {
-            *(make_board({
+            *(make_board_ptr({
                   ' ',' ',' ',' ',
                 ' ',' ',' ',' ',
                   ' ','r','r',' ',
@@ -439,7 +475,7 @@ TEST_CASE( "Generate Moves", "[move gen]") {
                   ' ',' ',' ',' ',
                 ' ',' ',' ',' ',
             })),
-            *(make_board({
+            *(make_board_ptr({
                   ' ',' ',' ',' ',
                 ' ',' ',' ',' ',
                   ' ','r','r',' ',
@@ -449,7 +485,7 @@ TEST_CASE( "Generate Moves", "[move gen]") {
                   ' ',' ',' ',' ',
                 ' ',' ',' ',' ',
             })),
-            *(make_board({
+            *(make_board_ptr({
                   ' ',' ',' ',' ',
                 ' ',' ',' ',' ',
                   ' ','r','r',' ',
@@ -459,7 +495,7 @@ TEST_CASE( "Generate Moves", "[move gen]") {
                   ' ',' ',' ',' ',
                 ' ',' ',' ',' ',
             })),
-            *(make_board({
+            *(make_board_ptr({
                   ' ',' ',' ',' ',
                 ' ',' ',' ',' ',
                   ' ','r','r',' ',
@@ -478,7 +514,7 @@ TEST_CASE( "Generate Moves", "[move gen]") {
 
     SECTION( "Starting board - Red player" ) {
         std::vector<BoardState> correct_jumps = {
-            *(make_board({
+            *(make_board_ptr({
                   'r','r','r','r',
                 'r','r','r','r',
                   ' ','r','r','r',
@@ -488,7 +524,7 @@ TEST_CASE( "Generate Moves", "[move gen]") {
                   'b','b','b','b',
                 'b','b','b','b',
             })),
-            *(make_board({
+            *(make_board_ptr({
                   'r','r','r','r',
                 'r','r','r','r',
                   ' ','r','r','r',
@@ -498,7 +534,7 @@ TEST_CASE( "Generate Moves", "[move gen]") {
                   'b','b','b','b',
                 'b','b','b','b',
             })),
-            *(make_board({
+            *(make_board_ptr({
                   'r','r','r','r',
                 'r','r','r','r',
                   'r',' ','r','r',
@@ -508,7 +544,7 @@ TEST_CASE( "Generate Moves", "[move gen]") {
                   'b','b','b','b',
                 'b','b','b','b',
             })),
-            *(make_board({
+            *(make_board_ptr({
                   'r','r','r','r',
                 'r','r','r','r',
                   'r',' ','r','r',
@@ -518,7 +554,7 @@ TEST_CASE( "Generate Moves", "[move gen]") {
                   'b','b','b','b',
                 'b','b','b','b',
             })),
-            *(make_board({
+            *(make_board_ptr({
                   'r','r','r','r',
                 'r','r','r','r',
                   'r','r',' ','r',
@@ -528,7 +564,7 @@ TEST_CASE( "Generate Moves", "[move gen]") {
                   'b','b','b','b',
                 'b','b','b','b',
             })),
-            *(make_board({
+            *(make_board_ptr({
                   'r','r','r','r',
                 'r','r','r','r',
                   'r','r',' ','r',
@@ -538,7 +574,7 @@ TEST_CASE( "Generate Moves", "[move gen]") {
                   'b','b','b','b',
                 'b','b','b','b',
             })),
-            *(make_board({
+            *(make_board_ptr({
                   'r','r','r','r',
                 'r','r','r','r',
                   'r','r','r',' ',

@@ -18,10 +18,14 @@ int main(int argc, char const *argv[]) {
         pause_between_moves = true;
     }
 
-    RandomPlayer p1(RED_PLAYER);
-    Network4 net({32, 40, 10, 1});
-    net.readFromFile("best_network.txt");
-    AIPlayer p2(BLACK_PLAYER, net);
+    PieceCountPlayer p1(RED_PLAYER);
+    Network4 beg({32, 40, 10, 1});
+    Network4 mid({32, 40, 10, 1});
+    Network4 end({32, 40, 10, 1});
+    beg.readFromFile("beg_300_1.txt");
+    mid.readFromFile("beg_300_1.txt");
+    end.readFromFile("beg_300_1.txt");
+    AIPlayer3Net p2(BLACK_PLAYER, beg, mid, end, 6);
 
     Game game(p1, p2);
 
@@ -52,6 +56,7 @@ int main(int argc, char const *argv[]) {
         float scores[2] = {0,0};
         for (size_t i = 0; i < 100; i++) {
             game.reset();
+            game.randomizeOpeningMoves(3);
             // game.setBoard(testBoard);
             game.playGame();
             auto winner = game.getWinner();

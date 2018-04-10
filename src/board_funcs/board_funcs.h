@@ -31,6 +31,7 @@ float evaluate_board(const BoardState &board);
 float evaluate_board_with_player(const BoardState &board, int player);
 
 
+BoardState make_board(const std::vector<char> & board);
 
 void print_board(const BoardState & board);
 void print_board(const BoardState & board, std::string linePrefix);

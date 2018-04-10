@@ -92,7 +92,7 @@ public:
     RandomSearchPlayer (int color, size_t depth):Player(color), _depth(depth) {}
 
     BoardState takeMove(const BoardState & board) override;
-    
+
     float evaluate(const BoardState & board, int player);
 };
 
@@ -127,6 +127,35 @@ private:
 public:
     AIPlayer (int color, const Network4 & net):Player(color), _net(net) {}
     AIPlayer (int color, const Network4 & net, size_t depth):Player(color), _net(net), _depth(depth) {}
+
+    BoardState takeMove(const BoardState & board) override;
+    float evaluate(const BoardState & board, int player);
+};
+
+
+/* class AIPlayer3Net
+ *
+ * Player implementation which uses a minimax search with neural network as
+ * board evaluation function. Uses 3 different networks for 3 stages of the game.
+ * Beginning: 24-17 pieces, Middle: 16-9 pieces, End: 8-0 pieces.
+ */
+class AIPlayer3Net : public Player {
+private:
+    Network4 _beg;
+    Network4 _mid;
+    Network4 _end;
+    size_t _depth = 4;
+
+    float _evaluateWithNetwork(const BoardState & board, int player, Network4 & net);
+
+public:
+    AIPlayer3Net (int color, const Network4 & beg, const Network4 & mid,
+                  const Network4 & end):Player(color), _beg(beg), _mid(mid),
+                  _end(end) {}
+
+    AIPlayer3Net (int color, const Network4 & beg, const Network4 & mid,
+                const Network4 & end, size_t depth):Player(color), _beg(beg),
+                _mid(mid), _end(end), _depth(depth) {}
 
     BoardState takeMove(const BoardState & board) override;
     float evaluate(const BoardState & board, int player);

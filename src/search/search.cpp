@@ -256,6 +256,7 @@ public:
             float best = 100;
             int best_index = -1;
             auto children = get_children(board, player);
+
             for (size_t i = 0; i < children.size(); i++) {
                 auto result = search(children[i], maximizing_player, swapPlayer(player), depth + 1, max_depth, alpha, beta, evaluate);
 
