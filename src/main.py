@@ -28,7 +28,7 @@ if __name__ == '__main__':
     if 'error' in resp:
         print('Game could not be found')
         sys.exit(-1)
-    if 'status' in resp and resp['status'] not in ['reds_turn', 'blacks_turn']:
+    if 'status' in resp and resp['status'] not in ['red_turn', 'black_turn']:
         print('Game is over... ')
         sys.exit(-1)
 
