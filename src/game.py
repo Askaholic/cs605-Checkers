@@ -9,25 +9,8 @@ from time import time
 import skynet
 import sys
 
-class NetworkGame(object):
-    def __init__(self, name):
-        self.name = name
-        self.turns = 0
-        self.player = RED_PLAYER
-        self.winner = None
 
-        resp = skynet.info_game(name)
-        self.board = Board()
-        self.board.board = self.board.string_to_board(resp['boards'][-1])
-
-
-    def update(self, dt):
-        resp = skynet.info_game(self.name)
-        board = self.board.board_to_string(self.board.board)
-        if resp['boards'][-1] == board:
-            return
-
-class PlayerGame(object):
+class Game(object):
     def __init__(self):
         self.board = Board()
         self.turns = 0
@@ -93,6 +76,42 @@ class PlayerGame(object):
                 self.board.current_turn_player = BLACK_PLAYER if self.player == BLACK_PLAYER else RED_PLAYER
                 self.check_winner()
                 self.turns += 1
+
+        elif self.turns == 200:
+            self.winner = not self.board.current_turn_player
+        else:
+            self.set_draw()
+
+
+class NetworkGame(Game):
+    def __init__(self, name, player):
+        super(NetworkGame, self).__init__()
+        self.name = name
+        self.player = player
+
+        resp = skynet.info_game(name)
+        self.board.board = self.board.string_to_board(resp['boards'][-1])
+
+
+    def update(self, dt):
+        if self.winner is not None:
+            return
+
+
+        if self.turns < 200:
+            if self.player == self.board.current_turn_player:
+                print('making ai turn')
+                self.board.ai_turn()
+                self.board.current_turn_player = BLACK_PLAYER if self.player == BLACK_PLAYER else RED_PLAYER
+                self.check_winner()
+                self.turns += 1
+                skynet.play_turn(self.name, self.board.board_to_string(self.board.board))
+            else:
+                print('checking')
+                resp = skynet.info_game(self.name)
+                board = self.board.board_to_string(self.board.board)
+                if resp['boards'][-1] == board:
+                    return
 
         elif self.turns == 200:
             self.winner = not self.board.current_turn_player
