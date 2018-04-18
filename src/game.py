@@ -9,6 +9,12 @@ from time import time
 import skynet
 import sys
 
+try:
+    import board_funcs as bf
+except ImportError:
+    print("Could not import board_funcs C++ library. Please install it!")
+    raise
+
 
 class Game(object):
     def __init__(self):
@@ -91,7 +97,7 @@ class NetworkGame(Game):
 
         resp = skynet.info_game(name)
         self.board.board = self.board.string_to_board(resp['boards'][-1])
-
+        bf.setup_network(player)
 
     def update(self, dt):
         if self.winner is not None:
