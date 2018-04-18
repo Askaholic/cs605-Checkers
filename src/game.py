@@ -112,6 +112,7 @@ class NetworkGame(Game):
                 board = self.board.board_to_string(self.board.board)
                 if resp['boards'][-1] == board:
                     return
+                self.board.board = self.board.string_to_board(resp['boards'][-1])
 
         elif self.turns == 200:
             self.winner = not self.board.current_turn_player

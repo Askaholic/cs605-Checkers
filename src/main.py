@@ -28,6 +28,9 @@ if __name__ == '__main__':
     if 'error' in resp:
         print('Game could not be found')
         sys.exit(-1)
+    if 'status' in resp and resp['status'] not in ['reds_turn', 'blacks_turn']:
+        print('Game is over... ')
+        sys.exit(-1)
 
     game = CheckersGame(NetworkGame(name, player))
     clock.schedule_interval(game.update, 1/60.0)

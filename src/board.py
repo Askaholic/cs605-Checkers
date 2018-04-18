@@ -274,7 +274,7 @@ class Board(object):
             board_string += c
         print("Using board_funcs")
         print(self.current_turn_player)
-        board = 'rrrrrrrrrrrr________bbbbbbbbbbbb'
+        board = 'rrrrrrrrr_rr_r______bbbbbbbbbbbb'
         score = 0
         # board, score = bf.min_max_search_inplace(board_string, self.current_turn_player, 4)
         for i in range(len(board)):
