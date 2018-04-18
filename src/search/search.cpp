@@ -247,6 +247,7 @@ public:
                     break;
                 }
             }
+            // TODO: Return's the same board when all moves end up in a loss
             return std::make_pair<BoardState, float>(
                 (BoardState)(best_index == -1 ? board : children[best_index]),
                 float(best)
