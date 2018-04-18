@@ -70,36 +70,27 @@ static void board_state_to_py_list(const BoardState & board, PyObject * list) {
 /****************************************************************/
 
 
-static PyObject * setup_board_wrapper(PyObject * self, PyObject * args) {
-    // There are no arguments
-    if (!PyArg_ParseTuple(args, "")) {
-        return NULL;
-    }
-    setup_board();
-    Py_RETURN_NONE;
-}
-
-
 static PyObject * setup_network_wrapper(PyObject * self, PyObject * args) {
-    // There are no arguments
-    if (!PyArg_ParseTuple(args, "")) {
+    int color;
+    if (!PyArg_ParseTuple(args, "i", &color)) {
         return NULL;
     }
-    setup_network();
+    setup_network(color);
     Py_RETURN_NONE;
 }
 
-
-static PyObject * get_board_wrapper(PyObject * self, PyObject * args) {
-    // There are no arguments
-    if (!PyArg_ParseTuple(args, "")) {
+static PyObject * make_move_wrapper(PyObject * self, PyObject * args) {
+    char * board_string;
+    if (!PyArg_ParseTuple(args, "s", &board_string)) {
         return NULL;
     }
+    BoardState board;
+    string_to_board_state(board_string, board);
 
-    auto board = get_board();
+    auto next_board = make_move(board);
 
     auto list = PyList_New(BOARD_ELEMENTS);
-    board_state_to_py_list(board, list);
+    board_state_to_py_list(next_board, list);
     return list;
 }
 
@@ -143,22 +134,16 @@ static PyObject * time_boards_wrapper(PyObject * self, PyObject * args) {
 
 static PyMethodDef BoardFuncMethods[] = {
     {
-        "setup_board",
-         setup_board_wrapper,
-         METH_VARARGS,
-        "Setup the initial board state"
-    },
-    {
         "setup_network",
         setup_network_wrapper,
         METH_VARARGS,
         "Setup the neural network used by the board evaluation function"
     },
     {
-        "get_board",
-        get_board_wrapper,
+        "make_move",
+        make_move_wrapper,
         METH_VARARGS,
-        "Get the current board state"
+        "Searches for the next move using the neural network"
     },
     {
         "time_boards",

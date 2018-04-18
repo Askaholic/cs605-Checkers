@@ -11,20 +11,8 @@
 #include <vector>
 
 
-
-
-class Board {
-private:
-    BoardState currentBoardState;
-public:
-};
-
-
-void setup_board();
-void setup_network();
-void setup_game(int playerColor);
-BoardState get_board();
-
+void setup_network(int playerColor);
+BoardState make_move(const BoardState & board);
 
 std::vector<Move> get_possible_moves(const BoardState &board, int player);
 bool is_valid_jump(const BoardState & board, const Jump & jump, int player);

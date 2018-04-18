@@ -15,47 +15,33 @@
 #include <cstddef>
 #include <iostream>
 
-BoardState the_board = {};
 Network4 the_net_beg({0, 0});
 Network4 the_net_mid({0, 0});
 Network4 the_net_end({0, 0});
-AIPlayer3Net aiPlayer(RED_PLAYER, the_net_beg, the_net_mid, the_net_end);
-ExternalPlayer opponentPlayer(BLACK_PLAYER);
-Game the_game(aiPlayer, opponentPlayer);
+AIPlayer3Net the_player(RED_PLAYER, the_net_beg, the_net_mid, the_net_end);
 
-
-void setup_board() {
-    for (size_t i = 0; i < 12; i++) {
-        the_board.set(i, RED_CHECKER);
-        the_board.set(BOARD_ELEMENTS - 1 - i, BLACK_CHECKER);
-    }
-}
-
-void setup_network() {
+void setup_network(int playerColor) {
     the_net_beg = Network4({32, 1000, 40, 10, 1});
     the_net_mid = Network4({32, 1000, 40, 10, 1});
     the_net_end = Network4({32, 1000, 40, 10, 1});
 
-    the_net_beg.readFromFile("net_beg_best.txt");
+    // the_net_beg.readFromFile("net_beg_best.txt");
+    the_net_beg.randomizeWeights();
     std::cout << "Initialized network with " << the_net_beg.getNumNodes() << " nodes" << '\n';
 
-    the_net_beg.readFromFile("net_mid_best.txt");
+    // the_net_beg.readFromFile("net_mid_best.txt");
+    the_net_beg.randomizeWeights();
     std::cout << "Initialized network with " << the_net_mid.getNumNodes() << " nodes" << '\n';
 
-    the_net_beg.readFromFile("net_end_best.txt");
+    // the_net_beg.readFromFile("net_end_best.txt");
+    the_net_beg.randomizeWeights();
     std::cout << "Initialized network with " << the_net_end.getNumNodes() << " nodes" << '\n';
+
+    the_player = AIPlayer3Net(playerColor, the_net_beg, the_net_mid, the_net_end);
 }
 
-
-void setup_game(int playerColor) {
-    aiPlayer = AIPlayer3Net(RED_PLAYER, the_net_beg, the_net_mid, the_net_end);
-    opponentPlayer = ExternalPlayer(BLACK_PLAYER);
-    the_game = Game(aiPlayer, opponentPlayer);
-}
-
-
-BoardState get_board() {
-    return the_board;
+BoardState make_move(const BoardState & board) {
+    return the_player.takeMove(board);
 }
 
 
