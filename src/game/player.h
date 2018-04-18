@@ -162,4 +162,25 @@ public:
 };
 
 
+/* class ExternalPlayer
+ *
+ * Player implementation which gets moves from an external source. Used to play
+ * against someone over a network connection.
+ */
+class ExternalPlayer : public Player {
+private:
+    BoardState _next_board;
+
+public:
+    ExternalPlayer(int color):Player(color) { }
+
+    BoardState takeMove(const BoardState & board) override {
+        return _next_board;
+    }
+
+    void setMove(const BoardState & next_board) {
+        _next_board = next_board;
+    }
+};
+
 #endif

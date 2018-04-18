@@ -7,14 +7,21 @@
 #include "asknet.h"
 #include "asknet4.h"
 #include "board_funcs.h"
+#include "game.h"
 #include "jump_table.h"
 #include "move_table.h"
+#include "player.h"
 #include <vector>
 #include <cstddef>
 #include <iostream>
 
 BoardState the_board = {};
-Network4 the_network({0, 0});
+Network4 the_net_beg({0, 0});
+Network4 the_net_mid({0, 0});
+Network4 the_net_end({0, 0});
+AIPlayer3Net aiPlayer(RED_PLAYER, the_net_beg, the_net_mid, the_net_end);
+ExternalPlayer opponentPlayer(BLACK_PLAYER);
+Game the_game(aiPlayer, opponentPlayer);
 
 
 void setup_board() {
@@ -25,11 +32,25 @@ void setup_board() {
 }
 
 void setup_network() {
-    // the_network = Network({32, 1024, 512, 256, 8, 1});
-    // the_network.randomizeWeights();
-    the_network = Network4({32, 40, 10, 1});
-    the_network.readFromFile("best_network.txt");
-    std::cout << "Initialized network with " << the_network.getNumNodes() << " nodes" << '\n';
+    the_net_beg = Network4({32, 1000, 40, 10, 1});
+    the_net_mid = Network4({32, 1000, 40, 10, 1});
+    the_net_end = Network4({32, 1000, 40, 10, 1});
+
+    the_net_beg.readFromFile("net_beg_best.txt");
+    std::cout << "Initialized network with " << the_net_beg.getNumNodes() << " nodes" << '\n';
+
+    the_net_beg.readFromFile("net_mid_best.txt");
+    std::cout << "Initialized network with " << the_net_mid.getNumNodes() << " nodes" << '\n';
+
+    the_net_beg.readFromFile("net_end_best.txt");
+    std::cout << "Initialized network with " << the_net_end.getNumNodes() << " nodes" << '\n';
+}
+
+
+void setup_game(int playerColor) {
+    aiPlayer = AIPlayer3Net(RED_PLAYER, the_net_beg, the_net_mid, the_net_end);
+    opponentPlayer = ExternalPlayer(BLACK_PLAYER);
+    the_game = Game(aiPlayer, opponentPlayer);
 }
 
 
@@ -37,32 +58,6 @@ BoardState get_board() {
     return the_board;
 }
 
-float evaluate_board_with_player(const BoardState& board, int player) {
-    auto result = evaluate_board(board);
-    if (player == BLACK_PLAYER) {
-        result *= -1;
-    }
-    return result;
-}
-
-float evaluate_board(const BoardState &board) {
-    std::vector<float> inputs(BOARD_ELEMENTS);
-
-    for (size_t i = 0; i < BOARD_ELEMENTS; i++) {
-        auto piece = board[i];
-        float node_value = 0.0f;
-        switch (piece) {
-            case RED_CHECKER: node_value = 1; break;
-            case RED_KING: node_value = the_network.getKingValue(); break;
-            case BLACK_CHECKER: node_value = -1; break;
-            case BLACK_KING: node_value = - the_network.getKingValue(); break;
-        }
-        inputs[i] = node_value;
-    }
-
-    the_network.setInputs(inputs);
-    return the_network.evaluate();
-}
 
 void _set_targets(char * targets, int player) {
     if (player == RED_PLAYER) {
