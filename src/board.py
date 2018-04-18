@@ -7,14 +7,8 @@ from random import shuffle
 
 try:
     import board_funcs as bf
-    try:
-        # bf.setup_network()
-        pass
-    except:
-        print('No network available')
 except ImportError:
     print("Could not import board_funcs C++ library. Please install it!")
-    bf = None
     raise
 
 moveTable = {
@@ -118,7 +112,7 @@ playerPieces = {
 class Board(object):
 
     def __init__(self):
-        self.board = ['1']*32
+        self.board = ['_']*32
         self.setup_board()
 
     # Sets up the pieces.
@@ -166,7 +160,7 @@ class Board(object):
     # Called from GUI
     def take_move(self, board, from_, to_):
         piece = board[from_]
-        board[from_] = '1'
+        board[from_] = '_'
         board[to_] = piece
 
         self.make_king_if_king_space(board, to_)
@@ -174,8 +168,8 @@ class Board(object):
     def take_jump(self, from_, to_):
         enemyPos = self.get_enemy_position(from_, to_)
         piece = self.board[from_]
-        self.board[enemyPos] = '1'
-        self.board[from_] = '1'
+        self.board[enemyPos] = '_'
+        self.board[from_] = '_'
         self.board[to_] = piece
 
         self.make_king_if_king_space(self.board, to_)
@@ -209,7 +203,7 @@ class Board(object):
             return False
         if not self.is_valid_index(from_) or not self.is_valid_index(to_):
             return False
-        if self.board[to_] != '1':
+        if self.board[to_] != '_':
             return False
         if from_ == to_:
             return False
@@ -223,7 +217,7 @@ class Board(object):
     def is_valid_jump(self, from_, to_):
         if not self.is_valid_index(from_) or not self.is_valid_index(to_):
             return False
-        if self.board[to_] != '1':
+        if self.board[to_] != '_':
             return False
         if not self.is_enemy_in_position(from_, to_):
             return False
@@ -272,20 +266,15 @@ class Board(object):
         board_string = ""
         for c in self.board:
             board_string += c
-        print("Using board_funcs")
-        print(self.current_turn_player)
-        board = 'rrrrrrrrr_rr_r______bbbbbbbbbbbb'
-        score = 0
-        # board, score = bf.min_max_search_inplace(board_string, self.current_turn_player, 4)
+        board = 'rrrrrrrrrrrr________bbbbbbbbbbbb'
+        board = bf.make_move(board_string)
         for i in range(len(board)):
             if (board[i] == ''):
-                self.board[i] = '1'
+                self.board[i] = '_'
             else:
                 self.board[i] = board[i]
 
-        print(''.join(self.board))
         self.printBoard(self.board)
-        print('RESULTS:', score)
 
     def expand_move(self, move):
         board_copy = list(self.board)
@@ -316,7 +305,7 @@ class Board(object):
 
         for tile in range(32):
             board_element = some_board[tile]
-            if board_element == '1':
+            if board_element == '_':
                 board_element = '.'
             if (tile % 4 == 0 and tile != 0):
                 odd = not odd

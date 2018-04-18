@@ -32,7 +32,8 @@ if __name__ == '__main__':
         print('Game is over... ')
         sys.exit(-1)
 
-    game = CheckersGame(NetworkGame(name, player))
+    current_turn_player = RED_PLAYER if resp['status'] == 'red_turn' else BLACK_PLAYER
+    game = CheckersGame(NetworkGame(name, player, current_turn_player))
     clock.schedule_interval(game.update, 1/60.0)
 
     game.run()

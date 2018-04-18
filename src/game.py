@@ -90,13 +90,14 @@ class Game(object):
 
 
 class NetworkGame(Game):
-    def __init__(self, name, player):
+    def __init__(self, name, player, current_turn_player):
         super(NetworkGame, self).__init__()
         self.name = name
         self.player = player
 
         resp = skynet.info_game(name)
         self.board.board = self.board.string_to_board(resp['boards'][-1])
+        self.board.current_turn_player = current_turn_player
         bf.setup_network(player)
 
     def update(self, dt):
@@ -108,17 +109,31 @@ class NetworkGame(Game):
             if self.player == self.board.current_turn_player:
                 print('making ai turn')
                 self.board.ai_turn()
-                self.board.current_turn_player = BLACK_PLAYER if self.player == BLACK_PLAYER else RED_PLAYER
+                self.board.current_turn_player = BLACK_PLAYER if self.player == RED_PLAYER else RED_PLAYER
                 self.check_winner()
                 self.turns += 1
                 skynet.play_turn(self.name, self.board.board_to_string(self.board.board))
             else:
-                print('checking')
                 resp = skynet.info_game(self.name)
                 board = self.board.board_to_string(self.board.board)
-                if resp['boards'][-1] == board:
+
+                if 'status' in resp and resp['status'] not in ['red_turn', 'black_turn']:
+                    if resp['status'] == 'red_won':
+                        self.winner = RED_PLAYER
+                    elif resp['status'] == 'black_won':
+                        self.winner = BLACK_PLAYER
+                    else:
+                        print("Weird status: {}".format(resp['status']))
+                        self.set_draw()
+                    self.end_game();
+                elif resp['boards'][-1] == board:
                     return
+                print("got a move")
+                print(resp['boards'][-1])
+                print(board)
                 self.board.board = self.board.string_to_board(resp['boards'][-1])
+                self.board.current_turn_player = BLACK_PLAYER if self.player == BLACK_PLAYER else RED_PLAYER
+
 
         elif self.turns == 200:
             self.winner = not self.board.current_turn_player
