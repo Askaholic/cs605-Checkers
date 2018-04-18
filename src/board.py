@@ -8,7 +8,8 @@ from random import shuffle
 try:
     import board_funcs as bf
     try:
-        bf.setup_network()
+        # bf.setup_network()
+        pass
     except:
         print('No network available')
 except ImportError:
@@ -266,21 +267,6 @@ class Board(object):
 
         return allPossibleMoves
 
-    def choose_jump(self, jumps):
-        # Always take all jumps.
-        # for jump in jumps:
-            # self.take_jump()
-            # print
-        first_jump = jumps[0]
-        self.take_jump(first_jump[0], first_jump[1][0])
-
-    def choose_move(self, moves):
-        if bf is None:
-            # Take the first move if the c++ lib is not available
-            best_move = moves[0]
-            self.take_move(self.board, best_move[0], best_move[1])
-        else:
-            self.search_and_take_move()
 
     def search_and_take_move(self):
         board_string = ""
@@ -288,7 +274,9 @@ class Board(object):
             board_string += c
         print("Using board_funcs")
         print(self.current_turn_player)
-        board, score = bf.min_max_search_inplace(board_string, self.current_turn_player, 4)
+        board = 'rrrrrrrrrrrr________bbbbbbbbbbbb'
+        score = 0
+        # board, score = bf.min_max_search_inplace(board_string, self.current_turn_player, 4)
         for i in range(len(board)):
             if (board[i] == ''):
                 self.board[i] = '1'
@@ -310,33 +298,16 @@ class Board(object):
             string += piece
         return string
 
-    def ai_take_all_jumps(self, jumps):
-        print("Python take jumps")
-        while len(jumps) > 0:
+    def string_to_board(self, string):
+        board = []
+        for piece in string:
+            board.append(piece)
+        return board
 
-            # O(n) shuffle, randomizes
-            shuffle(jumps)
-
-            first_jump = jumps[0]
-            self.take_jump(first_jump[0], first_jump[1][0])
-
-            jumps = self.get_all_jumps()
-            print(len(jumps))
 
     def ai_turn(self):
         self.search_and_take_move()
         return
-
-        # Old code here
-        available_jumps = self.get_all_jumps()
-        if available_jumps != []:
-            self.ai_take_all_jumps(available_jumps)
-            return
-        else:
-            available_moves = self.get_all_moves()
-            # # if available_moves == []:
-            # #     return
-            self.choose_move(available_moves)
 
 
     def printBoard(self, some_board):

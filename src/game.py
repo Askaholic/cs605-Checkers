@@ -6,9 +6,28 @@
 
 from board import Board, RED_PLAYER, BLACK_PLAYER
 from time import time
+import skynet
+import sys
+
+class NetworkGame(object):
+    def __init__(self, name):
+        self.name = name
+        self.turns = 0
+        self.player = RED_PLAYER
+        self.winner = None
+
+        resp = skynet.info_game(name)
+        self.board = Board()
+        self.board.board = self.board.string_to_board(resp['boards'][-1])
 
 
-class Game(object):
+    def update(self, dt):
+        resp = skynet.info_game(self.name)
+        board = self.board.board_to_string(self.board.board)
+        if resp['boards'][-1] == board:
+            return
+
+class PlayerGame(object):
     def __init__(self):
         self.board = Board()
         self.turns = 0
