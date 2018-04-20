@@ -19,6 +19,7 @@ Network4 the_net_beg({0, 0});
 Network4 the_net_mid({0, 0});
 Network4 the_net_end({0, 0});
 AIPlayer3Net the_player(RED_PLAYER, the_net_beg, the_net_mid, the_net_end);
+PieceCountPlayer pcPlayer(RED_PLAYER, 8);
 
 void setup_network(int playerColor) {
     the_net_beg = Network4({32, 1000, 40, 10, 1});
@@ -38,9 +39,11 @@ void setup_network(int playerColor) {
     std::cout << "Initialized network with " << the_net_end.getNumNodes() << " nodes" << '\n';
 
     the_player = AIPlayer3Net(playerColor, the_net_beg, the_net_mid, the_net_end);
+    pcPlayer = PieceCountPlayer(playerColor, 8);
 }
 
 BoardState make_move(const BoardState & board) {
+    // return pcPlayer.takeMove(board);
     return the_player.takeMove(board);
 }
 
