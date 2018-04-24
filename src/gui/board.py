@@ -13,16 +13,16 @@ from pyglet.window import mouse
 from .util import scale, inv_scale
 
 
-class BoardHandlers(object):
+class BoardDrawHandlers(object):
     def __init__(self, window):
         self.window = window
         self.sprites = {
-                'b': make_sprite('black_checker.png'),
-                'B': make_sprite('black_king.png'),
-                'r': make_sprite('red_checker.png'),
-                'R': make_sprite('red_king.png')
-            }
-        self.dragged = None
+            'b': make_sprite('black_checker.png'),
+            'B': make_sprite('black_king.png'),
+            'r': make_sprite('red_checker.png'),
+            'R': make_sprite('red_king.png')
+        }
+
         self.debug_label = Label(
             'Debug: ',
             font_name='Times New Roman',
@@ -37,14 +37,29 @@ class BoardHandlers(object):
         glPushMatrix()
         glTranslatef(self.window.width // 2 - scale(400), self.window.height // 2 - scale(400), 0)
         draw_board()
-        draw_pieces(self.sprites, self.window.game_board, self.dragged)
+        draw_pieces(self.sprites, self.window.game_board, False)
         glPopMatrix()
 
-        # print('wtf is your problem:', self.window.game_board.board.winner )
         if self.window.game_board.winner is not None:
             draw_winner(self.window.game_board.winner, self.window)
 
-        # self.debug_label.draw()
+
+class BoardHandlers(object):
+    def __init__(self, window):
+        # super(BoardHandlers, self).__init__(window)
+        self.dragged = None
+
+    def on_draw(self):
+        glClear(GL_COLOR_BUFFER_BIT)
+        glLoadIdentity()
+        glPushMatrix()
+        glTranslatef(self.window.width // 2 - scale(400), self.window.height // 2 - scale(400), 0)
+        draw_board()
+        draw_pieces(self.sprites, self.window.game_board, self.dragged)
+        glPopMatrix()
+
+        if self.window.game_board.winner is not None:
+            draw_winner(self.window.game_board.winner, self.window)
 
     def on_mouse_motion(self, x, y, dx, dy):
         self.debug_label.x = x

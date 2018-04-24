@@ -5,7 +5,7 @@
 # Module gui
 
 
-from .board import BoardHandlers
+from .board import BoardHandlers, BoardDrawHandlers
 from pyglet.gl import glClearColor, glBlendFunc, glEnable, GL_BLEND, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
 from pyglet import app, gl, resource
 from pyglet.graphics import draw
@@ -25,7 +25,8 @@ class CheckersGame(Window):
         resource.reindex()
         init(self)
 
-        self.push_handlers(BoardHandlers(self))
+        self.push_handlers(BoardDrawHandlers(self))
+
         self.handlers_enabled = True
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         glEnable(GL_BLEND)
@@ -58,3 +59,10 @@ class CheckersGame(Window):
 
     def add_game_object(self, obj):
         self.game_objects.append(obj);
+
+
+class PlayerCheckersGame(CheckersGame):
+    def __init__(self, board):
+        super(PlayerCheckersGame, self).__init__(board)
+
+        self.push_handlers(BoardHandlers(self))

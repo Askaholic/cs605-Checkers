@@ -36,6 +36,16 @@ private:
 
 public:
     Game(Player & red, Player & black);
+    Game & operator=(const Game & other) {
+        _board = other._board;
+        _redPlayer = other._redPlayer;
+        _blackPlayer = other._blackPlayer;
+        _current_turn_player = other._current_turn_player;
+        _turn_count = other._turn_count;
+        _max_turn_count = other._max_turn_count;
+        _has_winner = other._has_winner;
+        return *this;
+    }
 
     const BoardState & getBoard() const { return _board; }
 

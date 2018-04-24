@@ -6,13 +6,34 @@
 
 # Starts the gui
 
+from board import  RED_PLAYER, BLACK_PLAYER
+
 from pyglet import clock
 from gui import CheckersGame
-from game import Game
+from game import NetworkGame
+import skynet
+
+import sys
 
 
 if __name__ == '__main__':
-    game = CheckersGame(Game())
+    if len(sys.argv) < 3:
+        print('Please supply a game name and player color')
+        sys.exit(-1)
+
+    name = sys.argv[1]
+    player = RED_PLAYER if sys.argv[2].lower() == 'red' else BLACK_PLAYER
+
+    resp = skynet.info_game(name)
+    if 'error' in resp:
+        print('Game could not be found')
+        sys.exit(-1)
+    if 'status' in resp and resp['status'] not in ['red_turn', 'black_turn']:
+        print('Game is over... ')
+        sys.exit(-1)
+
+    current_turn_player = RED_PLAYER if resp['status'] == 'red_turn' else BLACK_PLAYER
+    game = CheckersGame(NetworkGame(name, player, current_turn_player))
     clock.schedule_interval(game.update, 1/60.0)
 
     game.run()

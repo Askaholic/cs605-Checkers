@@ -70,36 +70,27 @@ static void board_state_to_py_list(const BoardState & board, PyObject * list) {
 /****************************************************************/
 
 
-static PyObject * setup_board_wrapper(PyObject * self, PyObject * args) {
-    // There are no arguments
-    if (!PyArg_ParseTuple(args, "")) {
-        return NULL;
-    }
-    setup_board();
-    Py_RETURN_NONE;
-}
-
-
 static PyObject * setup_network_wrapper(PyObject * self, PyObject * args) {
-    // There are no arguments
-    if (!PyArg_ParseTuple(args, "")) {
+    int color;
+    if (!PyArg_ParseTuple(args, "i", &color)) {
         return NULL;
     }
-    setup_network();
+    setup_network(color);
     Py_RETURN_NONE;
 }
 
-
-static PyObject * get_board_wrapper(PyObject * self, PyObject * args) {
-    // There are no arguments
-    if (!PyArg_ParseTuple(args, "")) {
+static PyObject * make_move_wrapper(PyObject * self, PyObject * args) {
+    char * board_string;
+    if (!PyArg_ParseTuple(args, "s", &board_string)) {
         return NULL;
     }
+    BoardState board;
+    string_to_board_state(board_string, board);
 
-    auto board = get_board();
+    auto next_board = make_move(board);
 
     auto list = PyList_New(BOARD_ELEMENTS);
-    board_state_to_py_list(board, list);
+    board_state_to_py_list(next_board, list);
     return list;
 }
 
@@ -126,104 +117,6 @@ static PyObject * get_possible_moves_wrapper(PyObject * self, PyObject * args) {
 }
 
 
-static PyObject * evaluate_board_wrapper(PyObject * self, PyObject * args) {
-    char * board_string;
-    if (!PyArg_ParseTuple(args, "s", &board_string)) {
-        return NULL;
-    }
-
-    BoardState board;
-    string_to_board_state(board_string, board);
-
-    auto f = evaluate_board(board);
-    return PyFloat_FromDouble(f);
-}
-
-
-static PyObject * min_max_search_wrapper(PyObject * self, PyObject * args) {
-    char * board_string;
-    int depth;
-    int player;
-    if (!PyArg_ParseTuple(args, "sii", &board_string, &player, &depth)) {
-        return NULL;
-    }
-
-    BoardState board;
-    string_to_board_state(board_string, board);
-
-    auto start = std::chrono::high_resolution_clock::now();
-    auto search_result = min_max_search(board, player, depth);
-    auto end = std::chrono::high_resolution_clock::now();
-
-    auto time = ((std::chrono::nanoseconds)(end - start)).count();
-    std::cout << "min_max_search time: " << ((double)time) << " ns / call\n";
-
-    auto tuple = PyTuple_New(2);
-    auto list = PyList_New(BOARD_ELEMENTS);
-    board_state_to_py_list(*(search_result.first), list);
-
-    PyTuple_SET_ITEM(tuple, 0, list);
-    PyTuple_SET_ITEM(tuple, 1, PyLong_FromLong(search_result.second));
-    return tuple;
-}
-
-
-static PyObject * min_max_search_ab_wrapper(PyObject * self, PyObject * args) {
-    char * board_string;
-    int depth;
-    int player;
-    if (!PyArg_ParseTuple(args, "sii", &board_string, &player, &depth)) {
-        return NULL;
-    }
-
-    BoardState board;
-    string_to_board_state(board_string, board);
-
-    auto start = std::chrono::high_resolution_clock::now();
-    auto search_result = min_max_search_ab(board, player, depth);
-    auto end = std::chrono::high_resolution_clock::now();
-
-    auto time = ((std::chrono::nanoseconds)(end - start)).count();
-    std::cout << "min_max_search time: " << ((double)time) << " ns / call\n";
-
-    auto tuple = PyTuple_New(2);
-    auto list = PyList_New(BOARD_ELEMENTS);
-    board_state_to_py_list(search_result.first, list);
-
-    PyTuple_SET_ITEM(tuple, 0, list);
-    PyTuple_SET_ITEM(tuple, 1, PyLong_FromLong(search_result.second));
-    return tuple;
-}
-
-
-static PyObject * min_max_search_inplace_wrapper(PyObject * self, PyObject * args) {
-    char * board_string;
-    int depth;
-    int player;
-    if (!PyArg_ParseTuple(args, "sii", &board_string, &player, &depth)) {
-        return NULL;
-    }
-
-    BoardState board;
-    string_to_board_state(board_string, board);
-
-    // auto start = std::chrono::high_resolution_clock::now();
-    auto search_result = min_max_search_inplace(board, player, depth, &evaluate_board_with_player);
-    // auto end = std::chrono::high_resolution_clock::now();
-
-    // auto time = ((std::chrono::nanoseconds)(end - start)).count();
-    // std::cout << "min_max_search_inplace time: " << ((double)time) << " ns / call\n";
-
-    auto tuple = PyTuple_New(2);
-    auto list = PyList_New(BOARD_ELEMENTS);
-    board_state_to_py_list(search_result.first, list);
-
-    PyTuple_SET_ITEM(tuple, 0, list);
-    PyTuple_SET_ITEM(tuple, 1, PyFloat_FromDouble(search_result.second));
-    return tuple;
-}
-
-
 static PyObject * time_boards_wrapper(PyObject * self, PyObject * args) {
     // There are no arguments
     if (!PyArg_ParseTuple(args, "")) {
@@ -241,22 +134,16 @@ static PyObject * time_boards_wrapper(PyObject * self, PyObject * args) {
 
 static PyMethodDef BoardFuncMethods[] = {
     {
-        "setup_board",
-         setup_board_wrapper,
-         METH_VARARGS,
-        "Setup the initial board state"
-    },
-    {
         "setup_network",
         setup_network_wrapper,
         METH_VARARGS,
         "Setup the neural network used by the board evaluation function"
     },
     {
-        "get_board",
-        get_board_wrapper,
+        "make_move",
+        make_move_wrapper,
         METH_VARARGS,
-        "Get the current board state"
+        "Searches for the next move using the neural network"
     },
     {
         "time_boards",
@@ -269,30 +156,6 @@ static PyMethodDef BoardFuncMethods[] = {
         get_possible_moves_wrapper,
         METH_VARARGS,
         "Finds all of the available moves given a board state, and which player's turn it is"
-    },
-    {
-        "min_max_search",
-        min_max_search_wrapper,
-        METH_VARARGS,
-        "Finds the best board to go to given the current board"
-    },
-    {
-        "min_max_search_ab",
-        min_max_search_ab_wrapper,
-        METH_VARARGS,
-        "Min max search with alpha beta pruning"
-    },
-    {
-        "min_max_search_inplace",
-        min_max_search_inplace_wrapper,
-        METH_VARARGS,
-        "Min max search with in place array for max depth"
-    },
-    {
-        "evaluate_board",
-        evaluate_board_wrapper,
-        METH_VARARGS,
-        "Evaluates how good a board state is"
     },
     { NULL, NULL, 0, NULL }
 };
