@@ -124,6 +124,9 @@ private:
     Network4 _net;
     size_t _depth = 4;
 
+protected:
+    std::vector<float> _boardStateToNetworkInputs(const BoardState & board, int player);
+
 public:
     AIPlayer (int color, const Network4 & net):Player(color), _net(net) {}
     AIPlayer (int color, const Network4 & net, size_t depth):Player(color), _net(net), _depth(depth) {}
@@ -146,7 +149,8 @@ private:
     Network4 _end;
     size_t _depth = 4;
 
-    float _evaluateWithNetwork(const BoardState & board, int player, Network4 & net);
+protected:
+    virtual float _evaluateWithNetwork(const BoardState & board, int player, Network4 & net);
 
 public:
     AIPlayer3Net (int color, const Network4 & beg, const Network4 & mid,
@@ -159,6 +163,22 @@ public:
 
     BoardState takeMove(const BoardState & board) override;
     float evaluate(const BoardState & board, int player);
+};
+
+/* class AIPlayer3NetWithPieceCount
+ *
+ * Same as AIPlayer3Net but with an added piece count input at the starting layer.
+ */
+class AIPlayer3NetWithPieceCount : public AIPlayer3Net {
+protected:
+    float _evaluateWithNetwork(const BoardState & board, int player, Network4 & net) override;
+
+public:
+    AIPlayer3NetWithPieceCount (int color, const Network4 & beg, const Network4 & mid,
+                  const Network4 & end):AIPlayer3Net(color, beg, mid, end) {}
+
+    AIPlayer3NetWithPieceCount (int color, const Network4 & beg, const Network4 & mid,
+                const Network4 & end, size_t depth):AIPlayer3Net(color, beg, mid, end, depth) {}
 };
 
 

@@ -57,6 +57,15 @@ BoardState AIPlayer::takeMove(const BoardState & board) {
 
 
 float AIPlayer::evaluate(const BoardState & board, int player) {
+    auto inputs = _boardStateToNetworkInputs(board, player);
+    _net.setInputs(inputs);
+    // _net.printWeights();
+    auto result = _net.evaluate();
+    return result;
+}
+
+
+std::vector<float> AIPlayer::_boardStateToNetworkInputs(const BoardState & board, int player) {
     std::vector<float> inputs(BOARD_ELEMENTS);
     for (size_t i = 0; i < BOARD_ELEMENTS; i++) {
         auto piece = board[i];
@@ -73,11 +82,9 @@ float AIPlayer::evaluate(const BoardState & board, int player) {
         }
         inputs[i] = score;
     }
-    _net.setInputs(inputs);
-    // _net.printWeights();
-    auto result = _net.evaluate();
-    return result;
+    return inputs;
 }
+
 
 
 BoardState AIPlayer3Net::takeMove(const BoardState & board) {
@@ -121,6 +128,30 @@ float AIPlayer3Net::_evaluateWithNetwork(const BoardState & board, int player, N
         }
         inputs[i] = score;
     }
+    net.setInputs(inputs);
+    // _net.printWeights();
+    auto result = net.evaluate();
+    return result;
+}
+
+float AIPlayer3NetWithPieceCount::_evaluateWithNetwork(const BoardState & board, int player, Network4 & net) {
+    std::vector<float> inputs(BOARD_ELEMENTS);
+    for (size_t i = 0; i < BOARD_ELEMENTS; i++) {
+        auto piece = board[i];
+        float score = 0;
+        switch (piece) {
+            case RED_CHECKER: score=1; break;
+            case BLACK_CHECKER: score=-1; break;
+            case RED_KING: score = net.getKingValue(); break;
+            case BLACK_KING: score = net.getKingValue() * -1; break;
+            default: score=0; break;
+        }
+        if (player == BLACK_PLAYER) {
+            score *= -1;
+        }
+        inputs[i] = score;
+    }
+    inputs.push_back(piece_count(board, player));
     net.setInputs(inputs);
     // _net.printWeights();
     auto result = net.evaluate();
