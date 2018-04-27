@@ -44,7 +44,7 @@ float RandomSearchPlayer::evaluate(const BoardState & board, int player) {
 
 
 BoardState PieceCountPlayer::takeMove(const BoardState & board) {
-    auto result = min_max_search_inplace(board, _color_id, _depth, &piece_count);
+    auto result = min_max_search(board, _color_id, _depth, &piece_count);
     return result.first;
 }
 
