@@ -8,6 +8,7 @@
 #include "jump_generator.h"
 #include "piece_count.h"
 #include "board_funcs.h"
+#include <chrono>
 #include <cstddef>
 #include <exception>
 #include <iostream>
@@ -200,6 +201,11 @@ private:
 
 public:
     bool usePrune = false;
+    bool checkTime = false;
+    size_t numChecked = 0;
+    size_t checkInterval = 1000000;
+    std::chrono::time_point<std::chrono::high_resolution_clock> start;
+    double maxSeconds;
 
     std::vector<BoardState> get_children(const BoardState & board, int player) {
         std::vector<BoardState> jumps = jump_gen.get_possible_jumps(board, player);
@@ -212,6 +218,16 @@ public:
 
 
     std::pair<BoardState, float> search(const BoardState & board, int maximizing_player, int player, int depth, int max_depth, float alpha, float beta, std::function<float(const BoardState &, int)> evaluate) {
+        if(checkTime) {
+            numChecked++;
+            if(numChecked % checkInterval) {
+                auto end = std::chrono::high_resolution_clock::now();
+                std::chrono::duration<double> elapsed = (end - start);
+                if(elapsed.count() > maxSeconds) {
+                    throw std::runtime_error("Out of time!!!");
+                }
+            }
+        }
 
         if (depth == max_depth + 1) {
             return std::make_pair<BoardState, float>(
@@ -317,4 +333,39 @@ std::pair<BoardState, float> min_max_search_inplace(const BoardState & board, in
 
     MinMaxSearch s_helper;
     return s_helper.search(board, player, depth, evaluate);
+}
+
+
+std::tuple<BoardState, float, int> min_max_search_ids(const BoardState & board, int player, int start_depth, size_t check_interval, double max_seconds, std::function<float(const BoardState &, int)> evaluate) {
+    auto start = std::chrono::high_resolution_clock::now();
+    auto end = start;
+    std::chrono::duration<double> elapsed = (end - start); // Seconds
+    std::pair<BoardState, float> result;
+
+    MinMaxSearchRecurse helper;
+    helper.usePrune = true;
+    helper.checkTime = true;
+    helper.checkInterval = check_interval;
+    helper.start = start;
+    helper.maxSeconds = max_seconds;
+    int depth = start_depth - 2;
+
+    try {
+        while(true) {
+            depth += 2;
+            helper.numChecked = 0;
+            result = helper.search(board, player, player, 1, depth, -100, 100, evaluate);
+            end = std::chrono::high_resolution_clock::now();
+            elapsed = (end - start);
+        }
+    }
+    catch(std::runtime_error& e) {
+        // Out of time
+    }
+
+    return std::make_tuple<BoardState, float, int>(
+        (BoardState) result.first,
+        (float) result.second,
+        (int) depth
+    );
 }
