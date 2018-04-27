@@ -29,7 +29,7 @@
 #define WIN_POINTS 1
 #define LOSS_POINTS -2
 #define DRAW_POINTS 0
-#define TOPOLOGY (std::initializer_list<size_t>){32, 1000, 40, 10, 1}
+#define TOPOLOGY (std::initializer_list<size_t>){33, 40, 10, 1}
 
 
 class ScoredNetworkGroup {
@@ -170,8 +170,8 @@ size_t getRandomOpponentIndex(size_t i, size_t size) {
 
 
 int playGame(const ScoredNetworkGroup & red, const ScoredNetworkGroup & black) {
-    AIPlayer3Net p1(RED_PLAYER, red.beg, red.mid, red.end, SEARCH_DEPTH);
-    AIPlayer3Net p2(BLACK_PLAYER, black.beg, black.mid, black.end, SEARCH_DEPTH);
+    AIPlayer3NetWithPieceCount p1(RED_PLAYER, red.beg, red.mid, red.end, SEARCH_DEPTH);
+    AIPlayer3NetWithPieceCount p2(BLACK_PLAYER, black.beg, black.mid, black.end, SEARCH_DEPTH);
 
     Game game(p1, p2);
     game.randomizeOpeningMoves(NUM_OPENING_MOVES);
@@ -216,9 +216,11 @@ void evolveNetworks(std::vector<ScoredNetworkGroup> & pool, size_t generation) {
     }
     std::cout << '\n';
 
-    std::cout << "writing networks to files" << '\n';
-    for (size_t i = 0; i < pool.size(); i++) {
-        writeToFiles(pool[i], generation, i + 1);
+    if (generation % 20 == 0) {
+        std::cout << "writing networks to files" << '\n';
+        for (size_t i = 0; i < pool.size(); i++) {
+            writeToFiles(pool[i], generation, i + 1);
+        }
     }
     // for (size_t i = 0; i < pool.size(); i++) {
     //     std::cout << "best score " << i <<": " << pool[i].score << '\n';
@@ -253,6 +255,7 @@ void evolveNetworks(std::vector<ScoredNetworkGroup> & pool, size_t generation) {
         }
     }
     for (size_t i = 0; i < pool.size(); i++) {
+        // TODO: This may be the cause of the memory leak
         pool[i] = newPool[i];
     }
 
