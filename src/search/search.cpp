@@ -222,19 +222,18 @@ public:
 
         if (player == maximizing_player) {
             float best = -100;
-            int best_index = -1;
+            int best_index = 0;
             auto children = get_children(board, player);
-            // std::cout << "num children: " << children.size() << '\n';
+
+            if (children.size() == 0) {
+                return std::make_pair<BoardState, float>(
+                    (BoardState) board,
+                    float(best)
+                );
+            }
+
             for (size_t i = 0; i < children.size(); i++) {
                 auto result = search(children[i], maximizing_player, swapPlayer(player), depth + 1, max_depth, alpha, beta, evaluate);
-
-                // std::string prefix = "";
-                // for (size_t j = 0; j < depth; j++) {
-                //     prefix += "\t";
-                // }
-                // print_board(children[i], prefix);
-                // std::cout << prefix << "score: " << result.second << '\n';
-                // std::cout << '\n';
 
                 if (result.second > best) {
                     best = result.second;
@@ -247,27 +246,26 @@ public:
                     break;
                 }
             }
-            // TODO: Return's the same board when all moves end up in a loss
+
             return std::make_pair<BoardState, float>(
-                (BoardState)(best_index == -1 ? board : children[best_index]),
+                (BoardState) children[best_index],
                 float(best)
             );
         }
         else {
             float best = 100;
-            int best_index = -1;
+            int best_index = 0;
             auto children = get_children(board, player);
+
+            if (children.size() == 0) {
+                return std::make_pair<BoardState, float>(
+                    (BoardState) board,
+                    float(best)
+                );
+            }
 
             for (size_t i = 0; i < children.size(); i++) {
                 auto result = search(children[i], maximizing_player, swapPlayer(player), depth + 1, max_depth, alpha, beta, evaluate);
-
-                // std::string prefix = "";
-                // for (size_t j = 0; j < depth; j++) {
-                //     prefix += "\t";
-                // }
-                // print_board(children[i], prefix);
-                // std::cout << prefix << "score: " << result.second << '\n';
-                // std::cout << '\n';
 
                 if (result.second < best) {
                     best = result.second;
@@ -281,7 +279,7 @@ public:
                 }
             }
             return std::make_pair<BoardState, float>(
-                (BoardState)(best_index == -1 ? board : children[best_index]),
+                (BoardState) children[best_index],
                 float(best)
             );
         }
