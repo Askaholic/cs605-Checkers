@@ -71,7 +71,7 @@ public:
     const AlignedArray<float, 32> & getData() { return _data; }
     size_t getNumNodes();
     size_t getNumWeights();
-    float getKingValue() { return _kingVal; }
+    float getKingValue() const { return _kingVal; }
 
     void writeToFile(std::string filename) const;
     void readFromFile(std::string filename);
