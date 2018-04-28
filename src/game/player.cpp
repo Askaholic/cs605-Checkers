@@ -120,6 +120,7 @@ BoardState AIPlayer3Net::takeMove(const BoardState & board) {
         auto result = min_max_search_ids(board, _color_id, _depth,
             1000, _idsTime,
             std::bind(&AIPlayer3Net::evaluate, this, std::placeholders::_1, std::placeholders::_2));
+        std::cout << "Depth Reached: " << std::get<2>(result) << '\n';
         return std::get<0>(result);
     }
 
