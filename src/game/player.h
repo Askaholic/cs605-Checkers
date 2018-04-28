@@ -82,7 +82,7 @@ public:
  */
 class RandomSearchPlayer : public Player {
 private:
-    size_t _depth = 4;
+    size_t _depth = 6;
 
 public:
     RandomSearchPlayer (int color):Player(color) {
@@ -104,7 +104,7 @@ public:
  */
 class PieceCountPlayer : public Player {
 private:
-    size_t _depth = 4;
+    size_t _depth = 6;
     bool _useIDS = false;
     double _idsTime = 0;
 
@@ -125,7 +125,9 @@ public:
 class AIPlayer : public Player {
 private:
     Network4 _net;
-    size_t _depth = 4;
+    size_t _depth = 6;
+    bool _useIDS = false;
+    double _idsTime = 0;
 
 protected:
     virtual std::vector<float> _boardStateToNetworkInputs(const BoardState & board, const Network4 & net, int player);
@@ -133,6 +135,7 @@ protected:
 public:
     AIPlayer (int color, const Network4 & net):Player(color), _net(net) {}
     AIPlayer (int color, const Network4 & net, size_t depth):Player(color), _net(net), _depth(depth) {}
+    AIPlayer (int color, const Network4 & net, size_t depth, double idsTime):Player(color), _net(net), _depth(depth), _useIDS(true), _idsTime(idsTime) {}
 
     BoardState takeMove(const BoardState & board) override;
     float evaluate(const BoardState & board, int player);
@@ -150,6 +153,7 @@ protected:
 public:
     AIPlayerWithPieceCount (int color, const Network4 & net):AIPlayer(color, net) {}
     AIPlayerWithPieceCount (int color, const Network4 & net, size_t depth):AIPlayer(color, net, depth) {}
+    AIPlayerWithPieceCount (int color, const Network4 & net, size_t depth, double idsTime):AIPlayer(color, net, depth, idsTime) {}
 };
 
 
@@ -164,7 +168,9 @@ private:
     Network4 _beg;
     Network4 _mid;
     Network4 _end;
-    size_t _depth = 4;
+    size_t _depth = 6;
+    bool _useIDS = false;
+    double _idsTime = 0;
 
 protected:
     virtual float _evaluateWithNetwork(const BoardState & board, int player, Network4 & net);
@@ -177,6 +183,10 @@ public:
     AIPlayer3Net (int color, const Network4 & beg, const Network4 & mid,
                 const Network4 & end, size_t depth):Player(color), _beg(beg),
                 _mid(mid), _end(end), _depth(depth) {}
+
+    AIPlayer3Net (int color, const Network4 & beg, const Network4 & mid,
+              const Network4 & end, size_t depth, double idsTime):Player(color), _beg(beg),
+              _mid(mid), _end(end), _depth(depth), _useIDS(true), _idsTime(idsTime) {}
 
     BoardState takeMove(const BoardState & board) override;
     float evaluate(const BoardState & board, int player);
@@ -196,6 +206,10 @@ public:
 
     AIPlayer3NetWithPieceCount (int color, const Network4 & beg, const Network4 & mid,
                 const Network4 & end, size_t depth):AIPlayer3Net(color, beg, mid, end, depth) {}
+
+    AIPlayer3NetWithPieceCount (int color, const Network4 & beg, const Network4 & mid,
+              const Network4 & end, size_t depth, double idsTime):AIPlayer3Net(color, beg, mid, end, depth, idsTime) {}
+
 };
 
 

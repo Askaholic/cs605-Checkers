@@ -54,6 +54,10 @@ BoardState PieceCountPlayer::takeMove(const BoardState & board) {
 
 
 BoardState AIPlayer::takeMove(const BoardState & board) {
+    if (_useIDS) {
+        auto result = min_max_search_ids(board, _color_id, _depth, 1000, _idsTime, std::bind(&AIPlayer::evaluate, this, std::placeholders::_1, std::placeholders::_2));
+        return std::get<0>(result);
+    }
     auto result = min_max_search(board, _color_id, _depth, std::bind(&AIPlayer::evaluate, this, std::placeholders::_1, std::placeholders::_2));
     return result.first;
 }
@@ -112,6 +116,13 @@ std::vector<float> AIPlayerWithPieceCount::_boardStateToNetworkInputs(const Boar
 
 
 BoardState AIPlayer3Net::takeMove(const BoardState & board) {
+    if (_useIDS) {
+        auto result = min_max_search_ids(board, _color_id, _depth,
+            1000, _idsTime,
+            std::bind(&AIPlayer3Net::evaluate, this, std::placeholders::_1, std::placeholders::_2));
+        return std::get<0>(result);
+    }
+
     auto result = min_max_search(board, _color_id, _depth,
         std::bind(&AIPlayer3Net::evaluate, this, std::placeholders::_1, std::placeholders::_2));
     return result.first;
