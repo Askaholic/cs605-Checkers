@@ -22,9 +22,9 @@
  */
 #define SURVIVAL_CUTTOFF 25
 #define NUM_OFFSPRING 1
-#define GENERATION_TARGET 1000
+#define GENERATION_TARGET 10000
 #define NUM_GAMES 5
-#define SEARCH_DEPTH 6
+#define SEARCH_DEPTH 8
 #define NUM_OPENING_MOVES 3
 #define WIN_POINTS 1
 #define LOSS_POINTS -2
@@ -137,11 +137,11 @@ void loadPoolFrom(const char * generation, std::vector<ScoredNetworkGroup> & poo
 
         std::string net_id = std::string(generation) + "_" + std::to_string(i+1);
 
-        std::cout << "Loading networks: " << net_id << '\n';
+        std::cout << "\rLoading networks: " << net_id << std::flush;
         beg.readFromFile("net_beg_" + net_id + ".txt");
         mid.readFromFile("net_mid_" + net_id + ".txt");
         end.readFromFile("net_end_" + net_id + ".txt");
-
+        std::cout << '\n';
         pool.emplace_back(beg, mid, end, 0, 0);
     }
 }
@@ -216,7 +216,7 @@ void evolveNetworks(std::vector<ScoredNetworkGroup> & pool, size_t generation) {
     }
     std::cout << '\n';
 
-    if (generation % 20 == 0) {
+    if (generation % 10 == 0) {
         std::cout << "writing networks to files" << '\n';
         for (size_t i = 0; i < pool.size(); i++) {
             writeToFiles(pool[i], generation, i + 1);

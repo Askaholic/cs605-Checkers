@@ -27,7 +27,7 @@ private:
     int _current_turn_player;
 
     size_t _turn_count;
-    size_t _max_turn_count = 200;
+    size_t _max_turn_count = 150;
     bool _has_winner;
 
     void _setupStartingBoard();
