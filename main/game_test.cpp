@@ -18,15 +18,16 @@ int main(int argc, char const *argv[]) {
         pause_between_moves = true;
     }
 
-    PieceCountPlayer p1(RED_PLAYER, 8);
-    Network4 beg({32, 40, 10, 1});
-    Network4 mid({32, 40, 10, 1});
-    Network4 end({32, 40, 10, 1});
-    std::string network_id = "500_1";
-    beg.readFromFile("net_beg_" + network_id + ".txt");
-    mid.readFromFile("net_mid_" + network_id + ".txt");
-    end.readFromFile("net_end_" + network_id + ".txt");
-    AIPlayer3NetWithPieceCount p2(BLACK_PLAYER, beg, mid, end, 8);
+    PieceCountPlayer p1(RED_PLAYER, 8, 14.0);
+    // Network4 beg({32, 40, 10, 1});
+    // Network4 mid({32, 40, 10, 1});
+    // Network4 end({32, 40, 10, 1});
+    // std::string network_id = "500_1";
+    // beg.readFromFile("net_beg_" + network_id + ".txt");
+    // mid.readFromFile("net_mid_" + network_id + ".txt");
+    // end.readFromFile("net_end_" + network_id + ".txt");
+    // AIPlayer3NetWithPieceCount p2(BLACK_PLAYER, beg, mid, end, 8);
+    RandomPlayer p2(BLACK_PLAYER);
 
     Game game(p1, p2);
 
@@ -55,7 +56,7 @@ int main(int argc, char const *argv[]) {
     }
     else {
         float scores[2] = {0,0};
-        for (size_t i = 0; i < 10; i++) {
+        for (size_t i = 0; i < 100; i++) {
             std::cout << "\rGame: " << i + 1 << std::flush;
             game.reset();
             game.randomizeOpeningMoves(3);

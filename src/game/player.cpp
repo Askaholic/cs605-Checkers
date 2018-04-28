@@ -44,6 +44,10 @@ float RandomSearchPlayer::evaluate(const BoardState & board, int player) {
 
 
 BoardState PieceCountPlayer::takeMove(const BoardState & board) {
+    if (_useIDS) {
+        auto result = min_max_search_ids(board, _color_id, _depth, 100000, _idsTime, &piece_count);
+        return std::get<0>(result);
+    }
     auto result = min_max_search(board, _color_id, _depth, &piece_count);
     return result.first;
 }
@@ -51,7 +55,6 @@ BoardState PieceCountPlayer::takeMove(const BoardState & board) {
 
 BoardState AIPlayer::takeMove(const BoardState & board) {
     auto result = min_max_search(board, _color_id, _depth, std::bind(&AIPlayer::evaluate, this, std::placeholders::_1, std::placeholders::_2));
-    // std::cout << "Score: " << result.second << '\n';
     return result.first;
 }
 

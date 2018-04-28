@@ -105,10 +105,13 @@ public:
 class PieceCountPlayer : public Player {
 private:
     size_t _depth = 4;
+    bool _useIDS = false;
+    double _idsTime = 0;
 
 public:
     PieceCountPlayer (int color):Player(color) {}
     PieceCountPlayer (int color, size_t depth):Player(color), _depth(depth) {}
+    PieceCountPlayer (int color, size_t depth, double idsTime):Player(color), _depth(depth), _useIDS(true), _idsTime(idsTime) {}
 
     BoardState takeMove(const BoardState & board) override;
 };
